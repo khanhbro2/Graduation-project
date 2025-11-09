@@ -147,7 +147,7 @@ function ClientSignupStepOne({ nextStep }: { nextStep: () => void }) {
     email: z.string({ invalid_type_error: 'Vui lòng không bỏ trống' })
       .email({ message: 'Nhập email đúng định dạng' }),
     phone: z.string({ invalid_type_error: 'Vui lòng không bỏ trống' })
-      .regex(/(((\+|)84)|0)(3|5|7|8|9)+([0-9]{8})\b/, { message: 'Nhập số điện thoại đúng định dạng' }),
+      .regex(/(((\+|)84)|0)[1-9][0-9]{8}\b/, { message: 'Nhập số điện thoại đúng định dạng' }),
     gender: z.string({ invalid_type_error: 'Vui lòng không bỏ trống' }),
     'address.line': z.string({ invalid_type_error: 'Vui lòng không bỏ trống' }),
     'address.provinceId': z.string({ invalid_type_error: 'Vui lòng không bỏ trống' }),

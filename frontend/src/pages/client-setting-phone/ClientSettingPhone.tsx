@@ -16,7 +16,7 @@ import { ClientPhoneSettingUserRequest } from 'types';
 const formSchema = z.object({
   // Source: https://fozg.net/blog/validate-vietnamese-phone-number
   phone: z.string({ invalid_type_error: 'Vui lòng không bỏ trống' })
-    .regex(/(((\+|)84)|0)(3|5|7|8|9)+([0-9]{8})\b/, { message: 'Nhập số điện thoại đúng định dạng' }),
+    .regex(/(((\+|)84)|0)[1-9][0-9]{8}\b/, { message: 'Nhập số điện thoại đúng định dạng' }),
 });
 
 function ClientSettingPhone() {

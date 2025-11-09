@@ -3,7 +3,6 @@ import { Route, Routes } from 'react-router-dom';
 import 'dayjs/locale/vi';
 import '@smastrom/react-rating/style.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
@@ -371,7 +370,6 @@ function App() {
           </NotificationsProvider>
         </MantineProvider>
       </ColorSchemeProvider>
-      <ReactQueryDevtools initialIsOpen={false}/>
     </QueryClientProvider>
   );
 }
