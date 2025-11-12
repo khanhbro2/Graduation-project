@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
+import { Toaster } from 'react-hot-toast';
 import ManagerPath from 'constants/ManagerPath';
 import Client from 'pages/Client';
 import Admin from 'pages/Admin';
@@ -98,6 +99,7 @@ function App() {
         <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
           <NotificationsProvider>
             <ModalsProvider>
+              <Toaster position="top-right" />
               <ScrollToTop/>
               <Routes>
                 <Route path="/" element={<Client/>}>

@@ -10,9 +10,8 @@ function ClientPaymentSuccess() {
   const theme = useMantineTheme();
 
   const handleCloseWindow = () => {
-    // eslint-disable-next-line no-restricted-globals,@typescript-eslint/ban-ts-comment
-    // @ts-ignore
     // eslint-disable-next-line no-restricted-globals
+    // @ts-ignore
     window.open(location, '_self')?.close();
   };
 

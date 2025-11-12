@@ -1,5 +1,7 @@
 import {
+  Anchor,
   Badge,
+  Box,
   Button,
   Center,
   Container,
@@ -8,11 +10,13 @@ import {
   Indicator,
   Menu,
   Popover,
+  SegmentedControl,
   Stack,
   Text,
   TextInput,
   Tooltip,
   UnstyledButton,
+  useMantineColorScheme,
   useMantineTheme
 } from '@mantine/core';
 import React, { useEffect, useRef, useState } from 'react';
@@ -28,10 +32,12 @@ import {
   Login,
   Logout,
   MessageCircle,
+  Moon,
   Search,
   Settings,
   ShoppingCart,
   Star,
+  Sun,
   User,
   UserCircle
 } from 'tabler-icons-react';
@@ -52,69 +58,111 @@ import useClientSiteStore from 'stores/use-client-site-store';
 
 const useStyles = createStyles((theme) => ({
   header: {
-    boxShadow: theme.shadows.sm,
-    borderBottom: `1px solid ${
-      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
-    }`,
+    boxShadow: theme.shadows.xs,
+    borderBottom: `1px solid ${theme.colors.gray[3]}`,
     marginBottom: theme.spacing.md * 2,
-    backgroundColor:
-      theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
+    backgroundColor: '#fafafa',
     position: 'sticky',
     top: 0,
     zIndex: 10,
-    // position: 'relative',
-    // gap: '0px',
-    // flexDirection: 'row',
-    // position: 'fixed', // Đặt vị trí cố định
-    // top: 0, // Đặt vị trí trên cùng của trang
-    // width: '100%', // Chiếm toàn bộ chiều rộng của trang
-    // zIndex: 700, // Đảm bảo header nằm trên cùng
-    gap: '0px',
+    gap: 0,
     flexDirection: 'row',
   },
-  // main: {
-  //   paddingTop: '80px', // Điều chỉnh padding-top để nội dung không bị che
-  // },
 
   iconGroup: {
-    backgroundColor:
-      theme.colorScheme === 'dark'
-        ? theme.colors.dark[6]
-        : theme.colors.gray[0],
+    backgroundColor: theme.white,
     borderRadius: theme.radius.md,
+    border: `1px solid ${theme.colors.gray[2]}`,
+    transition: 'all 0.2s ease',
 
     '&:hover': {
-      backgroundColor:
-        theme.colorScheme === 'dark'
-          ? theme.colors.dark[5]
-          : theme.colors.gray[2],
-      '~logo': {
-        animation: 'fadeByFocus 0.5s ease-in-out forward',
-      },
+      backgroundColor: theme.colors.gray[0],
+      borderColor: theme.colors.gray[3],
+      transform: 'translateY(-1px)',
+      boxShadow: theme.shadows.xs,
     },
 
     '&:active': {
-      color: theme.white,
-      backgroundColor:
-        theme.colorScheme === 'dark'
-          ? theme.colors.blue[8]
-          : theme.colors.blue[6],
+      transform: 'translateY(0)',
     },
   },
 
   logo: {
-    position: 'absolute',
-    zIndex: 1,
-    marginLeft: 'calc(50% - 60px)',
+    flex: '0 0 auto',
+    display: 'flex',
+    alignItems: 'center',
   },
   group: {
-    gap: '0px',
+    gap: theme.spacing.lg,
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  searchContainer: {
+    flex: 1,
+    maxWidth: 650,
+    margin: `0 ${theme.spacing.xl}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rightActions: {
+    flex: '0 0 auto',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  topRow: {
+    padding: `${theme.spacing.md} 0`,
+    width: '100%',
+    paddingLeft: theme.spacing.xl,
+    paddingRight: theme.spacing.xl,
+  },
+  bottomRow: {
+    padding: 0,
+    backgroundColor: '#fafafa',
+    display: 'flex',
+    width: '100%',
+  },
+  categorySection: {
+    backgroundColor: '#D97706',
+    padding: `${theme.spacing.sm} ${theme.spacing.xl}`,
+    flex: '0 0 auto',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  navSection: {
+    backgroundColor: '#7F1D1D',
+    flex: 1,
+    padding: `${theme.spacing.sm} ${theme.spacing.xl}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: theme.spacing.lg,
+  },
+  navLink: {
+    color: theme.white,
+    textDecoration: 'none',
+    fontWeight: 600,
+    fontSize: theme.fontSizes.sm,
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
+    transition: 'opacity 0.2s ease',
+    '&:hover': {
+      opacity: 0.8,
+    },
+  },
+  navDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: theme.white,
+    opacity: 0.3,
   },
 }));
 
 function ClientHeader() {
   const theme = useMantineTheme();
   const { classes } = useStyles();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   const [openedCategoryMenu, setOpenedCategoryMenu] = useState(false);
 
@@ -166,25 +214,46 @@ function ClientHeader() {
       <Container size="xl">
         <Stack spacing={0} ref={refHeaderStack}>
           <Group
-            position="apart"
-            py={theme.spacing.md}
-            className={classes.group}
+            className={`${classes.group} ${classes.topRow}`}
+            noWrap
           >
-            <Center component={Link} to="/" className={classes.logo}>
-              <ElectroLogo />
-            </Center>
-            <TextInput
-              placeholder="Bạn tìm gì..."
-              variant="filled"
-              size="md"
-              radius="md"
-              icon={<Search size={16} />}
-              sx={{ width: 300 }}
-              value={search}
-              onChange={(event) => setSearch(event.currentTarget.value)}
-              onKeyDown={handleSearchInput}
-            />  
-            <Group spacing="xs">
+            <Box component={Link} to="/" className={classes.logo}>
+              <ElectroLogo width={120} />
+            </Box>
+            <Box className={classes.searchContainer}>
+              <TextInput
+                placeholder="Bạn cần tìm sản phẩm gì?"
+                variant="filled"
+                size="md"
+                radius="md"
+                icon={<Search size={16} />}
+                rightSection={
+                  <Button
+                    size="sm"
+                    color="red"
+                    radius="md"
+                    onClick={() => {
+                      if (search.trim() !== '') {
+                        navigate('/search?q=' + search.trim());
+                      }
+                    }}
+                    sx={{ height: '90%', marginRight: 4 }}
+                  >
+                    <Search size={16} />
+                  </Button>
+                }
+                value={search}
+                onChange={(event) => setSearch(event.currentTarget.value)}
+                onKeyDown={handleSearchInput}
+                styles={{
+                  input: {
+                    paddingRight: 60,
+                    backgroundColor: theme.white,
+                  },
+                }}
+              />
+            </Box>
+            <Group spacing="xs" className={classes.rightActions} noWrap>
               {user && (
                 <>
                   <Tooltip label="Giỏ hàng" position="bottom">
@@ -310,6 +379,35 @@ function ClientHeader() {
                     >
                       Yêu cầu tư vấn
                     </Menu.Item>
+                    <Menu.Label>Giao diện</Menu.Label>
+                    <Box px="xs" py="xs">
+                      <SegmentedControl
+                        fullWidth
+                        size="xs"
+                        value={colorScheme}
+                        onChange={(value: 'light' | 'dark') => toggleColorScheme(value)}
+                        data={[
+                          {
+                            value: 'light',
+                            label: (
+                              <Center>
+                                <Sun size={14} strokeWidth={1.5}/>
+                                <Box ml={8}>Sáng</Box>
+                              </Center>
+                            ),
+                          },
+                          {
+                            value: 'dark',
+                            label: (
+                              <Center>
+                                <Moon size={14} strokeWidth={1.5}/>
+                                <Box ml={8}>Tối</Box>
+                              </Center>
+                            ),
+                          },
+                        ]}
+                      />
+                    </Box>
                     <Menu.Item
                       color="pink"
                       icon={<Logout size={14} />}
@@ -340,19 +438,29 @@ function ClientHeader() {
               </Menu>
             </Group>
           </Group>
-          <Group position="apart" mb="md">
-            <Group spacing={theme.spacing.xs / 2}>
+          <div className={classes.bottomRow}>
+            <div className={classes.categorySection}>
               <Popover
                 opened={openedCategoryMenu}
                 onClose={() => setOpenedCategoryMenu(false)}
                 target={
                   <Button
                     onClick={() => setOpenedCategoryMenu((o) => !o)}
-                    leftIcon={<List size={16} />}
-                    radius='md'
-                    // color='DarkGreen'
+                    leftIcon={<List size={18} />}
+                    radius={0}
+                    size="md"
+                    variant="subtle"
+                    sx={{
+                      fontWeight: 600,
+                      letterSpacing: '0.5px',
+                      color: theme.white,
+                      backgroundColor: 'transparent',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
                   >
-                    Danh mục sản phẩm
+                    DANH MỤC SẢN PHẨM
                   </Button>
                 }
                 width={widthHeaderStack}
@@ -363,25 +471,29 @@ function ClientHeader() {
               >
                 <CategoryMenu setOpenedCategoryMenu={setOpenedCategoryMenu} />
               </Popover>
-              {/* <Button variant="subtle" radius="md">
-                Sản phẩm mới
-              </Button>
-              <Button variant="subtle" color="green" radius="md">
-                Sản phẩm xu hướng
-              </Button>
-              <Button variant="subtle" color="pink" radius="md">
-                Khuyến mại
-              </Button> */}
-            </Group>
-            <Group spacing="xs">
-              <Badge color="pink" size="xs" variant="filled">
-                Hot
-              </Badge>
-              <Text size="sm" color="dimmed">
-                Miễn phí giao hàng cho đơn hàng trên 100 triệu đồng
-              </Text>
-            </Group>
-          </Group>
+            </div>
+            <div className={classes.navSection}>
+              <Anchor component={Link} to="/" className={classes.navLink}>
+                TRANG CHỦ
+              </Anchor>
+              <div className={classes.navDivider} />
+              <Anchor component={Link} to="/all-categories" className={classes.navLink}>
+                SẢN PHẨM
+              </Anchor>
+              <div className={classes.navDivider} />
+              <Anchor component={Link} to="/" className={classes.navLink}>
+                BÀI VIẾT
+              </Anchor>
+              <div className={classes.navDivider} />
+              <Anchor component={Link} to="/" className={classes.navLink}>
+                VỀ CHÚNG TÔI
+              </Anchor>
+              <div className={classes.navDivider} />
+              <Anchor component={Link} to="/" className={classes.navLink}>
+                LIÊN HỆ
+              </Anchor>
+            </div>
+          </div>
         </Stack>
       </Container>
     </header>
