@@ -74,12 +74,7 @@ function ClientProductCard({ product, search }: ClientProductCardProps) {
         updateQuantityType: UpdateQuantityType.INCREMENTAL,
       };
       saveCartApi.mutate(cartRequest, {
-        onSuccess: () => NotifyUtils.simpleSuccess(
-          <span>
-            Đã thêm 1 sản phẩm {product.productName} (phiên bản mặc định) vào{' '}
-            <Link to="/cart" className="text-blue-600 hover:underline">giỏ hàng</Link>
-          </span>
-        ),
+        onSuccess: () => NotifyUtils.simpleSuccess(`Đã thêm sản phẩm ${product.productName} vào giỏ hàng thành công`),
       });
     }
   };

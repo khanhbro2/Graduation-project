@@ -5,6 +5,7 @@ import com.phucanhduong.dto.ListResponse;
 import com.phucanhduong.dto.client.ClientWishRequest;
 import com.phucanhduong.dto.client.ClientWishResponse;
 import com.phucanhduong.entity.client.Wish;
+import com.phucanhduong.exception.ConflictException;
 import com.phucanhduong.mapper.client.ClientWishMapper;
 import com.phucanhduong.repository.client.WishRepository;
 import lombok.AllArgsConstructor;
@@ -50,11 +51,11 @@ public class ClientWishController {
     }
 
     @PostMapping
-    public ResponseEntity<ClientWishResponse> createWish(@RequestBody ClientWishRequest request) throws Exception {
+    public ResponseEntity<ClientWishResponse> createWish(@RequestBody ClientWishRequest request) {
         Optional<Wish> wishOpt = wishRepository.findByUser_IdAndProduct_Id(request.getUserId(), request.getProductId());
 
         if (wishOpt.isPresent()) {
-            throw new Exception("Duplicated wish");
+            throw new ConflictException("Sản phẩm đã có trong danh sách yêu thích");
         } else {
             Wish entity = clientWishMapper.requestToEntity(request);
             entity = wishRepository.save(entity);

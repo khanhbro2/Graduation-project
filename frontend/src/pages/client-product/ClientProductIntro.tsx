@@ -77,11 +77,7 @@ function ClientProductIntro({ product }: ClientProductIntroProps) {
         updateQuantityType: UpdateQuantityType.INCREMENTAL,
       };
       saveCartApi.mutate(cartRequest, {
-        onSuccess: () => NotifyUtils.simpleSuccess(
-          <span>
-            Đã thêm mặt hàng vừa chọn vào <Link to="/cart" className="text-blue-600 dark:text-blue-400 hover:underline">giỏ hàng</Link>
-          </span>
-        ),
+        onSuccess: () => NotifyUtils.simpleSuccess('Đã thêm sản phẩm vào giỏ hàng thành công'),
       });
     }
   };
