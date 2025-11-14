@@ -1,7 +1,6 @@
 import { ProductPropertyItem } from 'models/Product';
-import { ActionIcon, Group, MultiSelect, Select } from '@mantine/core';
 import { AB, DragDrop, Keyboard, PlaystationX } from 'tabler-icons-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { CollectionWrapper, SelectOption } from 'types';
 import produce from 'immer';
 
@@ -78,52 +77,86 @@ function ProductPropertyRow({
     }));
   };
 
+  const [inputValue, setInputValue] = useState('');
+
+  React.useEffect(() => {
+    // Sync with productProperty.value
+  }, [productProperty.value]);
+
+  const handleMultiSelectKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && inputValue.trim() !== '') {
+      e.preventDefault();
+      handleCreateProductPropertyValueInput(inputValue.trim(), index);
+      setInputValue('');
+    }
+  };
+
   return (
-    <Group
-      spacing="sm"
-      sx={{ flexWrap: 'nowrap', justifyContent: 'space-between' }}
-    >
-      <ActionIcon
-        color="blue"
-        variant="hover"
-        size={36}
+    <div className="flex items-center gap-2 flex-nowrap justify-between">
+      <button
+        type="button"
         title="Di chuyển thuộc tính sản phẩm"
+        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
       >
-        <DragDrop/>
-      </ActionIcon>
-      <Select
-        sx={{ width: '100%' }}
-        placeholder="Chọn thuộc tính"
-        icon={<AB size={14}/>}
-        clearable
-        searchable
+        <DragDrop size={18} />
+      </button>
+      <select
         value={JSON.stringify({ id: productProperty.id, name: productProperty.name, code: productProperty.code })}
-        data={productPropertySelectList}
-        onChange={productPropertyInfos => handleProductPropertySelect(productPropertyInfos, index)}
-      />
-      <MultiSelect
-        sx={{ width: '100%' }}
-        placeholder="Nhập giá trị"
-        icon={<Keyboard size={14}/>}
-        searchable
-        creatable
-        getCreateLabel={(value) => `+ Thêm giá trị ${value}`}
-        data={productProperty.value}
-        value={productProperty.value}
-        onCreate={(value) => handleCreateProductPropertyValueInput(value, index)}
-        onChange={(values) => handleProductPropertyValueInput(values, index)}
-        disabled={isDisabledProductPropertyValueInput}
-      />
-      <ActionIcon
-        color="red"
-        variant="hover"
-        size={36}
-        title="Xóa thuộc tính"
-        onClick={() => handleDeleteProductPropertyButton(index)}
+        onChange={(e) => handleProductPropertySelect(e.target.value || null, index)}
+        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
-        <PlaystationX/>
-      </ActionIcon>
-    </Group>
+        <option value="">Chọn thuộc tính</option>
+        {productPropertySelectList.map((option) => (
+          <option key={option.value} value={option.value} disabled={option.disabled}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <div className="flex-1 relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Keyboard size={14} className="text-gray-400" />
+        </div>
+        <input
+          type="text"
+          placeholder="Nhập giá trị (Enter để thêm)"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleMultiSelectKeyDown}
+          disabled={isDisabledProductPropertyValueInput}
+          className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+        {productProperty.value.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {productProperty.value.map((val, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded"
+              >
+                {val}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newValues = productProperty.value.filter((_, i) => i !== idx);
+                    handleProductPropertyValueInput(newValues, index);
+                  }}
+                  className="hover:text-blue-600"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => handleDeleteProductPropertyButton(index)}
+        title="Xóa thuộc tính"
+        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+      >
+        <PlaystationX size={18} />
+      </button>
+    </div>
   );
 }
 

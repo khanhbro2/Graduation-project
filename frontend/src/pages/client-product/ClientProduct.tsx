@@ -1,5 +1,4 @@
 import React from 'react';
-import { Container, Skeleton, Stack, useMantineTheme } from '@mantine/core';
 import { useQuery } from 'react-query';
 import FetchUtils, { ErrorMessage } from 'utils/FetchUtils';
 import ResourceURL from 'constants/ResourceURL';
@@ -15,7 +14,6 @@ import ClientProductReviews from 'pages/client-product/ClientProductReviews';
 import ClientProductRelatedProducts from 'pages/client-product/ClientProductRelatedProducts';
 
 function ClientProduct() {
-  const theme = useMantineTheme();
 
   const { slug } = useParams();
 
@@ -33,8 +31,8 @@ function ClientProduct() {
 
   return (
     <main>
-      <Container size="xl">
-        <Stack spacing={theme.spacing.xl * 2}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-16">
           <ClientProductIntro product={product}/>
 
           {product.productSpecifications && <ClientProductSpecification product={product}/>}
@@ -44,8 +42,8 @@ function ClientProduct() {
           <ClientProductReviews productSlug={slug as string}/>
 
           {product.productRelatedProducts.length > 0 && <ClientProductRelatedProducts product={product}/>}
-        </Stack>
-      </Container>
+        </div>
+      </div>
     </main>
   );
 }
@@ -53,13 +51,13 @@ function ClientProduct() {
 function ClientProductSkeleton() {
   return (
     <main>
-      <Container size="xl">
-        <Stack>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-4">
           {Array(5).fill(0).map((_, index) => (
-            <Skeleton key={index} height={50} radius="md"/>
+            <div key={index} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse" />
           ))}
-        </Stack>
-      </Container>
+        </div>
+      </div>
     </main>
   );
 }

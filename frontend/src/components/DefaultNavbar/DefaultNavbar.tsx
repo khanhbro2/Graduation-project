@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Center, Navbar, ScrollArea, Stack, useMantineTheme } from '@mantine/core';
 import {
   AddressBook,
   Award,
@@ -15,9 +14,8 @@ import {
   Message,
   Users
 } from 'tabler-icons-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useAppStore from 'stores/use-app-store';
-import useDefaultNavbarStyles from 'components/DefaultNavbar/DefaultNavbar.styles';
 import useAdminAuthStore from 'stores/use-admin-auth-store';
 
 interface NavbarLink {
@@ -271,56 +269,90 @@ const navbarLinks: NavbarLink[] = [
 ];
 
 export function DefaultNavbar() {
-  const theme = useMantineTheme();
-  const { opened } = useAppStore();
-  const { classes, cx } = useDefaultNavbarStyles();
+  const { opened, collapsed } = useAppStore();
+  const location = useLocation();
   const [active, setActive] = useState('Trang chủ');
 
   const { isOnlyEmployee } = useAdminAuthStore();
 
-  const navbarLinksFragment = navbarLinks.map(navbarLink => (
-    <Stack
-      key={navbarLink.label}
-      spacing={0}
-      sx={{ borderRadius: theme.radius.sm, overflow: 'hidden' }}
-    >
-      <Link
-        to={navbarLink.link}
-        className={cx(classes.link, {
-          [classes.linkActive]: navbarLink.label === active,
-          [classes.linkDisabled]: isOnlyEmployee() && navbarLink.disableForEmployee,
-        })}
-        onClick={() => setActive(navbarLink.label)}
+  React.useEffect(() => {
+    // Set active based on current location
+    const currentLink = navbarLinks.find(link => 
+      location.pathname === link.link || 
+      (link.childLinks && link.childLinks.some(child => location.pathname === child.link))
+    );
+    if (currentLink) {
+      setActive(currentLink.label);
+    }
+  }, [location.pathname]);
+
+  const navbarLinksFragment = navbarLinks.map(navbarLink => {
+    const isActive = navbarLink.label === active;
+    const isDisabled = isOnlyEmployee() && navbarLink.disableForEmployee;
+    const hasActiveChild = navbarLink.childLinks?.some(child => location.pathname === child.link);
+
+    return (
+      <div
+        key={navbarLink.label}
+        className="rounded-md overflow-hidden"
       >
-        <navbarLink.icon className={classes.linkIcon}/>
-        <span>{navbarLink.label}</span>
-      </Link>
-      {navbarLink.label === active && (navbarLink.childLinks || []).map(childLink => (
         <Link
-          key={childLink.label}
-          to={childLink.link}
-          className={cx(classes.link, { [classes.childLinkActive]: navbarLink.label === active })}
+          to={navbarLink.link}
+          onClick={() => setActive(navbarLink.label)}
+          className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} ${collapsed ? 'px-2' : 'px-4'} py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 no-underline transition-all rounded-lg ${
+            isActive || hasActiveChild
+              ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-sm'
+              : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
+          } ${
+            isDisabled ? 'opacity-50 pointer-events-none' : ''
+          }`}
+          title={collapsed ? navbarLink.label : undefined}
         >
-          <Center sx={{ width: 24, marginRight: theme.spacing.sm }}>
-            <div className={classes.childLinkDot}/>
-          </Center>
-          <span>{childLink.label}</span>
+          <navbarLink.icon size={20} strokeWidth={1.5} className={`${
+            isActive || hasActiveChild
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-gray-500 dark:text-gray-400'
+          }`} />
+          {!collapsed && <span>{navbarLink.label}</span>}
         </Link>
-      ))}
-    </Stack>
-  ));
+        {!collapsed && (isActive || hasActiveChild) && (navbarLink.childLinks || []).map(childLink => {
+          const isChildActive = location.pathname === childLink.link;
+          return (
+            <Link
+              key={childLink.label}
+              to={childLink.link}
+              className={`flex items-center gap-3 px-4 py-2 text-sm font-medium transition-all rounded-lg ml-4 ${
+                isChildActive
+                  ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+              }`}
+            >
+              <div className="w-6 h-6 flex items-center justify-center">
+                <div className={`w-1.5 h-1.5 rounded-full ${
+                  isChildActive
+                    ? 'bg-blue-600 dark:bg-blue-400'
+                    : 'bg-gray-400 dark:bg-gray-500'
+                }`} />
+              </div>
+              <span>{childLink.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    );
+  });
 
   return (
-    <Navbar
-      p="md"
-      width={{ md: 250 }}
-      mt={50}
-      hidden={!opened}
-      
+    <nav
+      className={`fixed left-0 top-14 h-[calc(100vh-3.5rem)] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto transition-all shadow-sm ${
+        opened ? 'translate-x-0' : '-translate-x-full'
+      } md:translate-x-0 z-40 ${
+        collapsed ? 'w-16' : 'w-64'
+      }`}
     >
-      <Navbar.Section grow component={ScrollArea}>
+      <div className={`flex flex-col gap-1 ${collapsed ? 'p-2' : 'p-4'}`}>
         {navbarLinksFragment}
-      </Navbar.Section>
-    </Navbar>
+      </div>
+    </nav>
   );
 }

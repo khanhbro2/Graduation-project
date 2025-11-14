@@ -1,20 +1,13 @@
 import React from 'react';
-import { Stack, Text, Title } from '@mantine/core';
 
 function AdminError() {
   return (
-    <Stack spacing="xl" sx={{ textAlign: 'center' }}>
-      <Text
-        weight={700}
-        sx={theme => ({
-          fontSize: 120,
-          color: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2],
-        })}
-      >
+    <div className="flex flex-col gap-6 text-center">
+      <p className="text-[120px] font-bold text-gray-300 dark:text-gray-700">
         Oops...
-      </Text>
-      <Title>Đã có lỗi xảy ra</Title>
-    </Stack>
+      </p>
+      <h1 className="text-2xl font-semibold">Đã có lỗi xảy ra</h1>
+    </div>
   );
 }
 

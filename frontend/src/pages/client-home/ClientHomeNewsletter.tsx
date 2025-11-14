@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { Card, Group, Text, TextInput, useMantineTheme, Button } from '@mantine/core';
 import { At, Mailbox } from 'tabler-icons-react';
 
 // Giả lập nội dung file
 const simulatedFileContent = '........';
 
 function ClientHomeNewsletter() {
-  const theme = useMantineTheme();
   const [email, setEmail] = useState('');
   const [fileContent, setFileContent] = useState('');
 
@@ -24,56 +22,40 @@ function ClientHomeNewsletter() {
   };
 
   return (
-    <Card
-      radius="md"
-      shadow="sm"
-      p="lg"
-      sx={{
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.blue[9] : theme.colors.blue[6],
-        color: theme.white,
-      }}
-    >
-      <Group position="apart">
-        <Group>
+    <div className="rounded-md shadow-sm p-6 bg-blue-600 dark:bg-blue-900 text-white">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
           <Mailbox size={40} strokeWidth={1} />
-          <Text weight={500} sx={{ fontSize: theme.fontSizes.xl }}>
-            Đăng ký nhận tin
-          </Text>
-          <Text sx={{ fontSize: theme.fontSizes.md }}>
-            và cập nhật khuyến mãi liên tục...
-          </Text>
-        </Group>
-        <Group>
-          <TextInput
-            styles={{
-              root: { width: 450 },
-              icon: { color: theme.white },
-              input: {
-                color: theme.white,
-                border: 'none',
-                backgroundColor: theme.fn.rgba(theme.colors.blue[1], 0.25),
-
-                '&::placeholder': {
-                  color: theme.fn.rgba(theme.colors.gray[0], 0.5),
-                },
-              },
-            }}
-            value={email}
-            onChange={handleEmailChange}
-            placeholder="Địa chỉ email"
-            radius="md"
-            size="md"
-            icon={<At size={16} />}
-          />
-          <Button onClick={handleSubmit} style={{ backgroundColor: '#14372fe4' }}>Gửi</Button>
-        </Group>
-      </Group>
+          <p className="text-xl font-medium">Đăng ký nhận tin</p>
+          <p className="text-base">và cập nhật khuyến mãi liên tục...</p>
+        </div>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="relative flex-1 md:w-[450px]">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <At size={16} className="text-white/70" />
+            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
+              placeholder="Địa chỉ email"
+              className="w-full pl-10 pr-3 py-2 rounded-md border-none bg-white/25 text-white placeholder:text-white/50 focus:ring-2 focus:ring-white/50 focus:outline-none"
+            />
+          </div>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-[#14372fe4] hover:bg-[#14372fd4] rounded-md transition-colors whitespace-nowrap"
+          >
+            Gửi
+          </button>
+        </div>
+      </div>
       {fileContent && (
-        <Text mt="md">
+        <p className="mt-4">
           {fileContent}
-        </Text>
+        </p>
       )}
-    </Card>
+    </div>
   );
 }
 

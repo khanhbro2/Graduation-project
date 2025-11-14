@@ -1,16 +1,13 @@
 import React from 'react';
-import { Button, Grid, Group, Skeleton, Stack, Text, Title, useMantineTheme } from '@mantine/core';
-import { AlertTriangle, List, Marquee } from 'tabler-icons-react';
+import { AlertTriangle, Marquee } from 'tabler-icons-react';
 import { ClientProductCard } from 'components';
 import { useQuery } from 'react-query';
 import FetchUtils, { ErrorMessage, ListResponse } from 'utils/FetchUtils';
 import { ClientListedProductResponse } from 'types';
 import ResourceURL from 'constants/ResourceURL';
 import NotifyUtils from 'utils/NotifyUtils';
-import { Link } from 'react-router-dom';
 
 function ClientHomeLatestProducts() {
-  const theme = useMantineTheme();
 
   const requestParams = { size: 12, newable: true, saleable: true };
 
@@ -33,59 +30,54 @@ function ClientHomeLatestProducts() {
 
   if (isLoadingProductResponses) {
     resultFragment = (
-      <Stack>
+      <div className="flex flex-col gap-4">
         {Array(5).fill(0).map((_, index) => (
-          <Skeleton key={index} height={50} radius="md"/>
+          <div key={index} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse" />
         ))}
-      </Stack>
+      </div>
     );
   }
 
   if (isErrorProductResponses) {
     resultFragment = (
-      <Stack my={theme.spacing.xl} sx={{ alignItems: 'center', color: theme.colors.pink[6] }}>
-        <AlertTriangle size={125} strokeWidth={1}/>
-        <Text size="xl" weight={500}>Đã có lỗi xảy ra</Text>
-      </Stack>
+      <div className="flex flex-col items-center gap-4 my-8 text-pink-600 dark:text-pink-400">
+        <AlertTriangle size={125} strokeWidth={1} />
+        <p className="text-xl font-medium">Đã có lỗi xảy ra</p>
+      </div>
     );
   }
 
   if (products && products.totalElements === 0) {
     resultFragment = (
-      <Stack my={theme.spacing.xl} sx={{ alignItems: 'center', color: theme.colors.blue[6] }}>
-        <Marquee size={125} strokeWidth={1}/>
-        <Text size="xl" weight={500}>Không có sản phẩm</Text>
-      </Stack>
+      <div className="flex flex-col items-center gap-4 my-8 text-blue-600 dark:text-blue-400">
+        <Marquee size={125} strokeWidth={1} />
+        <p className="text-xl font-medium">Không có sản phẩm</p>
+      </div>
     );
   }
 
   if (products && products.totalElements > 0) {
     resultFragment = (
-      <Grid>
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-4">
         {products.content.map((product, index) => (
-          <Grid.Col key={index} span={6} sm={4} md={3}>
-            <ClientProductCard product={product}/>
-          </Grid.Col>
+          <div key={index}>
+            <ClientProductCard product={product} />
+          </div>
         ))}
-      </Grid>
+      </div>
     );
   }
 
   return (
-    <Stack>
-      <Group position='apart'>
-        <Title order={2}>
-          <Text color='#14372fe4' inherit>
-            Sản phẩm mới nhất
-          </Text>
-        </Title>
-        {/* <Button component= {Link} to="/product" variant="light" leftIcon={<List size={16}/>} radius="md">
-          Xem tất cả
-        </Button> */}
-      </Group>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[#14372fe4]">
+          Sản phẩm mới nhất
+        </h2>
+      </div>
 
       {resultFragment}
-    </Stack>
+    </div>
   );
 }
 

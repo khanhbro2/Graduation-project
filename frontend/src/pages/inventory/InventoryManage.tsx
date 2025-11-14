@@ -1,5 +1,4 @@
-import React from 'react';
-import { ActionIcon, Anchor, Badge, Stack, Table, useMantineTheme } from '@mantine/core';
+import React, { useState } from 'react';
 import { ManageHeader, ManageHeaderTitle, ManageMain, ManagePagination } from 'components';
 import InventoryConfigs from 'pages/inventory/InventoryConfigs';
 import PageConfigs from 'pages/PageConfigs';
@@ -9,14 +8,17 @@ import { ProductInventoryResponse } from 'models/ProductInventory';
 import useResetManagePageState from 'hooks/use-reset-manage-page-state';
 import { Plus } from 'tabler-icons-react';
 import { DocketVariantExtendedResponse } from 'models/DocketVariantExtended';
-import { useModals } from '@mantine/modals';
 import DateUtils from 'utils/DateUtils';
+import { Dialog } from '@headlessui/react';
+import { useColorScheme } from 'hooks/use-color-scheme';
 
 function InventoryManage() {
   useResetManagePageState();
 
-  const theme = useMantineTheme();
-  const modals = useModals();
+  const { colorScheme } = useColorScheme();
+  const [selectedProductName, setSelectedProductName] = useState<string | null>(null);
+  const [selectedTransactions, setSelectedTransactions] = useState<DocketVariantExtendedResponse[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     isLoading,
@@ -27,14 +29,9 @@ function InventoryManage() {
   );
 
   const handleTransactionsAnchor = (productName: string, transactions: DocketVariantExtendedResponse[]) => {
-    modals.openModal({
-      size: 1200,
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      title: <strong>Lịch sử nhập xuất của sản phẩm &quot;{productName}&quot;</strong>,
-      children: <ProductInventoryTransactionsModal transactions={transactions}/>,
-    });
+    setSelectedProductName(productName);
+    setSelectedTransactions(transactions);
+    setIsModalOpen(true);
   };
 
   const entitiesTableHeadsFragment = (
@@ -53,7 +50,7 @@ function InventoryManage() {
   );
 
   const entitiesTableRowsFragment = listResponse.content.map((entity) => (
-    <tr key={entity.product.id}>
+    <tr key={entity.product.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
       <td>{entity.product.code}</td>
       <td>{entity.product.name}</td>
       <td>{entity.product.brand?.name}</td>
@@ -63,53 +60,75 @@ function InventoryManage() {
       <td>{entity.canBeSold}</td>
       <td>{entity.areComing}</td>
       <td>
-        <ActionIcon
-          color="blue"
-          variant="hover"
-          size={24}
+        <button
+          className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 rounded transition-colors"
           title="Thiết lập định mức tồn kho cho sản phẩm"
         >
-          <Plus/>
-        </ActionIcon>
+          <Plus size={20}/>
+        </button>
       </td>
       <td>
-        <Anchor inherit onClick={() => handleTransactionsAnchor(entity.product.name, entity.transactions)}>
+        <button
+          className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+          onClick={() => handleTransactionsAnchor(entity.product.name, entity.transactions)}
+        >
           Giao dịch
-        </Anchor>
+        </button>
       </td>
     </tr>
   ));
 
   return (
-    <Stack>
-      <ManageHeader>
-        <ManageHeaderTitle
-          titleLinks={InventoryConfigs.manageTitleLinks}
-          title={InventoryConfigs.manageTitle}
-        />
-      </ManageHeader>
+    <>
+      <div className="flex flex-col gap-4">
+        <ManageHeader>
+          <ManageHeaderTitle
+            titleLinks={InventoryConfigs.manageTitleLinks}
+            title={InventoryConfigs.manageTitle}
+          />
+        </ManageHeader>
 
-      <ManageMain
-        listResponse={listResponse}
-        isLoading={isLoading}
-      >
-        <Table
-          horizontalSpacing="sm"
-          verticalSpacing="sm"
-          highlightOnHover
-          striped
-          sx={(theme) => ({
-            borderRadius: theme.radius.sm,
-            overflow: 'hidden',
-          })}
+        <ManageMain
+          listResponse={listResponse}
+          isLoading={isLoading}
         >
-          <thead>{entitiesTableHeadsFragment}</thead>
-          <tbody>{entitiesTableRowsFragment}</tbody>
-        </Table>
-      </ManageMain>
+          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                {entitiesTableHeadsFragment}
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {entitiesTableRowsFragment}
+              </tbody>
+            </table>
+          </div>
+        </ManageMain>
 
-      <ManagePagination listResponse={listResponse}/>
-    </Stack>
+        <ManagePagination listResponse={listResponse}/>
+      </div>
+
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30 dark:bg-black/50" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-lg shadow-xl max-h-[90vh] overflow-hidden flex flex-col">
+            <Dialog.Title className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 font-semibold text-lg">
+              Lịch sử nhập xuất của sản phẩm &quot;{selectedProductName}&quot;
+            </Dialog.Title>
+            <div className="flex-1 overflow-auto p-6">
+              <ProductInventoryTransactionsModal transactions={selectedTransactions}/>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </>
   );
 }
 
@@ -117,61 +136,54 @@ function ProductInventoryTransactionsModal({ transactions }: { transactions: Doc
   const docketTypeBadgeFragment = (type: number) => {
     switch (type) {
     case 1:
-      return <Badge color="blue" variant="filled" size="sm">Nhập</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-blue-500 text-white rounded">Nhập</span>;
     case 2:
-      return <Badge color="orange" variant="filled" size="sm">Xuất</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-orange-500 text-white rounded">Xuất</span>;
     }
   };
 
   const docketStatusBadgeFragment = (status: number) => {
     switch (status) {
     case 1:
-      return <Badge color="gray" variant="outline" size="sm">Mới</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Mới</span>;
     case 2:
-      return <Badge color="blue" variant="outline" size="sm">Đang xử lý</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đang xử lý</span>;
     case 3:
-      return <Badge color="green" variant="outline" size="sm">Hoàn thành</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-green-300 dark:border-green-600 text-green-700 dark:text-green-400 rounded">Hoàn thành</span>;
     case 4:
-      return <Badge color="red" variant="outline" size="sm">Hủy bỏ</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Hủy bỏ</span>;
     }
   };
 
   return (
-    <Table
-      horizontalSpacing="xs"
-      verticalSpacing="xs"
-      highlightOnHover
-      striped
-    >
-      <thead>
-        <tr>
-          <th>Phiếu</th>
-          <th>Ngày tạo</th>
-          <th>Lý do</th>
-          {/* <th>Mã đơn nhập hàng</th>
-          <th>Mã đơn hàng</th> */}
-          <th>Số lượng</th>
-          <th>SKU</th>
-          <th>Kho</th>
-          <th>Trạng thái</th>
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.map(transaction => (
-          <tr key={transaction.docket.code}>
-            <td>{docketTypeBadgeFragment(transaction.docket.type)}</td>
-            <td>{DateUtils.isoDateToString(transaction.docket.createdAt)}</td>
-            <td>{transaction.docket.reason.name}</td>
-            {/* <td>{transaction.docket.purchaseOrder?.code}</td>
-            <td>{transaction.docket.order?.code}</td> */}
-            <td>{transaction.quantity}</td>
-            <td>{transaction.variant.sku}</td>
-            <td>{transaction.docket.warehouse.name}</td>
-            <td>{docketStatusBadgeFragment(transaction.docket.status)}</td>
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th className="px-2 py-2">Phiếu</th>
+            <th className="px-2 py-2">Ngày tạo</th>
+            <th className="px-2 py-2">Lý do</th>
+            <th className="px-2 py-2">Số lượng</th>
+            <th className="px-2 py-2">SKU</th>
+            <th className="px-2 py-2">Kho</th>
+            <th className="px-2 py-2">Trạng thái</th>
           </tr>
-        ))}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          {transactions.map(transaction => (
+            <tr key={transaction.docket.code} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              <td className="px-2 py-2">{docketTypeBadgeFragment(transaction.docket.type)}</td>
+              <td className="px-2 py-2">{DateUtils.isoDateToString(transaction.docket.createdAt)}</td>
+              <td className="px-2 py-2">{transaction.docket.reason.name}</td>
+              <td className="px-2 py-2">{transaction.quantity}</td>
+              <td className="px-2 py-2">{transaction.variant.sku}</td>
+              <td className="px-2 py-2">{transaction.docket.warehouse.name}</td>
+              <td className="px-2 py-2">{docketStatusBadgeFragment(transaction.docket.status)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

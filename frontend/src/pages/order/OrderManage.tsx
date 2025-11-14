@@ -1,5 +1,4 @@
 import React from 'react';
-import { ActionIcon, ColorSwatch, Group, Highlight, Stack, Text, useMantineTheme } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -25,8 +24,6 @@ import NotifyUtils from 'utils/NotifyUtils';
 import DocketConfigs from 'pages/docket/DocketConfigs';
 
 function OrderManage() {
-  const theme = useMantineTheme();
-
   useResetManagePageState();
   useInitFilterPanelState(OrderConfigs.properties);
 
@@ -37,6 +34,22 @@ function OrderManage() {
 
   const { searchToken } = useAppStore();
 
+  const highlightText = (text: string, highlight: string, className?: string) => {
+    if (!highlight) return <span className={className}>{text}</span>;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <span className={className}>
+        {parts.map((part, i) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
+
   const showedPropertiesFragment = (entity: OrderResponse) => {
     const PaymentMethodIcon = PageConfigs.paymentMethodIconMap[entity.paymentMethodType];
 
@@ -45,97 +58,70 @@ function OrderManage() {
         <td>{entity.id}</td>
         <td>{DateUtils.isoDateToString(entity.createdAt)}</td>
         <td>
-          <Group spacing="xs">
-            <Highlight
-              highlight={searchToken}
-              highlightColor="blue"
-              size="sm"
-              sx={{ fontFamily: theme.fontFamilyMonospace }}
-            >
-              {entity.code}
-            </Highlight>
-            <ActionIcon
-              color="blue"
-              variant="outline"
-              size="sm"
-              title="Sao chép mã đơn hàng này"
+          <div className="flex items-center gap-2">
+            {highlightText(entity.code, searchToken, 'text-sm font-mono')}
+            <button
               onClick={() => {
                 void navigator.clipboard.writeText(entity.code);
-                NotifyUtils.simple(<Text inherit>Đã sao chép mã đơn hàng <strong>{entity.code}</strong></Text>);
+                NotifyUtils.simple(`Đã sao chép mã đơn hàng ${entity.code}`);
               }}
+              className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+              title="Sao chép mã đơn hàng này"
             >
               <Clipboard size={15} strokeWidth={1.5}/>
-            </ActionIcon>
-          </Group>
+            </button>
+          </div>
         </td>
         <td>
-          <Group spacing="xs">
-            <ColorSwatch color={entity.orderResource.color}/>
-            <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-              {entity.orderResource.name}
-            </Highlight>
-          </Group>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.orderResource.color }}></div>
+            {highlightText(entity.orderResource.name, searchToken, 'text-sm')}
+          </div>
         </td>
         <td>
-          <Stack spacing={0}>
-            <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-              {entity.user.fullname}
-            </Highlight>
-            <Highlight highlight={searchToken} highlightColor="blue" size="xs" color="dimmed">
-              {entity.user.username}
-            </Highlight>
-          </Stack>
+          <div className="flex flex-col gap-0">
+            {highlightText(entity.user.fullname, searchToken, 'text-sm')}
+            <span className="text-xs text-gray-500 dark:text-gray-400">{highlightText(entity.user.username, searchToken, '')}</span>
+          </div>
         </td>
         <td>
-          <Stack spacing={0}>
-            <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-              {entity.toName}
-            </Highlight>
-            <Highlight highlight={searchToken} highlightColor="blue" size="xs">
-              {entity.toPhone}
-            </Highlight>
-            <Highlight highlight={searchToken} highlightColor="blue" size="xs" color="dimmed">
-              {entity.toAddress}
-            </Highlight>
-            <Highlight highlight={searchToken} highlightColor="blue" size="xs" color="dimmed">
-              {[entity.toWardName, entity.toDistrictName].join(', ')}
-            </Highlight>
-            <Highlight highlight={searchToken} highlightColor="blue" size="xs" color="dimmed">
-              {entity.toProvinceName}
-            </Highlight>
-          </Stack>
+          <div className="flex flex-col gap-0">
+            {highlightText(entity.toName, searchToken, 'text-sm')}
+            <span className="text-xs">{highlightText(entity.toPhone, searchToken, '')}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{highlightText(entity.toAddress, searchToken, '')}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{highlightText([entity.toWardName, entity.toDistrictName].join(', '), searchToken, '')}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{highlightText(entity.toProvinceName, searchToken, '')}</span>
+          </div>
         </td>
-        <td style={{ textAlign: 'right' }}>
-          <Stack align="end" spacing={5}>
-            <Text weight={500} size="sm">{MiscUtils.formatPrice(entity.totalPay) + ' ₫'}</Text>
-            <PaymentMethodIcon color={theme.colors.gray[5]}/>
-          </Stack>
+        <td className="text-right">
+          <div className="flex flex-col items-end gap-1">
+            <p className="font-medium text-sm">{MiscUtils.formatPrice(entity.totalPay) + ' ₫'}</p>
+            <PaymentMethodIcon size={16} className="text-gray-400" />
+          </div>
         </td>
         <td>
-          <ActionIcon
-            color="blue"
-            variant="hover"
-            size={24}
-            title="Tạo phiếu xuất kho"
-            component="a"
+          <a
             href={DocketConfigs.managerPath + '/create'}
             target="_blank"
+            rel="noopener noreferrer"
+            className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors inline-block"
+            title="Tạo phiếu xuất kho"
           >
-            <Plus/>
-          </ActionIcon>
+            <Plus size={20} />
+          </a>
         </td>
         <td>
-          <Stack spacing="xs" sx={{ alignItems: 'start' }}>
+          <div className="flex flex-col gap-1 items-start">
             {OrderConfigs.orderStatusBadgeFragment(entity.status)}
             {OrderConfigs.orderPaymentStatusBadgeFragment(entity.paymentStatus)}
-          </Stack>
+          </div>
         </td>
       </>
     );
   };
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={OrderConfigs.manageTitleLinks}
@@ -167,7 +153,7 @@ function OrderManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

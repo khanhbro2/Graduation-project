@@ -1,5 +1,4 @@
 import React from 'react';
-import { Center, LoadingOverlay, Paper, ScrollArea, Stack, Text, useMantineTheme } from '@mantine/core';
 import { ListResponse } from 'utils/FetchUtils';
 import { Marquee } from 'tabler-icons-react';
 
@@ -14,38 +13,40 @@ function ManageMain({
   isLoading,
   children,
 }: ManageMainProps) {
-  const theme = useMantineTheme();
 
   let manageMainInnerFragment = (
-    <ScrollArea>
+    <div className="overflow-auto">
       {children}
-    </ScrollArea>
+    </div>
   );
 
   if (listResponse.totalElements === 0) {
     manageMainInnerFragment = (
-      <Center sx={{ height: '100%' }}>
+      <div className="flex items-center justify-center h-full">
         {!isLoading && (
-          <Stack my={theme.spacing.xl} sx={{ alignItems: 'center', color: theme.colors.blue[6] }}>
+          <div className="flex flex-col items-center gap-6 my-6 text-blue-600 dark:text-blue-400">
             <Marquee size={75} strokeWidth={1}/>
-            <Text size="lg" weight={500}>Không có nội dung</Text>
-          </Stack>
+            <p className="text-lg font-medium">Không có nội dung</p>
+          </div>
         )}
-      </Center>
+      </div>
     );
   }
 
   return (
-    <Paper
-      shadow="xs"
+    <div
+      className="bg-white dark:bg-gray-800 rounded-md shadow-sm relative"
       style={{
-        position: 'relative',
         height: listResponse.totalElements === 0 ? 250 : 'auto',
       }}
     >
-      <LoadingOverlay visible={isLoading} zIndex={50}/>
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
       {manageMainInnerFragment}
-    </Paper>
+    </div>
   );
 }
 

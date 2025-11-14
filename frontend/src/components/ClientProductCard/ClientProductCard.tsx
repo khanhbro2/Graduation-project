@@ -1,18 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ActionIcon,
-  Anchor,
-  Badge,
-  Box,
-  Card,
-  Group,
-  Highlight,
-  Image,
-  Stack,
-  Text,
-  useMantineTheme
-} from '@mantine/core';
 import MiscUtils from 'utils/MiscUtils';
 import {
   ClientCartRequest,
@@ -22,7 +9,6 @@ import {
   UpdateQuantityType
 } from 'types';
 import { BellPlus, HeartPlus, ShoppingCartPlus } from 'tabler-icons-react';
-import { useDisclosure } from '@mantine/hooks';
 import NotifyUtils from 'utils/NotifyUtils';
 import useAuthStore from 'stores/use-auth-store';
 import useCreateWishApi from 'hooks/use-create-wish-api';
@@ -35,9 +21,7 @@ interface ClientProductCardProps {
 }
 
 function ClientProductCard({ product, search }: ClientProductCardProps) {
-  const theme = useMantineTheme();
-
-  const [opened, handlers] = useDisclosure(false);
+  const [opened, setOpened] = useState(false);
 
   const createWishApi = useCreateWishApi();
   const createPreorderApi = useCreatePreorderApi();
@@ -91,122 +75,111 @@ function ClientProductCard({ product, search }: ClientProductCardProps) {
       };
       saveCartApi.mutate(cartRequest, {
         onSuccess: () => NotifyUtils.simpleSuccess(
-          <Text inherit>
-            <span>Đã thêm 1 sản phẩm {product.productName} (phiên bản mặc định) vào </span>
-            <Anchor component={Link} to="/cart" inherit>giỏ hàng</Anchor>
-          </Text>
+          <span>
+            Đã thêm 1 sản phẩm {product.productName} (phiên bản mặc định) vào{' '}
+            <Link to="/cart" className="text-blue-600 hover:underline">giỏ hàng</Link>
+          </span>
         ),
       });
     }
   };
 
+  const highlightText = (text: string, search?: string) => {
+    if (!search) return text;
+    const parts = text.split(new RegExp(`(${search})`, 'gi'));
+    return parts.map((part, i) => 
+      part.toLowerCase() === search.toLowerCase() ? (
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
-    <Card
-      radius="md"
-      shadow="sm"
-      p="lg"
-      component={Link}
+    <Link
       to={'/product/' + product.productSlug}
-      sx={{
-        height: '100%',
-        transition: 'box-shadow .2s ease-in',
-        '&:hover': {
-          backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : 'unset',
-          boxShadow: theme.shadows.lg,
-        },
-      }}
-      onMouseEnter={handlers.open}
-      onMouseLeave={handlers.close}
+      className="block h-full bg-white dark:bg-gray-800 rounded-md shadow-sm p-6 transition-shadow hover:shadow-lg"
+      onMouseEnter={() => setOpened(true)}
+      onMouseLeave={() => setOpened(false)}
     >
-      <Stack spacing="xs">
-        <Box sx={{ position: 'relative' }}>
-          <Image
-            radius="md"
+      <div className="flex flex-col gap-2">
+        <div className="relative">
+          <img
             src={product.productThumbnail || undefined}
             alt={product.productName}
-            styles={{ image: { aspectRatio: '1 / 1' } }}
+            className="w-full rounded-md aspect-square object-cover"
           />
-          <Group
-            spacing="xs"
-            sx={{
-              position: 'absolute',
-              left: '50%',
-              bottom: 0,
-              transform: 'translateX(-50%)',
-              marginBottom: theme.spacing.sm,
-              opacity: opened ? 1 : 0,
-              transition: 'opacity .2s ease-in',
-            }}
+          <div
+            className={`absolute left-1/2 bottom-0 -translate-x-1/2 mb-3 flex items-center gap-2 transition-opacity ${
+              opened ? 'opacity-100' : 'opacity-0'
+            }`}
           >
-            <ActionIcon
-              color="pink"
-              size="lg"
-              radius="xl"
-              variant="filled"
-              title="Thêm vào danh sách yêu thích"
+            <button
+              type="button"
               onClick={handleCreateWishButton}
+              title="Thêm vào danh sách yêu thích"
+              className="p-2 bg-pink-600 text-white rounded-full hover:bg-pink-700 transition-colors"
             >
               <HeartPlus size={18}/>
-            </ActionIcon>
+            </button>
             {product.productSaleable
               ? (
-                <ActionIcon
-                  color="blue"
-                  size="lg"
-                  radius="xl"
-                  variant="filled"
-                  title="Thêm vào giỏ hàng"
+                <button
+                  type="button"
                   onClick={handleAddToCartButton}
+                  title="Thêm vào giỏ hàng"
+                  className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
                 >
                   <ShoppingCartPlus size={18}/>
-                </ActionIcon>
+                </button>
               )
               : (
-                <ActionIcon
-                  color="teal"
-                  size="lg"
-                  radius="xl"
-                  variant="filled"
-                  title="Thông báo khi có hàng"
+                <button
+                  type="button"
                   onClick={handleCreatePreorderButton}
+                  title="Thông báo khi có hàng"
+                  className="p-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors"
                 >
                   <BellPlus size={18}/>
-                </ActionIcon>
+                </button>
               )}
-          </Group>
-        </Box>
-        <Stack spacing={theme.spacing.xs / 2}>
-          <Group spacing="xs">
-            <Text weight={500}>
-              <Highlight highlight={search || ''}>
-                {product.productName}
-              </Highlight>
-            </Text>
-            {!product.productSaleable && <Badge size="xs" color="red" variant="filled">Hết hàng</Badge>}
-          </Group>
-          <Text weight={500} color="pink">
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <p className="font-medium">
+              {search ? highlightText(product.productName, search) : product.productName}
+            </p>
+            {!product.productSaleable && (
+              <span className="px-2 py-0.5 text-xs font-semibold text-white bg-red-600 rounded">
+                Hết hàng
+              </span>
+            )}
+          </div>
+          <p className="font-medium text-pink-600">
             {product.productPriceRange
               .map(price => product.productPromotion
                 ? MiscUtils.calculateDiscountedPrice(price, product.productPromotion.promotionPercent)
                 : price)
               .map(MiscUtils.formatPrice).join('–') + '\u00A0₫'}
-          </Text>
+          </p>
           {product.productPromotion && (
-            <Group spacing="xs">
-              <Text size="sm" sx={{ textDecoration: 'line-through' }}>
+            <div className="flex items-center gap-2">
+              <p className="text-sm line-through text-gray-500">
                 {product.productPriceRange.map(MiscUtils.formatPrice).join('–') + '\u00A0₫'}
-              </Text>
-              <Badge color="pink" variant="filled">
+              </p>
+              <span className="px-2 py-1 text-xs font-semibold text-white bg-pink-600 rounded">
                 -{product.productPromotion.promotionPercent}%
-              </Badge>
-            </Group>
+              </span>
+            </div>
           )}
-          <Text size="sm" color="dimmed">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {product.productVariants.length} phiên bản
-          </Text>
-        </Stack>
-      </Stack>
-    </Card>
+          </p>
+        </div>
+      </div>
+    </Link>
   );
 }
 

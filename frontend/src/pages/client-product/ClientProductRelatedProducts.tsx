@@ -1,4 +1,3 @@
-import { Grid, Group, Stack, Title } from '@mantine/core';
 import { CircleSquare } from 'tabler-icons-react';
 import { ClientProductCard } from 'components';
 import React from 'react';
@@ -10,19 +9,19 @@ interface ClientProductRelatedProductsProps {
 
 function ClientProductRelatedProducts({ product }: ClientProductRelatedProductsProps) {
   return (
-    <Stack>
-      <Group spacing="xs">
-        <CircleSquare/>
-        <Title order={2}>Sản phẩm liên quan</Title>
-      </Group>
-      <Grid>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <CircleSquare size={24} />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Sản phẩm liên quan</h2>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {product.productRelatedProducts.map((product, index) => (
-          <Grid.Col key={index} span={6} md={3}>
-            <ClientProductCard product={product}/>
-          </Grid.Col>
+          <div key={index}>
+            <ClientProductCard product={product} />
+          </div>
         ))}
-      </Grid>
-    </Stack>
+      </div>
+    </div>
   );
 }
 

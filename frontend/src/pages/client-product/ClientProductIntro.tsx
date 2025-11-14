@@ -1,27 +1,8 @@
-import {
-  ActionIcon,
-  Anchor,
-  Badge,
-  Box,
-  Breadcrumbs,
-  Button,
-  Card,
-  Grid,
-  Group,
-  Image,
-  NumberInput,
-  NumberInputHandlers,
-  SimpleGrid,
-  Stack,
-  Text,
-  UnstyledButton,
-  useMantineTheme
-} from '@mantine/core';
 import { Link } from 'react-router-dom';
 import MiscUtils from 'utils/MiscUtils';
 import { ClientCarousel, ReviewStarGroup } from 'components';
-import { BellPlus, Heart, PhotoOff, ShoppingCart } from 'tabler-icons-react';
-import React, { useRef, useState } from 'react';
+import { BellPlus, Heart, PhotoOff, ShoppingCart, Minus, Plus } from 'tabler-icons-react';
+import React, { useState } from 'react';
 import {
   ClientCartRequest,
   ClientPreorderRequest,
@@ -40,12 +21,8 @@ interface ClientProductIntroProps {
 }
 
 function ClientProductIntro({ product }: ClientProductIntroProps) {
-  const theme = useMantineTheme();
-
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-
-  const quantityInputHandlers = useRef<NumberInputHandlers>();
 
   const { user, currentCartId } = useAuthStore();
 
@@ -101,243 +78,215 @@ function ClientProductIntro({ product }: ClientProductIntroProps) {
       };
       saveCartApi.mutate(cartRequest, {
         onSuccess: () => NotifyUtils.simpleSuccess(
-          <Text inherit>
-            Đã thêm mặt hàng vừa chọn vào <Anchor component={Link} to="/cart" inherit>giỏ hàng</Anchor>
-          </Text>
+          <span>
+            Đã thêm mặt hàng vừa chọn vào <Link to="/cart" className="text-blue-600 dark:text-blue-400 hover:underline">giỏ hàng</Link>
+          </span>
         ),
       });
     }
   };
 
   return (
-    <Card radius="md" shadow="sm" p="lg">
-      <Stack>
-        <Breadcrumbs>
-          <Anchor component={Link} to="/">
+    <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col gap-6">
+        <nav className="flex items-center gap-2 text-sm">
+          <Link to="/" className="text-blue-600 dark:text-blue-400 hover:underline">
             Trang chủ
-          </Anchor>
+          </Link>
           {product.productCategory && MiscUtils.makeCategoryBreadcrumbs(product.productCategory).map(c => (
-            <Anchor key={c.categorySlug} component={Link} to={'/category/' + c.categorySlug}>
-              {c.categoryName}
-            </Anchor>
+            <React.Fragment key={c.categorySlug}>
+              <span className="text-gray-400">/</span>
+              <Link to={'/category/' + c.categorySlug} className="text-blue-600 dark:text-blue-400 hover:underline">
+                {c.categoryName}
+              </Link>
+            </React.Fragment>
           ))}
-          <Text color="dimmed">
+          <span className="text-gray-400">/</span>
+          <span className="text-gray-600 dark:text-gray-400">
             {product.productName}
-          </Text>
-        </Breadcrumbs>
+          </span>
+        </nav>
 
-        <Grid gutter="lg">
-          <Grid.Col md={6}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
             {product.productImages.length > 0
               ? (
                 <ClientCarousel>
                   {product.productImages.map(image => (
-                    <Image
+                    <img
                       key={image.id}
-                      radius="md"
+                      className="rounded-md w-full aspect-square object-cover"
                       src={image.path}
-                      styles={{ image: { aspectRatio: '1 / 1' } }}
-                      withPlaceholder
+                      alt={product.productName}
                     />
                   ))}
                 </ClientCarousel>
               )
               : (
-                <Box
-                  sx={{
-                    borderRadius: theme.radius.md,
-                    width: '100%',
-                    height: 'auto',
-                    aspectRatio: '1 / 1',
-                    border: `2px dotted ${theme.colors.gray[5]}`,
-                  }}
-                >
-                  <Stack align="center" justify="center" sx={{ height: '100%' }}>
-                    <PhotoOff size={100} strokeWidth={1}/>
-                    <Text>Không có hình cho sản phẩm này</Text>
-                  </Stack>
-                </Box>
+                <div className="rounded-md w-full aspect-square border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center">
+                  <PhotoOff size={100} strokeWidth={1} className="text-gray-400" />
+                  <p className="text-gray-600 dark:text-gray-400 mt-2">Không có hình cho sản phẩm này</p>
+                </div>
               )}
-          </Grid.Col>
-          <Grid.Col md={6}>
-            <Stack spacing="lg">
-              <Stack spacing={2} sx={{ alignItems: 'start' }}>
-                {!product.productSaleable && <Badge color="red" variant="filled" mb={5}>Hết hàng</Badge>}
+          </div>
+          <div>
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2 items-start">
+                {!product.productSaleable && <span className="px-2 py-1 text-xs font-medium bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded mb-2">Hết hàng</span>}
                 {product.productBrand && (
-                  <Group spacing={5}>
-                    <Text size="sm">Thương hiệu:</Text>
-                    <Anchor component={Link} to={'/brand/' + product.productBrand.brandId} size="sm">
+                  <div className="flex items-center gap-1 text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Thương hiệu:</span>
+                    <Link to={'/brand/' + product.productBrand.brandId} className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
                       {product.productBrand.brandName}
-                    </Anchor>
-                  </Group>
+                    </Link>
+                  </div>
                 )}
-                <Text sx={{ fontSize: 26 }} weight={500}>
+                <h1 className="text-2xl font-medium text-gray-900 dark:text-gray-100">
                   {product.productName}
-                </Text>
-                <Group mt={7.5} spacing="lg">
-                  <Group spacing="xs">
-                    <ReviewStarGroup ratingScore={product.productAverageRatingScore}/>
-                    <Text size="sm">{product.productCountReviews} đánh giá</Text>
-                  </Group>
-                  {/* TODO: Doanh số sản phẩm */}
-                  {/*<Group spacing={5}>*/}
-                  {/*  <ShoppingCart size={18} strokeWidth={1.5} color={theme.colors.teal[7]}/>*/}
-                  {/*  <Text size="sm" color="teal">120 đã mua</Text>*/}
-                  {/*</Group>*/}
-                </Group>
-              </Stack>
+                </h1>
+                <div className="flex items-center gap-6 mt-2">
+                  <div className="flex items-center gap-1">
+                    <ReviewStarGroup ratingScore={product.productAverageRatingScore} />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{product.productCountReviews} đánh giá</span>
+                  </div>
+                </div>
+              </div>
 
-              {product.productShortDescription && <Text color="dimmed">{product.productShortDescription}</Text>}
+              {product.productShortDescription && <p className="text-gray-600 dark:text-gray-400">{product.productShortDescription}</p>}
 
-              <Box
-                sx={{
-                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
-                  borderRadius: theme.radius.md,
-                  padding: '16px 20px',
-                }}
-              >
-                <Group>
-                  <Text sx={{ fontSize: 24 }} weight={700} color="pink">
+              <div className="bg-gray-100 dark:bg-gray-700/50 rounded-md p-4">
+                <div className="flex items-center gap-3">
+                  <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">
                     {MiscUtils.formatPrice(
                       MiscUtils.calculateDiscountedPrice(
                         product.productVariants[selectedVariantIndex]?.variantPrice,
                         product.productPromotion ? product.productPromotion.promotionPercent : 0
                       )
                     )} ₫
-                  </Text>
+                  </p>
                   {product.productPromotion && (
                     <>
-                      <Text sx={{ textDecoration: 'line-through' }}>
+                      <p className="text-lg line-through text-gray-500 dark:text-gray-400">
                         {MiscUtils.formatPrice(product.productVariants[selectedVariantIndex]?.variantPrice)} ₫
-                      </Text>
-                      <Badge color="pink" size="lg" variant="filled">
+                      </p>
+                      <span className="px-2 py-1 text-sm font-medium bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-400 rounded">
                         -{product.productPromotion.promotionPercent}%
-                      </Badge>
+                      </span>
                     </>
                   )}
-                </Group>
-              </Box>
+                </div>
+              </div>
 
-              <Stack spacing="xs">
-                <Text weight={500}>Phiên bản</Text>
+              <div className="flex flex-col gap-2">
+                <p className="font-medium text-gray-900 dark:text-gray-100">Phiên bản</p>
                 {product.productVariants.length > 0
                   ? product.productVariants.some(variant => variant.variantProperties)
                     ? (
-                      <Group>
+                      <div className="flex flex-wrap gap-2">
                         {product.productVariants.map((variant, index) => (
-                          <UnstyledButton
+                          <button
                             key={variant.variantId}
-                            sx={{
-                              borderRadius: theme.radius.md,
-                              padding: '7.5px 15px',
-                              border: `2px solid ${theme.colorScheme === 'dark'
-                                ? (index === selectedVariantIndex ? theme.colors.blue[9] : theme.colors.dark[3])
-                                : (index === selectedVariantIndex ? theme.colors.blue[4] : theme.colors.gray[2])}`,
-                              backgroundColor: index === selectedVariantIndex
-                                ? (theme.colorScheme === 'dark'
-                                  ? theme.fn.rgba(theme.colors.blue[9], 0.25)
-                                  : theme.colors.blue[0])
-                                : 'unset',
-                              opacity: variant.variantInventory === 0 ? 0.5 : 'unset',
-                            }}
                             onClick={() => handleSelectVariantButton(index)}
                             disabled={selectedVariantIndex === index || variant.variantInventory === 0}
+                            className={`rounded-md p-2 border-2 transition-colors ${
+                              index === selectedVariantIndex
+                                ? 'border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                            } ${variant.variantInventory === 0 ? 'opacity-50 cursor-not-allowed' : ''} ${selectedVariantIndex === index ? 'cursor-default' : 'cursor-pointer'}`}
                           >
-                            <Stack spacing={2.5}>
-                              <SimpleGrid cols={2} spacing={2.5}>
+                            <div className="flex flex-col gap-2">
+                              <div className="grid grid-cols-2 gap-2 text-sm">
                                 {variant.variantProperties?.content.map(property => (
                                   <React.Fragment key={property.id}>
-                                    <Text size="sm">{property.name}</Text>
-                                    <Text
-                                      size="sm"
-                                      sx={{ textAlign: 'right', fontWeight: 500 }}
-                                    >
+                                    <span className="text-gray-600 dark:text-gray-400">{property.name}</span>
+                                    <span className="text-right font-medium text-gray-900 dark:text-gray-100">
                                       {property.value}
-                                    </Text>
+                                    </span>
                                   </React.Fragment>
                                 ))}
-                              </SimpleGrid>
-                              <Text size="xs" color="dimmed">Tồn kho: {variant.variantInventory}</Text>
-                              <Text size="xs" color="dimmed">Giá: {MiscUtils.formatPrice(
+                              </div>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Tồn kho: {variant.variantInventory}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Giá: {MiscUtils.formatPrice(
                                 MiscUtils.calculateDiscountedPrice(
                                   variant.variantPrice,
                                   product.productPromotion ? product.productPromotion.promotionPercent : 0
                                 )
-                              )} ₫</Text>
-                            </Stack>
-                          </UnstyledButton>
+                              )} ₫</p>
+                            </div>
+                          </button>
                         ))}
-                      </Group>
+                      </div>
                     )
-                    : <Text color="dimmed" size="sm">Sản phẩm chỉ có duy nhất một phiên bản mặc định</Text>
-                  : <Text color="dimmed" size="sm">Không có phiên bản nào</Text>}
-              </Stack>
+                    : <p className="text-sm text-gray-600 dark:text-gray-400">Sản phẩm chỉ có duy nhất một phiên bản mặc định</p>
+                  : <p className="text-sm text-gray-600 dark:text-gray-400">Không có phiên bản nào</p>}
+              </div>
 
               {product.productSaleable && (
-                <Stack spacing="xs">
-                  <Text weight={500}>Số lượng</Text>
-                  <Group spacing={5}>
-                    <ActionIcon size={36} variant="default" onClick={() => quantityInputHandlers.current?.decrement()}>
-                      –
-                    </ActionIcon>
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Số lượng</p>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-9 h-9 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <Minus size={16} />
+                    </button>
 
-                    <NumberInput
-                      hideControls
+                    <input
+                      type="number"
                       value={quantity}
-                      onChange={(value) => setQuantity(value || 1)}
-                      handlersRef={quantityInputHandlers}
-                      max={product.productVariants[selectedVariantIndex].variantInventory}
+                      onChange={(e) => {
+                        const newQuantity = Number(e.target.value) || 1;
+                        setQuantity(Math.min(product.productVariants[selectedVariantIndex].variantInventory, Math.max(1, newQuantity)));
+                      }}
                       min={1}
-                      styles={{ input: { width: 54, textAlign: 'center' } }}
+                      max={product.productVariants[selectedVariantIndex].variantInventory}
+                      className="w-14 h-9 text-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
 
-                    <ActionIcon size={36} variant="default" onClick={() => quantityInputHandlers.current?.increment()}>
-                      +
-                    </ActionIcon>
-                  </Group>
-                </Stack>
+                    <button
+                      onClick={() => setQuantity(Math.min(product.productVariants[selectedVariantIndex].variantInventory, quantity + 1))}
+                      className="w-9 h-9 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
               )}
 
-              <Group mt={theme.spacing.md}>
+              <div className="flex items-center gap-3 mt-4">
                 {!product.productSaleable
                   ? (
-                    <Button
-                      radius="md"
-                      size="lg"
-                      color="teal"
-                      leftIcon={<BellPlus/>}
+                    <button
                       onClick={handleCreatePreorderButton}
+                      className="px-6 py-3 flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-md transition-colors"
                     >
+                      <BellPlus size={20} />
                       Đặt trước
-                    </Button>
+                    </button>
                   )
                   : (
-                    <Button
-                      radius="md"
-                      size="lg"
-                      color="pink"
-                      leftIcon={<ShoppingCart/>}
+                    <button
                       onClick={handleAddToCartButton}
+                      className="px-6 py-3 flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium rounded-md transition-colors"
                     >
+                      <ShoppingCart size={20} />
                       Chọn mua
-                    </Button>
+                    </button>
                   )}
-                <Button
-                  radius="md"
-                  size="lg"
-                  color="pink"
-                  variant="outline"
-                  leftIcon={<Heart/>}
+                <button
                   onClick={handleCreateWishButton}
+                  className="px-6 py-3 flex items-center gap-2 border border-pink-300 dark:border-pink-600 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-md transition-colors"
                 >
+                  <Heart size={20} />
                   Yêu thích
-                </Button>
-              </Group>
-            </Stack>
-          </Grid.Col>
-        </Grid>
-      </Stack>
-    </Card>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -1,29 +1,25 @@
 import React from 'react';
-import { Button, Container, Group, Stack, Text, Title } from '@mantine/core';
 import { Link } from 'react-router-dom';
 
 function ClientError() {
   return (
     <main>
-      <Container size="xl">
-        <Stack spacing="xl" sx={{ textAlign: 'center' }}>
-          <Text
-            weight={700}
-            sx={theme => ({
-              fontSize: 120,
-              color: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2],
-            })}
-          >
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex flex-col gap-6 text-center">
+          <p className="text-[120px] font-bold text-gray-300 dark:text-gray-700">
             Oops...
-          </Text>
-          <Title>Đã có lỗi xảy ra</Title>
-          <Group position="center">
-            <Button component={Link} to="/" variant="subtle" size="md">
+          </p>
+          <h1 className="text-2xl font-semibold">Đã có lỗi xảy ra</h1>
+          <div className="flex justify-center">
+            <Link 
+              to="/" 
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-transparent hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 rounded-md transition-colors"
+            >
               Trở về Trang chủ
-            </Button>
-          </Group>
-        </Stack>
-      </Container>
+            </Link>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

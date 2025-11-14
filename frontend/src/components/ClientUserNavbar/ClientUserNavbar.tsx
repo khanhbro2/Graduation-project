@@ -1,4 +1,3 @@
-import { Button, Stack } from '@mantine/core';
 import { Link, useLocation } from 'react-router-dom';
 import React from 'react';
 import { Alarm, Award, Bell, FileBarcode, Heart, Icon, MessageCircle, Settings, Star, User } from 'tabler-icons-react';
@@ -6,23 +5,26 @@ import { Alarm, Award, Bell, FileBarcode, Heart, Icon, MessageCircle, Settings, 
 function ClientUserNavbar() {
   const location = useLocation();
 
-  const navButton = (name: string, path: string, Icon: Icon, childPaths?: string[]) => (
-    <Button
-      component={Link}
-      to={path}
-      size="md"
-      radius="md"
-      leftIcon={<Icon size={18} strokeWidth={1.5} />}
-      variant={(location.pathname === path || childPaths
-        ?.some(path => location.pathname.startsWith(path))) ? 'light' : 'subtle'}
-      styles={{ root: { width: '100%', padding: '0 12px' }, inner: { justifyContent: 'start' } }}
-    >
-      {name}
-    </Button>
-  );
+  const navButton = (name: string, path: string, Icon: Icon, childPaths?: string[]) => {
+    const isActive = location.pathname === path || childPaths?.some(p => location.pathname.startsWith(p));
+    
+    return (
+      <Link
+        to={path}
+        className={`w-full px-3 py-2 rounded-md flex items-center gap-2 text-sm font-medium transition-colors ${
+          isActive
+            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+        }`}
+      >
+        <Icon size={18} strokeWidth={1.5} />
+        {name}
+      </Link>
+    );
+  };
 
   return (
-    <Stack spacing={5}>
+    <div className="flex flex-col gap-1.5">
       {navButton('Tài khoản', '/user', User)}
       {navButton('Thiết đặt', '/user/setting', Settings,
         ['/user/setting/personal', '/user/setting/phone', '/user/setting/email', '/user/setting/password'])}
@@ -33,7 +35,7 @@ function ClientUserNavbar() {
       {navButton('Điểm thưởng', '/user/reward', Award)}
       {/* {navButton('Đặt trước sản phẩm', '/user/preorder', Alarm)} */}
       {navButton('Yêu cầu tư vấn', '/user/chat', MessageCircle)}
-    </Stack>
+    </div>
   );
 }
 

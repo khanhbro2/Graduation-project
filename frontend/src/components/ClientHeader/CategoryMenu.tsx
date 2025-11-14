@@ -1,17 +1,5 @@
-import React, { Dispatch, SetStateAction } from 'react';
-import {
-  Anchor,
-  Grid,
-  Group,
-  ScrollArea,
-  Skeleton,
-  Stack,
-  Tabs,
-  Text,
-  ThemeIcon,
-  useMantineTheme
-} from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import PageConfigs from 'pages/PageConfigs';
 import { useQuery } from 'react-query';
 import { ClientCategoryResponse, CollectionWrapper } from 'types';
@@ -19,10 +7,9 @@ import FetchUtils, { ErrorMessage } from 'utils/FetchUtils';
 import ResourceURL from 'constants/ResourceURL';
 import NotifyUtils from 'utils/NotifyUtils';
 import { AlertTriangle } from 'tabler-icons-react';
-const Tabstab =Tabs.Tab as any;
-function CategoryMenu({ setOpenedCategoryMenu }: { setOpenedCategoryMenu: Dispatch<SetStateAction<boolean>> }) {
-  const theme = useMantineTheme();
 
+function CategoryMenu({ setOpenedCategoryMenu }: { setOpenedCategoryMenu: Dispatch<SetStateAction<boolean>> }) {
+  const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
 
   const {
@@ -41,20 +28,20 @@ function CategoryMenu({ setOpenedCategoryMenu }: { setOpenedCategoryMenu: Dispat
 
   if (isLoadingCategoryResponses) {
     return (
-      <Stack>
+      <div className="flex flex-col gap-3 p-4">
         {Array(5).fill(0).map((_, index) => (
-          <Skeleton key={index} height={50} radius="md"/>
+          <div key={index} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse" />
         ))}
-      </Stack>
+      </div>
     );
   }
 
   if (isErrorCategoryResponses) {
     return (
-      <Stack my={theme.spacing.xl} sx={{ alignItems: 'center', color: theme.colors.pink[6] }}>
+      <div className="flex flex-col items-center gap-4 my-8 text-pink-600 dark:text-pink-400">
         <AlertTriangle size={125} strokeWidth={1}/>
-        <Text size="xl" weight={500}>Đã có lỗi xảy ra</Text>
-      </Stack>
+        <p className="text-xl font-medium">Đã có lỗi xảy ra</p>
+      </div>
     );
   }
 
@@ -64,70 +51,83 @@ function CategoryMenu({ setOpenedCategoryMenu }: { setOpenedCategoryMenu: Dispat
   };
 
   return (
-    <Tabs
-      variant="pills"
-      tabPadding="md"
-      styles={{
-        // TODO: Refactor !important
-        tabActive: {
-          color: (theme.colorScheme === 'dark' ? theme.colors.blue[2] : theme.colors.blue[6]) + '!important',
-          backgroundColor: (theme.colorScheme === 'dark'
-            ? theme.fn.rgba(theme.colors.blue[8], 0.35) : theme.colors.blue[0]) + '!important',
-        },
-      }}
-    >
-      {categoryResponses?.content.map((firstCategory, index) => {
-        const FirstCategoryIcon = PageConfigs.categorySlugIconMap[firstCategory.categorySlug];
+    <div className="w-full">
+      {/* Tab buttons */}
+      <div className="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
+        {categoryResponses?.content.map((firstCategory, index) => {
+          const FirstCategoryIcon = PageConfigs.categorySlugIconMap[firstCategory.categorySlug];
+          const isActive = activeTab === index;
+          
+          return (
+            <button
+              key={index}
+              onClick={() => setActiveTab(index)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                isActive
+                  ? 'bg-blue-50 dark:bg-blue-900/35 text-blue-600 dark:text-blue-300'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <FirstCategoryIcon size={14}/>
+              {firstCategory.categoryName}
+            </button>
+          );
+        })}
+      </div>
 
-        return (
-          <Tabstab
-            key={index}
-            label={firstCategory.categoryName}
-            icon={<FirstCategoryIcon size={14}/>}
-          >
-            <Stack>
-              <Group>
-                <ThemeIcon variant="light" size={42}>
-                  <FirstCategoryIcon/>
-                </ThemeIcon>
-                <Anchor
-                  sx={{ fontSize: theme.fontSizes.sm * 2 }}
-                  weight={500}
+      {/* Tab content */}
+      <div className="p-4">
+        {categoryResponses?.content.map((firstCategory, index) => {
+          if (activeTab !== index) return null;
+          
+          const FirstCategoryIcon = PageConfigs.categorySlugIconMap[firstCategory.categorySlug];
+          
+          return (
+            <div key={index} className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 flex items-center justify-center rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                  <FirstCategoryIcon size={20}/>
+                </div>
+                <Link
+                  to={'/category/' + firstCategory.categorySlug}
                   onClick={() => handleAnchor('/category/' + firstCategory.categorySlug)}
+                  className="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {firstCategory.categoryName}
-                </Anchor>
-              </Group>
-              <ScrollArea style={{ height: 325 }}>
-                <Grid sx={{ width: '100%' }}>
-                  {firstCategory.categoryChildren.map((secondCategory, index) => (
-                    <Grid.Col span={6} xs={4} sm={3} md={2.4} mb="sm" key={index}>
-                      <Stack spacing="xs">
-                        <Anchor
-                          weight={500}
-                          color="pink"
-                          onClick={() => handleAnchor('/category/' + secondCategory.categorySlug)}
-                        >
-                          {secondCategory.categoryName}
-                        </Anchor>
-                        {secondCategory.categoryChildren.map((thirdCategory, index) => (
-                          <Anchor
-                            key={index}
+                </Link>
+              </div>
+              <div className="overflow-auto" style={{ maxHeight: '325px' }}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {firstCategory.categoryChildren.map((secondCategory, secondIndex) => (
+                    <div key={secondIndex} className="flex flex-col gap-2">
+                      <Link
+                        to={'/category/' + secondCategory.categorySlug}
+                        onClick={() => handleAnchor('/category/' + secondCategory.categorySlug)}
+                        className="font-semibold text-pink-600 dark:text-pink-400 hover:underline text-sm"
+                      >
+                        {secondCategory.categoryName}
+                      </Link>
+                      <div className="flex flex-col gap-1">
+                        {secondCategory.categoryChildren.map((thirdCategory, thirdIndex) => (
+                          <Link
+                            key={thirdIndex}
+                            to={'/category/' + thirdCategory.categorySlug}
                             onClick={() => handleAnchor('/category/' + thirdCategory.categorySlug)}
+                            className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                           >
                             {thirdCategory.categoryName}
-                          </Anchor>
+                          </Link>
                         ))}
-                      </Stack>
-                    </Grid.Col>
+                      </div>
+                    </div>
                   ))}
-                </Grid>
-              </ScrollArea>
-            </Stack>
-          </Tabstab>
-        );
-      })}
-    </Tabs>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

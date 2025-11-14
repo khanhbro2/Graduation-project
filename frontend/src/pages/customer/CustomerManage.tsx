@@ -1,5 +1,4 @@
 import React from 'react';
-import { Avatar, Badge, ColorSwatch, Group, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -33,51 +32,53 @@ function CustomerManage() {
 
   const userStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge color="blue" variant="outline" size="sm">Đã kích hoạt</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đã kích hoạt</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Chưa kích hoạt</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Chưa kích hoạt</span>;
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: CustomerResponse) => (
     <>
       <td>{entity.id}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.user.fullname}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.user.fullname, searchToken)}
+      </td>
+      <td className="text-sm">
+        {highlightText(entity.user.phone, searchToken)}
       </td>
       <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.user.phone}
-        </Highlight>
+        <img src={entity.user.avatar || undefined} alt={entity.user.fullname} className="w-8 h-8 rounded-full object-cover" />
       </td>
       <td>
-        <Avatar src={entity.user.avatar} alt={entity.user.fullname} radius="xl" size="sm"/>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerGroup.color }}></div>
+          <span className="text-sm">{highlightText(entity.customerGroup.name, searchToken)}</span>
+        </div>
       </td>
       <td>
-        <Group spacing="xs">
-          <ColorSwatch color={entity.customerGroup.color}/>
-          <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-            {entity.customerGroup.name}
-          </Highlight>
-        </Group>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerStatus.color }}></div>
+          <span className="text-sm">{highlightText(entity.customerStatus.name, searchToken)}</span>
+        </div>
       </td>
       <td>
-        <Group spacing="xs">
-          <ColorSwatch color={entity.customerStatus.color}/>
-          <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-            {entity.customerStatus.name}
-          </Highlight>
-        </Group>
-      </td>
-      <td>
-        <Group spacing="xs">
-          <ColorSwatch color={entity.customerResource.color}/>
-          <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-            {entity.customerResource.name}
-          </Highlight>
-        </Group>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerResource.color }}></div>
+          <span className="text-sm">{highlightText(entity.customerResource.name, searchToken)}</span>
+        </div>
       </td>
     </>
   );
@@ -139,7 +140,7 @@ function CustomerManage() {
       <tr>
         <td>{CustomerConfigs.properties['user.avatar'].label}</td>
         <td>
-          <Avatar src={entity.user.avatar} alt={entity.user.fullname} radius="xl" size="sm"/>
+          <img src={entity.user.avatar || undefined} alt={entity.user.fullname} className="w-8 h-8 rounded-full object-cover" />
         </td>
       </tr>
       <tr>
@@ -149,43 +150,48 @@ function CustomerManage() {
       <tr>
         <td>{CustomerConfigs.properties['user.roles'].label}</td>
         <td>
-          <Stack spacing="xs" align="flex-start">
-            {entity.user.roles.map((role, index) => <Badge key={index} variant="dot" size="sm">{role.name}</Badge>)}
-          </Stack>
+          <div className="flex flex-col gap-1 items-start">
+            {entity.user.roles.map((role, index) => (
+              <span key={index} className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                {role.name}
+              </span>
+            ))}
+          </div>
         </td>
       </tr>
       <tr>
         <td>{CustomerConfigs.properties['customerGroup.name'].label}</td>
         <td>
-          <Group spacing="xs">
-            <ColorSwatch color={entity.customerGroup.color}/>
-            {entity.customerGroup.name}
-          </Group>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerGroup.color }}></div>
+            <span>{entity.customerGroup.name}</span>
+          </div>
         </td>
       </tr>
       <tr>
         <td>{CustomerConfigs.properties['customerStatus.name'].label}</td>
         <td>
-          <Group spacing="xs">
-            <ColorSwatch color={entity.customerStatus.color}/>
-            {entity.customerStatus.name}
-          </Group>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerStatus.color }}></div>
+            <span>{entity.customerStatus.name}</span>
+          </div>
         </td>
       </tr>
       <tr>
         <td>{CustomerConfigs.properties['customerResource.name'].label}</td>
         <td>
-          <Group spacing="xs">
-            <ColorSwatch color={entity.customerResource.color}/>
-            {entity.customerResource.name}
-          </Group>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerResource.color }}></div>
+            <span>{entity.customerResource.name}</span>
+          </div>
         </td>
       </tr>
     </>
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={CustomerConfigs.manageTitleLinks}
@@ -217,7 +223,7 @@ function CustomerManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

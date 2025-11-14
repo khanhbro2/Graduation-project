@@ -1,5 +1,4 @@
 import React from 'react';
-import { ActionIcon, Center, Group, NumberInput, Stack, Table, Text } from '@mantine/core';
 import { VariantResponse } from 'models/Variant';
 import { PurchaseOrderVariantRequest } from 'models/PurchaseOrderVariant';
 import MiscUtils from 'utils/MiscUtils';
@@ -36,135 +35,126 @@ function VariantTable({
   const deltaVariantInventoryFragment = (delta: number) => {
     const result = MiscUtils.formatterPrice(String(Math.abs(delta)));
     if (delta > 0) {
-      return <Text color="green" inherit>+{result}</Text>;
+      return <span className="text-green-600 dark:text-green-400">+{result}</span>;
     } else if (delta < 0) {
-      return <Text color="red" inherit>-{result}</Text>;
+      return <span className="text-red-600 dark:text-red-400">-{result}</span>;
     }
-    return <Text color="blue" inherit>{result}</Text>;
+    return <span className="text-blue-600 dark:text-blue-400">{result}</span>;
   };
 
   return (
-    <Table
-      horizontalSpacing="xs"
-      verticalSpacing="sm"
-      striped
-    >
-      <thead>
-        <tr>
-          <th style={{ textAlign: 'center' }}>STT</th>
-          <th>Mặt hàng</th>
-          {type === EntityType.PURCHASE_ORDER && <th style={{ textAlign: 'right' }}>Giá vốn</th>}
-          {type === EntityType.ORDER && <th style={{ textAlign: 'right' }}>Giá bán</th>}
-          {type !== EntityType.COUNT && <th style={{ textAlign: 'center' }}>Số lượng</th>}
-          {type === EntityType.COUNT && <th style={{ textAlign: 'center' }}>Tồn kho</th>}
-          {type === EntityType.COUNT && <th style={{ textAlign: 'center' }}>Kiểm thực tế</th>}
-          {type === EntityType.COUNT && <th style={{ textAlign: 'center' }}>Chênh lệch</th>}
-          {[EntityType.PURCHASE_ORDER, EntityType.ORDER].includes(type) &&
-            <th style={{ textAlign: 'right' }}>Thành tiền</th>}
-          <th style={{ textAlign: 'center' }}>Thao tác</th>
-        </tr>
-      </thead>
-      <tbody>
-        {variants.map((variant, index) => (
-          <tr key={variant.id}>
-            <td style={{ textAlign: 'center' }}>{index + 1}</td>
-            <td>
-              <Stack spacing={2}>
-                <Text size="sm">
-                  {variant.product.name}
-                </Text>
-                <Group spacing={5}>
-                  {variant.properties && variant.properties.content.map(property => (
-                    <React.Fragment key={property.code}>
-                      <Text size="xs" color="blue" title={property.name}>
-                        {property.value}
-                      </Text>
-                      <Text size="xs" color="dimmed">⋅</Text>
-                    </React.Fragment>
-                  ))}
-                  <Text size="xs" color="dimmed">
-                    SKU: {variant.sku}
-                  </Text>
-                </Group>
-              </Stack>
-            </td>
-            {type === EntityType.PURCHASE_ORDER && (
-              <td style={{ textAlign: 'right' }}>
-                {MiscUtils.formatPrice(variant.cost) + ' ₫'}
-              </td>
-            )}
-            {type === EntityType.ORDER && (
-              <td style={{ textAlign: 'right' }}>
-                {MiscUtils.formatPrice(variant.price) + ' ₫'}
-              </td>
-            )}
-            {type !== EntityType.COUNT && handleQuantityInput && (
-              <td>
-                <Center>
-                  <NumberInput
-                    size="xs"
-                    placeholder="--"
-                    value={(variantRequests[index] as PurchaseOrderVariantRequest | DocketVariantRequest | OrderVariantRequest)
-                      .quantity}
-                    onChange={(value) => handleQuantityInput(value || 1, index)}
-                    min={1}
-                    max={1_000_000}
-                    parser={MiscUtils.parserPrice}
-                    formatter={MiscUtils.formatterPrice}
-                    sx={{ width: 100 }}
-                  />
-                </Center>
-              </td>
-            )}
-            {type === EntityType.COUNT && handleActualInventoryInput && (
-              <>
-                <td style={{ textAlign: 'center' }}>
-                  {(variantRequests[index] as CountVariantRequest).inventory}
-                </td>
-                <td>
-                  <Center>
-                    <NumberInput
-                      size="xs"
-                      placeholder="--"
-                      value={(variantRequests[index] as CountVariantRequest).actualInventory}
-                      onChange={(value) => handleActualInventoryInput(value || 0, index)}
-                      min={0}
-                      max={1_000_000}
-                      parser={MiscUtils.parserPrice}
-                      formatter={MiscUtils.formatterPrice}
-                      sx={{ width: 100 }}
-                    />
-                  </Center>
-                </td>
-                <td style={{ textAlign: 'center' }}>
-                  {deltaVariantInventoryFragment((variantRequests[index] as CountVariantRequest).actualInventory
-                    - (variantRequests[index] as CountVariantRequest).inventory)}
-                </td>
-              </>
-            )}
-            {[EntityType.PURCHASE_ORDER, EntityType.ORDER].includes(type) && (
-              <td style={{ textAlign: 'right' }}>
-                {MiscUtils.formatPrice(
-                  (variantRequests[index] as PurchaseOrderVariantRequest | OrderVariantRequest).amount) + ' ₫'}
-              </td>
-            )}
-            <td>
-              <Center>
-                <ActionIcon
-                  color="red"
-                  variant="outline"
-                  size={24}
-                  title="Xóa mặt hàng này"
-                  onClick={() => handleDeleteVariantButton(index)}
-                >
-                  <Trash size={16}/>
-                </ActionIcon>
-              </Center>
-            </td>
+    <div className="rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">STT</th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mặt hàng</th>
+            {type === EntityType.PURCHASE_ORDER && <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá vốn</th>}
+            {type === EntityType.ORDER && <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá bán</th>}
+            {type !== EntityType.COUNT && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Số lượng</th>}
+            {type === EntityType.COUNT && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tồn kho</th>}
+            {type === EntityType.COUNT && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kiểm thực tế</th>}
+            {type === EntityType.COUNT && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Chênh lệch</th>}
+            {[EntityType.PURCHASE_ORDER, EntityType.ORDER].includes(type) &&
+              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thành tiền</th>}
+            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thao tác</th>
           </tr>
-        ))}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {variants.map((variant, index) => (
+            <tr key={variant.id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td className="px-3 py-2 text-center text-sm text-gray-700 dark:text-gray-300">{index + 1}</td>
+              <td className="px-3 py-2">
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {variant.product.name}
+                  </p>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {variant.properties && variant.properties.content.map(property => (
+                      <React.Fragment key={property.code}>
+                        <span className="text-xs text-blue-600 dark:text-blue-400" title={property.name}>
+                          {property.value}
+                        </span>
+                        <span className="text-xs text-gray-400">⋅</span>
+                      </React.Fragment>
+                    ))}
+                    <span className="text-xs text-gray-400">
+                      SKU: {variant.sku}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              {type === EntityType.PURCHASE_ORDER && (
+                <td className="px-3 py-2 text-right text-sm text-gray-700 dark:text-gray-300">
+                  {MiscUtils.formatPrice(variant.cost) + ' ₫'}
+                </td>
+              )}
+              {type === EntityType.ORDER && (
+                <td className="px-3 py-2 text-right text-sm text-gray-700 dark:text-gray-300">
+                  {MiscUtils.formatPrice(variant.price) + ' ₫'}
+                </td>
+              )}
+              {type !== EntityType.COUNT && handleQuantityInput && (
+                <td className="px-3 py-2">
+                  <div className="flex items-center justify-center">
+                    <input
+                      type="number"
+                      placeholder="--"
+                      value={(variantRequests[index] as PurchaseOrderVariantRequest | DocketVariantRequest | OrderVariantRequest).quantity || ''}
+                      onChange={(e) => handleQuantityInput(Number(e.target.value) || 1, index)}
+                      min={1}
+                      max={1_000_000}
+                      className="w-24 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </td>
+              )}
+              {type === EntityType.COUNT && handleActualInventoryInput && (
+                <>
+                  <td className="px-3 py-2 text-center text-sm text-gray-700 dark:text-gray-300">
+                    {(variantRequests[index] as CountVariantRequest).inventory}
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="number"
+                        placeholder="--"
+                        value={(variantRequests[index] as CountVariantRequest).actualInventory || ''}
+                        onChange={(e) => handleActualInventoryInput(Number(e.target.value) || 0, index)}
+                        min={0}
+                        max={1_000_000}
+                        className="w-24 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-center text-sm">
+                    {deltaVariantInventoryFragment((variantRequests[index] as CountVariantRequest).actualInventory
+                      - (variantRequests[index] as CountVariantRequest).inventory)}
+                  </td>
+                </>
+              )}
+              {[EntityType.PURCHASE_ORDER, EntityType.ORDER].includes(type) && (
+                <td className="px-3 py-2 text-right text-sm text-gray-700 dark:text-gray-300">
+                  {MiscUtils.formatPrice(
+                    (variantRequests[index] as PurchaseOrderVariantRequest | OrderVariantRequest).amount) + ' ₫'}
+                </td>
+              )}
+              <td className="px-3 py-2">
+                <div className="flex items-center justify-center">
+                  <button
+                    onClick={() => handleDeleteVariantButton(index)}
+                    title="Xóa mặt hàng này"
+                    className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                  >
+                    <Trash size={16}/>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

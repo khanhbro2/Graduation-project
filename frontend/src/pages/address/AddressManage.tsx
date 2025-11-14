@@ -1,5 +1,4 @@
 import React from 'react';
-import { Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -31,25 +30,31 @@ function AddressManage() {
 
   const { searchToken } = useAppStore();
 
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   const showedPropertiesFragment = (entity: AddressResponse) => (
     <>
       <td>{entity.id}</td>
       <td>{DateUtils.isoDateToString(entity.createdAt)}</td>
       <td>{DateUtils.isoDateToString(entity.updatedAt)}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.line || ''}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.line || '', searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.province?.name || ''}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.province?.name || '', searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.district?.name || ''}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.district?.name || '', searchToken)}
       </td>
     </>
   );
@@ -92,7 +97,7 @@ function AddressManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={AddressConfigs.manageTitleLinks}
@@ -124,7 +129,7 @@ function AddressManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

@@ -17,26 +17,12 @@ import { UserRequest } from 'models/User';
 import FetchUtils, { ErrorMessage } from 'utils/FetchUtils';
 import ResourceURL from 'constants/ResourceURL';
 import NotifyUtils from 'utils/NotifyUtils';
-import {
-  Button,
-  Card,
-  Container,
-  Divider,
-  Group,
-  PasswordInput,
-  Select,
-  Stack,
-  Stepper,
-  Text,
-  TextInput,
-  Title,
-  useMantineTheme
-} from '@mantine/core';
 import useAuthStore from 'stores/use-auth-store';
-import { Check, MailOpened, ShieldCheck, UserCheck } from 'tabler-icons-react';
+import { Check, MailOpened, ShieldCheck, UserCheck, Eye, EyeOff } from 'tabler-icons-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import MiscUtils from 'utils/MiscUtils';
-import { useModals } from '@mantine/modals';
+import { Dialog } from '@headlessui/react';
+import { useColorScheme } from 'hooks/use-color-scheme';
 const genderSelectList: SelectOption[] = [
   {
     value: 'M',
@@ -71,52 +57,92 @@ function ClientSignup() {
     }
   }, [navigate, user]);
 
-  return (
-    <main>
-      <Container size="xl">
-        <Stack align="center" spacing={50}>
-          <Title order={2}>Đăng ký tài khoản</Title>
+  const steps = [
+    { icon: UserCheck, label: 'Bước 1', description: 'Tạo tài khoản' },
+    { icon: MailOpened, label: 'Bước 2', description: 'Xác nhận email' },
+    { icon: ShieldCheck, label: 'Bước 3', description: 'Đăng ký thành công' },
+  ];
 
-          <Stepper
-            active={active}
-            onStepClick={setActive}
-            breakpoint="xs"
-            styles={{ root: { width: '100%', maxWidth: 800 }, content: { paddingTop: 50 } }}
-          >
-            <Stepper.Step
-              icon={<UserCheck size={18}/>}
-              label="Bước 1"
-              description="Tạo tài khoản"
-              allowStepSelect={false}
-            >
-              <ClientSignupStepOne nextStep={nextStep}/>
-            </Stepper.Step>
-            <Stepper.Step
-              icon={<MailOpened size={18}/>}
-              label="Bước 2"
-              description="Xác nhận email"
-              allowStepSelect={false}
-            >
-              <ClientSignupStepTwo nextStep={nextStep} userId={Number(userId) || null}/>
-            </Stepper.Step>
-            <Stepper.Step
-              icon={<ShieldCheck size={18}/>}
-              label="Bước 3"
-              description="Đăng ký thành công"
-              allowStepSelect={false}
-            />
-            <Stepper.Completed>
-              <ClientSignupStepThree/>
-            </Stepper.Completed>
-          </Stepper>
-        </Stack>
-      </Container>
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Đăng ký tài khoản</h2>
+          <p className="text-gray-600 dark:text-gray-400">Tạo tài khoản để trải nghiệm tốt nhất</p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 sm:p-12">
+          {/* Stepper */}
+          <div className="mb-12">
+            <div className="flex items-center justify-between relative">
+              {/* Progress line */}
+              <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 -z-0">
+                <div 
+                  className="h-full bg-gradient-to-r from-teal-600 to-emerald-600 transition-all duration-500"
+                  style={{ width: `${(active / (steps.length - 1)) * 100}%` }}
+                />
+              </div>
+              
+              {steps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = active === index;
+                const isCompleted = active > index;
+                const isLast = index === steps.length - 1;
+
+                return (
+                  <React.Fragment key={index}>
+                    <div className="flex flex-col items-center flex-1 relative z-10">
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
+                          isActive
+                            ? 'bg-gradient-to-r from-teal-600 to-emerald-600 border-teal-600 text-white shadow-lg scale-110'
+                            : isCompleted
+                            ? 'bg-gradient-to-r from-teal-600 to-emerald-600 border-teal-600 text-white shadow-md'
+                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400'
+                        }`}
+                      >
+                        <Icon size={20} />
+                      </div>
+                      <div className="mt-3 text-center">
+                        <p className={`text-sm font-semibold transition-colors ${
+                          isActive 
+                            ? 'text-teal-600 dark:text-teal-400' 
+                            : isCompleted
+                            ? 'text-teal-600 dark:text-teal-400'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {step.label}
+                        </p>
+                        <p className={`text-xs mt-1 transition-colors ${
+                          isActive 
+                            ? 'text-gray-700 dark:text-gray-300' 
+                            : 'text-gray-500 dark:text-gray-500'
+                        }`}>
+                          {step.description}
+                        </p>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step Content */}
+          <div className="pt-8">
+            {active === 0 && <ClientSignupStepOne nextStep={nextStep} />}
+            {active === 1 && <ClientSignupStepTwo nextStep={nextStep} userId={Number(userId) || null} />}
+            {active === 2 && <ClientSignupStepThree />}
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
 
 function ClientSignupStepOne({ nextStep }: { nextStep: () => void }) {
   const { updateCurrentSignupUserId } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
 
   const initialFormValues = {
     username: '',
@@ -238,103 +264,241 @@ function ClientSignupStepOne({ nextStep }: { nextStep: () => void }) {
   });
 
   return (
-    <Card withBorder shadow="md" p={30} radius="md" sx={{ maxWidth: 500, margin: 'auto' }}>
+    <div className="w-full max-w-2xl mx-auto">
       <form onSubmit={handleFormSubmit}>
-        <Stack>
-          <TextInput
-            required
-            radius="md"
-            label="Tên tài khoản"
-            placeholder="Nhập tên tài khoản mong muốn"
-            {...form.getInputProps('username')}
-          />
-          <PasswordInput
-            required
-            radius="md"
-            label="Mật khẩu"
-            placeholder="Nhập mật khẩu mong muốn"
-            {...form.getInputProps('password')}
-          />
-          <TextInput
-            required
-            radius="md"
-            label="Họ và tên"
-            placeholder="Nhập họ và tên của bạn"
-            {...form.getInputProps('fullname')}
-          />
-          <TextInput
-            required
-            radius="md"
-            label="Email"
-            placeholder="Nhập email của bạn"
-            {...form.getInputProps('email')}
-          />
-          <TextInput
-            required
-            radius="md"
-            label="Số điện thoại"
-            placeholder="Nhập số điện thoại của bạn"
-            {...form.getInputProps('phone')}
-          />
-          <Select
-            required
-            radius="md"
-            label="Giới tính"
-            placeholder="Chọn giới tính"
-            data={genderSelectList}
-            {...form.getInputProps('gender')}
-          />
-          <Select
-            required
-            radius="md"
-            label="Tỉnh thành"
-            placeholder="Chọn tỉnh thành"
-            data={provinceSelectList}
-            {...form.getInputProps('address.provinceId')}
-          />
-          <Select
-            required
-            radius="md"
-            label="Quận huyện"
-            placeholder="Chọn quận huyện"
-            data={districtSelectList}
-            disabled={form.values['address.provinceId'] === null}
-            {...form.getInputProps('address.districtId')}
-          />
-          <Select
-            required
-            radius="md"
-            label="Phường xã"
-            placeholder="Chọn phường xã"
-            data={wardSelectList}
-            disabled={form.values['address.districtId'] === null}
-            {...form.getInputProps('address.wardId')}
-          />
-          <TextInput
-            required
-            radius="md"
-            label="Địa chỉ"
-            placeholder="Nhập địa chỉ của bạn"
-            {...form.getInputProps('address.line')}
-          />
-          <Button
-            radius="md"
-            type="submit"
-            disabled={MiscUtils.isEquals(initialFormValues, form.values) || registerUserApi.isLoading}
-          >
-            Đăng ký
-          </Button>
-        </Stack>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Tên tài khoản <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Nhập tên tài khoản mong muốn"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('username')}
+            />
+            {form.errors.username && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors.username}
+              </p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Mật khẩu <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                placeholder="Nhập mật khẩu mong muốn"
+                className="w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+                {...form.getInputProps('password')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {form.errors.password && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors.password}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Họ và tên <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Nhập họ và tên của bạn"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('fullname')}
+            />
+            {form.errors.fullname && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors.fullname}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="Nhập email của bạn"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('email')}
+            />
+            {form.errors.email && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors.email}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Số điện thoại <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              required
+              placeholder="Nhập số điện thoại của bạn"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('phone')}
+            />
+            {form.errors.phone && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors.phone}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Giới tính <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('gender')}
+            >
+              <option value="">Chọn giới tính</option>
+              {genderSelectList.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {form.errors.gender && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors.gender}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Tỉnh thành <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('address.provinceId')}
+            >
+              <option value="">Chọn tỉnh thành</option>
+              {provinceSelectList.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {form.errors['address.provinceId'] && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors['address.provinceId']}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Quận huyện <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              disabled={form.values['address.provinceId'] === null}
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('address.districtId')}
+            >
+              <option value="">Chọn quận huyện</option>
+              {districtSelectList.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {form.errors['address.districtId'] && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors['address.districtId']}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Phường xã <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              disabled={form.values['address.districtId'] === null}
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('address.wardId')}
+            >
+              <option value="">Chọn phường xã</option>
+              {wardSelectList.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {form.errors['address.wardId'] && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors['address.wardId']}
+              </p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Địa chỉ <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Nhập địa chỉ của bạn"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+              {...form.getInputProps('address.line')}
+            />
+            {form.errors['address.line'] && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                <span>•</span> {form.errors['address.line']}
+              </p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              disabled={MiscUtils.isEquals(initialFormValues, form.values) || registerUserApi.isLoading}
+              className="w-full px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:transform-none"
+            >
+              {registerUserApi.isLoading ? 'Đang đăng ký...' : 'Đăng ký'}
+            </button>
+          </div>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }
 
 function ClientSignupStepTwo({ nextStep, userId }: { nextStep: () => void, userId: number | null }) {
-  const theme = useMantineTheme();
-  const modals = useModals();
-
+  const { colorScheme } = useColorScheme();
   const { updateCurrentSignupUserId } = useAuthStore();
+
+  const [resendTokenDialogOpen, setResendTokenDialogOpen] = useState(false);
+  const [changeEmailDialogOpen, setChangeEmailDialogOpen] = useState(false);
 
   const initialFormValues = {
     token: '',
@@ -366,7 +530,7 @@ function ClientSignupStepTwo({ nextStep, userId }: { nextStep: () => void, userI
     {
       onSuccess: () => {
         NotifyUtils.simpleSuccess('Đã gửi lại mã xác nhận thành công');
-        modals.closeAll();
+        setResendTokenDialogOpen(false);
       },
       onError: () => NotifyUtils.simpleFailed('Gửi lại mã xác nhận không thành công'),
     }
@@ -384,88 +548,145 @@ function ClientSignupStepTwo({ nextStep, userId }: { nextStep: () => void, userI
   });
 
   const handleResendTokenButton = () => {
-    if (userId) {
-      modals.openConfirmModal({
-        size: 'xs',
-        overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-        overlayOpacity: 0.55,
-        overlayBlur: 3,
-        closeOnClickOutside: false,
-        closeOnConfirm: false,
-        title: <strong>Gửi lại mã xác nhận</strong>,
-        children: <Text size="sm">Bạn có muốn gửi lại mã xác nhận đến email đã nhập trước đó?</Text>,
-        labels: {
-          cancel: 'Đóng',
-          confirm: 'Gửi',
-        },
-        confirmProps: { color: 'blue', disabled: resendRegistrationTokenApi.isLoading },
-        onConfirm: () => resendRegistrationTokenApi.mutate({ userId: userId }),
-      });
-    }
+    setResendTokenDialogOpen(true);
   };
 
   const handleResendTokenWithNewEmailButton = () => {
-    modals.openModal({
-      size: 'md',
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      closeOnClickOutside: false,
-      title: <strong>Thay đổi email</strong>,
-      children: <ChangeEmailModal userId={userId}/>,
-    });
+    setChangeEmailDialogOpen(true);
   };
 
   return (
-    <Card withBorder shadow="md" p={30} radius="md" sx={{ width: 500, margin: 'auto' }}>
-      <Stack>
-        <form onSubmit={handleFormSubmit}>
-          <Stack>
-            <TextInput
-              required
-              radius="md"
-              label="Mã xác nhận"
-              placeholder="Nhập mã xác nhận đã gửi"
-              {...form.getInputProps('token')}
-            />
-            <Button
-              radius="md"
-              type="submit"
-              disabled={MiscUtils.isEquals(initialFormValues, form.values) || confirmRegistrationApi.isLoading}
-            >
-              Xác nhận
-            </Button>
-          </Stack>
-        </form>
+    <>
+      <div className="w-full max-w-md mx-auto">
+        <div className="flex flex-col gap-6">
+          <form onSubmit={handleFormSubmit}>
+            <div className="flex flex-col gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Mã xác nhận <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nhập mã xác nhận đã gửi"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+                  {...form.getInputProps('token')}
+                />
+                {form.errors.token && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <span>•</span> {form.errors.token}
+                  </p>
+                )}
+              </div>
+              <button
+                type="submit"
+                disabled={MiscUtils.isEquals(initialFormValues, form.values) || confirmRegistrationApi.isLoading}
+                className="w-full px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:transform-none"
+              >
+                {confirmRegistrationApi.isLoading ? 'Đang xác nhận...' : 'Xác nhận'}
+              </button>
+            </div>
+          </form>
 
-        <Divider label="hoặc" labelPosition="center"/>
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium">hoặc</span>
+            </div>
+          </div>
 
-        <Button radius="md" variant="outline" onClick={handleResendTokenButton}>
-          Gửi mã xác nhận lần nữa
-        </Button>
+          <button
+            onClick={handleResendTokenButton}
+            className="w-full px-6 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-all duration-200"
+          >
+            Gửi mã xác nhận lần nữa
+          </button>
 
-        <Button radius="md" variant="outline" onClick={handleResendTokenWithNewEmailButton}>
-          Gửi mã xác nhận lần nữa với email mới
-        </Button>
-      </Stack>
-    </Card>
+          <button
+            onClick={handleResendTokenWithNewEmailButton}
+            className="w-full px-6 py-3 border-2 border-teal-200 dark:border-teal-700 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/30 font-medium transition-all duration-200"
+          >
+            Gửi mã xác nhận lần nữa với email mới
+          </button>
+        </div>
+      </div>
+
+      {/* Resend Token Dialog */}
+      <Dialog open={resendTokenDialogOpen} onClose={() => setResendTokenDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-2xl">
+            <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+              Gửi lại mã xác nhận
+            </Dialog.Title>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Bạn có muốn gửi lại mã xác nhận đến email đã nhập trước đó?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setResendTokenDialogOpen(false)}
+                className="px-6 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-all duration-200"
+              >
+                Đóng
+              </button>
+              <button
+                onClick={() => userId && resendRegistrationTokenApi.mutate({ userId })}
+                disabled={resendRegistrationTokenApi.isLoading}
+                className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                {resendRegistrationTokenApi.isLoading ? 'Đang gửi...' : 'Gửi'}
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Change Email Dialog */}
+      <Dialog open={changeEmailDialogOpen} onClose={() => setChangeEmailDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-2xl">
+            <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+              Thay đổi email
+            </Dialog.Title>
+            <ChangeEmailModal userId={userId} onClose={() => setChangeEmailDialogOpen(false)} />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </>
   );
 }
 
 function ClientSignupStepThree() {
-  const theme = useMantineTheme();
-
   return (
-    <Stack align="center" sx={{ alignItems: 'center', color: theme.colors.teal[6] }}>
-      <Check size={100} strokeWidth={1}/>
-      <Text weight={500}>Đã tạo tài khoản và xác nhận thành công!</Text>
-      <Button radius="md" size="lg" mt="xl" component={Link} to="/signin">Đăng nhập</Button>
-    </Stack>
+    <div className="flex flex-col items-center gap-6 py-8">
+      <div className="relative">
+        <div className="absolute inset-0 bg-teal-200 dark:bg-teal-800 rounded-full animate-ping opacity-20"></div>
+        <div className="relative bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full p-6 shadow-lg">
+          <Check size={64} strokeWidth={2.5} className="text-white" />
+        </div>
+      </div>
+      <div className="text-center">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          Đăng ký thành công!
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Tài khoản của bạn đã được tạo và xác nhận thành công
+        </p>
+      </div>
+      <Link
+        to="/signin"
+        className="mt-4 px-8 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+      >
+        Đăng nhập ngay
+      </Link>
+    </div>
   );
 }
 
-function ChangeEmailModal({ userId }: { userId: number | null }) {
-  const modals = useModals();
+function ChangeEmailModal({ userId, onClose }: { userId: number | null; onClose: () => void }) {
 
   const initialFormValues = {
     email: '',
@@ -490,7 +711,7 @@ function ChangeEmailModal({ userId }: { userId: number | null }) {
     {
       onSuccess: () => {
         NotifyUtils.simpleSuccess('Đã đổi email thành công và đã gửi lại mã xác nhận mới');
-        modals.closeAll();
+        onClose();
       },
       onError: () => NotifyUtils.simpleFailed('Thay đổi email không thành công'),
     }
@@ -504,28 +725,42 @@ function ChangeEmailModal({ userId }: { userId: number | null }) {
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <Stack>
-        <TextInput
-          data-autofocus
-          required
-          radius="md"
-          label="Email mới"
-          placeholder="Nhập email mới"
-          {...form.getInputProps('email')}
-        />
-        <Group position="right">
-          <Button radius="md" variant="default" onClick={modals.closeAll}>
+      <div className="flex flex-col gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Email mới <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            autoFocus
+            required
+            placeholder="Nhập email mới"
+            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+            {...form.getInputProps('email')}
+          />
+          {form.errors.email && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+              <span>•</span> {form.errors.email}
+            </p>
+          )}
+        </div>
+        <div className="flex gap-3 justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-all duration-200"
+          >
             Đóng
-          </Button>
-          <Button
-            radius="md"
+          </button>
+          <button
             type="submit"
             disabled={MiscUtils.isEquals(initialFormValues, form.values) || changeRegistrationEmailApi.isLoading}
+            className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
           >
-            Thay đổi và Gửi
-          </Button>
-        </Group>
-      </Stack>
+            {changeRegistrationEmailApi.isLoading ? 'Đang xử lý...' : 'Thay đổi và Gửi'}
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

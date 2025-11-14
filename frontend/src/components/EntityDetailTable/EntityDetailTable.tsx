@@ -1,5 +1,4 @@
 import React from 'react';
-import { Table } from '@mantine/core';
 import useGetByIdApi from 'hooks/use-get-by-id-api';
 
 interface EntityDetailTableProps<T> {
@@ -18,23 +17,31 @@ function EntityDetailTable<T>({
   const { isLoading, isError, data } = useGetByIdApi<T>(resourceUrl, resourceKey, entityId);
 
   if (isLoading) {
-    return <>Đang tải...</>;
+    return <div className="p-4 text-center">Đang tải...</div>;
   }
 
   if (isError) {
-    return <>Đã có lỗi truy vấn</>;
+    return <div className="p-4 text-center text-red-600">Đã có lỗi truy vấn</div>;
   }
 
   return (
-    <Table striped highlightOnHover>
-      <thead>
-        <tr>
-          <th>Thuộc tính</th>
-          <th>Giá trị</th>
-        </tr>
-      </thead>
-      <tbody>{entityDetailTableRowsFragment(data as T)}</tbody>
-    </Table>
+    <div className="rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Thuộc tính
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Giá trị
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {entityDetailTableRowsFragment(data as T)}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

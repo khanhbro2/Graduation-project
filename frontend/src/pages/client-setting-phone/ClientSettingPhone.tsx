@@ -1,6 +1,5 @@
 import React from 'react';
 import useTitle from 'hooks/use-title';
-import { Button, Card, Container, Grid, Stack, TextInput, Title } from '@mantine/core';
 import { ClientUserNavbar } from 'components';
 import MiscUtils from 'utils/MiscUtils';
 import { z } from 'zod';
@@ -54,45 +53,51 @@ function ClientSettingPhone() {
 
   return (
     <main>
-      <Container size="xl">
-        <Grid gutter="lg">
-          <Grid.Col md={3}>
-            <ClientUserNavbar/>
-          </Grid.Col>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="md:col-span-3">
+            <ClientUserNavbar />
+          </div>
 
-          <Grid.Col md={9}>
-            <Card radius="md" shadow="sm" p="lg">
-              <Stack>
-                <Title order={2}>
+          <div className="md:col-span-9">
+            <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   Cập nhật số điện thoại
-                </Title>
-                <Grid>
-                  <Grid.Col lg={6}>
-                    <form onSubmit={handleFormSubmit}>
-                      <Stack>
-                        <TextInput
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2">
+                  <form onSubmit={handleFormSubmit}>
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Số điện thoại <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
                           required
-                          radius="md"
-                          label="Số điện thoại"
                           placeholder="Nhập số điện thoại của bạn"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           {...form.getInputProps('phone')}
                         />
-                        <Button
-                          radius="md"
-                          type="submit"
-                          disabled={MiscUtils.isEquals(initialFormValues, form.values)}
-                        >
-                          Cập nhật
-                        </Button>
-                      </Stack>
-                    </form>
-                  </Grid.Col>
-                </Grid>
-              </Stack>
-            </Card>
-          </Grid.Col>
-        </Grid>
-      </Container>
+                        {form.errors.phone && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{form.errors.phone}</p>
+                        )}
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={MiscUtils.isEquals(initialFormValues, form.values) || updatePhoneSettingApi.isLoading}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors"
+                      >
+                        Cập nhật
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

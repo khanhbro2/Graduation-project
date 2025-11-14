@@ -1,11 +1,10 @@
-import { Button, Stack, Table, useMantineTheme } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import { VariantPropertyItem, VariantRequest } from 'models/Variant';
 import { CollectionWrapper } from 'types';
 import { ProductPropertyItem } from 'models/Product';
 import { AddVariantsModal, ProductVariantRow } from 'components';
 import MiscUtils from 'utils/MiscUtils';
-import { useModals } from '@mantine/modals';
+import { Dialog } from '@headlessui/react';
 
 interface ProductVariantsForUpdateProps {
   variants: VariantRequest[];
@@ -24,11 +23,8 @@ function ProductVariantsForUpdate({
   selectedVariantIndexes,
   setSelectedVariantIndexes,
 }: ProductVariantsForUpdateProps) {
-  const theme = useMantineTheme();
-  const modals = useModals();
-
   const [propertyValueCombinations, setPropertyValueCombinations] = useState<string[][]>([]);
-  const [modalId, setModalId] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (productProperties) {
@@ -67,64 +63,58 @@ function ProductVariantsForUpdate({
     }
 
     setVariants(currentVariants);
-    modals.closeModal(modalId);
-  };
-
-  const handleOpenAddVariantsModalButton = () => {
-    const currentModalId = modals.openModal({
-      size: 'xs',
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      title: 'Thêm phiên bản',
-      children: <AddVariantsModal
-        remainingPropertyValueCombinations={remainingPropertyValueCombinations()}
-        handleAddVariantsButton={handleAddVariantsButton}
-      />,
-    });
-    setModalId(currentModalId);
+    setIsModalOpen(false);
   };
 
   return (
-    <Stack spacing="sm">
-      <Table
-        horizontalSpacing="xs"
-        verticalSpacing="sm"
-        striped
-      >
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Phiên bản</th>
-            <th>SKU</th>
-            <th>Giá vốn</th>
-            <th>Giá bán</th>
-          </tr>
-        </thead>
-        <tbody>
-          {variants.map((variant, index) => (
-            <ProductVariantRow
-              key={index}
-              variant={variant}
-              index={index}
-              variants={variants}
-              setVariants={setVariants}
-              selectedVariantIndexes={selectedVariantIndexes}
-              setSelectedVariantIndexes={setSelectedVariantIndexes}
-              isNewable={!variant.id}
-            />
-          ))}
-        </tbody>
-      </Table>
-      <Button
-        variant="outline"
-        onClick={handleOpenAddVariantsModalButton}
+    <div className="flex flex-col gap-3">
+      <div className="rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
+            <tr>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phiên bản</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">SKU</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá vốn</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá bán</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            {variants.map((variant, index) => (
+              <ProductVariantRow
+                key={index}
+                variant={variant}
+                index={index}
+                variants={variants}
+                setVariants={setVariants}
+                selectedVariantIndexes={selectedVariantIndexes}
+                setSelectedVariantIndexes={setSelectedVariantIndexes}
+                isNewable={!variant.id}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button
+        onClick={() => setIsModalOpen(true)}
         disabled={isDisabledOpenAddVariantsModalButton}
+        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        Thêm phiên bản sản
-        phẩm {!isDisabledOpenAddVariantsModalButton && `(${propertyValueCombinations.length - variants.length})`}
-      </Button>
-    </Stack>
+        Thêm phiên bản sản phẩm {!isDisabledOpenAddVariantsModalButton && `(${propertyValueCombinations.length - variants.length})`}
+      </button>
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <Dialog.Title className="text-lg font-semibold mb-4">Thêm phiên bản</Dialog.Title>
+            <AddVariantsModal
+              remainingPropertyValueCombinations={remainingPropertyValueCombinations()}
+              handleAddVariantsButton={handleAddVariantsButton}
+            />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </div>
   );
 }
 

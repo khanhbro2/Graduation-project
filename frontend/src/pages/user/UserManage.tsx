@@ -1,5 +1,4 @@
 import React from 'react';
-import { Avatar, Badge, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -33,39 +32,50 @@ function UserManage() {
 
   const userStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge color="blue" variant="outline" size="sm">Đã kích hoạt</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đã kích hoạt</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Chưa kích hoạt</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Chưa kích hoạt</span>;
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: UserResponse) => (
     <>
       <td>{entity.id}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.username}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.username, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.fullname}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.fullname, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.phone}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.phone, searchToken)}
       </td>
       <td>{entity.gender === 'M' ? 'Nam' : 'Nữ'}</td>
       <td>
-        <Avatar src={entity.avatar} alt={entity.fullname} radius="xl" size="sm"/>
+        <img src={entity.avatar || undefined} alt={entity.fullname} className="w-8 h-8 rounded-full object-cover" />
       </td>
       <td>{userStatusBadgeFragment(entity.status)}</td>
       <td>
-        <Stack spacing="xs" align="flex-start">
-          {entity.roles.map((role, index) => <Badge key={index} variant="dot" size="sm">{role.name}</Badge>)}
-        </Stack>
+        <div className="flex flex-col gap-1 items-start">
+          {entity.roles.map((role, index) => (
+            <span key={index} className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+              {role.name}
+            </span>
+          ))}
+        </div>
       </td>
     </>
   );
@@ -127,7 +137,7 @@ function UserManage() {
       <tr>
         <td>{UserConfigs.properties.avatar.label}</td>
         <td>
-          <Avatar src={entity.avatar} alt={entity.fullname} radius="xl" size="sm"/>
+          <img src={entity.avatar || undefined} alt={entity.fullname} className="w-8 h-8 rounded-full object-cover" />
         </td>
       </tr>
       <tr>
@@ -137,16 +147,21 @@ function UserManage() {
       <tr>
         <td>{UserConfigs.properties.roles.label}</td>
         <td>
-          <Stack spacing="xs" align="flex-start">
-            {entity.roles.map((role, index) => <Badge key={index} variant="dot" size="sm">{role.name}</Badge>)}
-          </Stack>
+          <div className="flex flex-col gap-1 items-start">
+            {entity.roles.map((role, index) => (
+              <span key={index} className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                {role.name}
+              </span>
+            ))}
+          </div>
         </td>
       </tr>
     </>
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={UserConfigs.manageTitleLinks}
@@ -178,7 +193,7 @@ function UserManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { ActionIcon, Group, Title } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
 
@@ -13,17 +12,15 @@ function CreateUpdateTitle({
   title,
 }: CreateUpdateTitleProps) {
   return (
-    <Group spacing="xs">
-      <ActionIcon
-        component={Link}
+    <div className="flex items-center gap-2">
+      <Link
         to={managerPath}
-        color="blue"
-        variant="filled"
+        className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
       >
-        <ChevronLeft/>
-      </ActionIcon>
-      <Title order={3}>{title}</Title>
-    </Group>
+        <ChevronLeft size={20}/>
+      </Link>
+      <h3 className="text-xl font-semibold">{title}</h3>
+    </div>
   );
 }
 

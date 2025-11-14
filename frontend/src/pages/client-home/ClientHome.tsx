@@ -1,5 +1,4 @@
 import React from 'react';
-import { Container, Stack, useMantineTheme } from '@mantine/core';
 import ClientHomeBanner from 'pages/client-home/ClientHomeBanner';
 import ClientHomeFeaturedCategories from 'pages/client-home/ClientHomeFeaturedCategories';
 import ClientHomeLatestProducts from 'pages/client-home/ClientHomeLatestProducts';
@@ -9,18 +8,16 @@ import useTitle from 'hooks/use-title';
 function ClientHome() {
   useTitle();
 
-  const theme = useMantineTheme();
-
   return (
     <main>
-      <Container size="xl">
-        <Stack spacing={theme.spacing.xl * 1.5}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-12">
           <ClientHomeBanner/>
           <ClientHomeFeaturedCategories/>
           <ClientHomeLatestProducts/>
           <ClientHomeNewsletter/>
-        </Stack>
-      </Container>
+        </div>
+      </div>
     </main>
   );
 }

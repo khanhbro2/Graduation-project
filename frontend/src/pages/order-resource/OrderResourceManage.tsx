@@ -1,5 +1,4 @@
 import React from 'react';
-import { Badge, Code, ColorSwatch, Group, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -33,39 +32,45 @@ function OrderResourceManage() {
 
   const orderResourceStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Có hiệu lực</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Có hiệu lực</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Vô hiệu lực</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Vô hiệu lực</span>;
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: OrderResourceResponse) => (
     <>
       <td>{entity.id}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.code}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.code, searchToken)}
+      </td>
+      <td className="text-sm">
+        {highlightText(entity.name, searchToken)}
       </td>
       <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.name}
-        </Highlight>
-      </td>
-      <td>
-        <Group spacing="xs">
-          <ColorSwatch color={entity.color}/>
-          <Code>{entity.color.toLowerCase()}</Code>
-        </Group>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.color }}></div>
+          <code className="text-xs bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">{entity.color.toLowerCase()}</code>
+        </div>
       </td>
       <td>
         {entity.customerResource && (
-          <Group spacing="xs">
-            <ColorSwatch color={entity.customerResource.color}/>
-            <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-              {entity.customerResource.name}
-            </Highlight>
-          </Group>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerResource.color }}></div>
+            <span className="text-sm">{highlightText(entity.customerResource.name, searchToken)}</span>
+          </div>
         )}
       </td>
       <td>{orderResourceStatusBadgeFragment(entity.status)}</td>
@@ -97,20 +102,20 @@ function OrderResourceManage() {
       <tr>
         <td>{OrderResourceConfigs.properties.color.label}</td>
         <td>
-          <Group spacing="xs">
-            <ColorSwatch color={entity.color}/>
-            <Code>{entity.color.toLowerCase()}</Code>
-          </Group>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.color }}></div>
+            <code className="text-xs bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">{entity.color.toLowerCase()}</code>
+          </div>
         </td>
       </tr>
       <tr>
         <td>{OrderResourceConfigs.properties['customerResource.name'].label}</td>
         <td>
           {entity.customerResource && (
-            <Group spacing="xs">
-              <ColorSwatch color={entity.customerResource.color}/>
-              {entity.customerResource.name}
-            </Group>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.customerResource.color }}></div>
+              <span>{entity.customerResource.name}</span>
+            </div>
           )}
         </td>
       </tr>
@@ -122,7 +127,7 @@ function OrderResourceManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={OrderResourceConfigs.manageTitleLinks}
@@ -154,7 +159,7 @@ function OrderResourceManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

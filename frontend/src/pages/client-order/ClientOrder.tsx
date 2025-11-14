@@ -1,21 +1,4 @@
 import React, { useState } from 'react';
-import {
-  Anchor,
-  Badge,
-  Button,
-  Card,
-  Container,
-  Divider,
-  Grid,
-  Group,
-  Image,
-  Pagination,
-  Skeleton,
-  Stack,
-  Text,
-  Title,
-  useMantineTheme
-} from '@mantine/core';
 import { ClientUserNavbar } from 'components';
 import ApplicationConstants from 'constants/ApplicationConstants';
 import { useQuery } from 'react-query';
@@ -32,8 +15,6 @@ import MiscUtils from 'utils/MiscUtils';
 function ClientOrder() {
   useTitle();
 
-  const theme = useMantineTheme();
-
   const [activePage, setActivePage] = useState(1);
 
   const {
@@ -47,187 +28,231 @@ function ClientOrder() {
 
   if (isLoadingOrderResponses) {
     ordersContentFragment = (
-      <Stack>
+      <div className="flex flex-col gap-4">
         {Array(5).fill(0).map((_, index) => (
-          <Skeleton key={index} height={50} radius="md"/>
+          <div key={index} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse" />
         ))}
-      </Stack>
+      </div>
     );
   }
 
   if (isErrorOrderResponses) {
     ordersContentFragment = (
-      <Stack my={theme.spacing.xl} sx={{ alignItems: 'center', color: theme.colors.pink[6] }}>
-        <AlertTriangle size={125} strokeWidth={1}/>
-        <Text size="xl" weight={500}>Đã có lỗi xảy ra</Text>
-      </Stack>
+      <div className="flex flex-col items-center gap-4 my-8 text-pink-600 dark:text-pink-400">
+        <AlertTriangle size={125} strokeWidth={1} />
+        <p className="text-xl font-medium">Đã có lỗi xảy ra</p>
+      </div>
     );
   }
 
   if (orders && orders.totalElements === 0) {
     ordersContentFragment = (
-      <Stack my={theme.spacing.xl} sx={{ alignItems: 'center', color: theme.colors.blue[6] }}>
-        <Marquee size={125} strokeWidth={1}/>
-        <Text size="xl" weight={500}>Chưa có đơn hàng nào</Text>
-      </Stack>
+      <div className="flex flex-col items-center gap-4 my-8 text-blue-600 dark:text-blue-400">
+        <Marquee size={125} strokeWidth={1} />
+        <p className="text-xl font-medium">Chưa có đơn hàng nào</p>
+      </div>
     );
   }
 
   if (orders && orders.totalElements > 0) {
+    const renderPaginationButtons = () => {
+      const buttons = [];
+      const maxButtons = 7;
+      let startPage = Math.max(1, activePage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(orders.totalPages, startPage + maxButtons - 1);
+      
+      if (endPage - startPage < maxButtons - 1) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+
+      if (startPage > 1) {
+        buttons.push(
+          <button
+            key="first"
+            onClick={() => setActivePage(1)}
+            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            1
+          </button>
+        );
+        if (startPage > 2) {
+          buttons.push(<span key="ellipsis1" className="px-2 text-gray-500">...</span>);
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        buttons.push(
+          <button
+            key={i}
+            onClick={() => setActivePage(i)}
+            className={`px-3 py-1 text-sm border rounded transition-colors ${
+              i === activePage
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            {i}
+          </button>
+        );
+      }
+
+      if (endPage < orders.totalPages) {
+        if (endPage < orders.totalPages - 1) {
+          buttons.push(<span key="ellipsis2" className="px-2 text-gray-500">...</span>);
+        }
+        buttons.push(
+          <button
+            key="last"
+            onClick={() => setActivePage(orders.totalPages)}
+            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            {orders.totalPages}
+          </button>
+        );
+      }
+
+      return buttons;
+    };
+
     ordersContentFragment = (
       <>
-        <Stack spacing="xs">
-          {orders.content.map(order => <ClientOrderCard key={order.orderId} order={order}/>)}
-        </Stack>
+        <div className="flex flex-col gap-2">
+          {orders.content.map(order => <ClientOrderCard key={order.orderId} order={order} />)}
+        </div>
 
-        <Group position="apart" mt={theme.spacing.lg}>
-          <Pagination
-            page={activePage}
-            total={orders.totalPages}
-            onChange={(page: number) => (page !== activePage) && setActivePage(page)}
-          />
-          <Text>
-            <Text component="span" weight={500}>Trang {activePage}</Text>
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-2">
+            {renderPaginationButtons()}
+          </div>
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="font-medium">Trang {activePage}</span>
             <span> / {orders.totalPages}</span>
-          </Text>
-        </Group>
+          </p>
+        </div>
       </>
     );
   }
 
   return (
     <main>
-      <Container size="xl">
-        <Grid gutter="lg">
-          <Grid.Col md={3}>
-            <ClientUserNavbar/>
-          </Grid.Col>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="md:col-span-3">
+            <ClientUserNavbar />
+          </div>
 
-          <Grid.Col md={9}>
-            <Card radius="md" shadow="sm" p="lg">
-              <Stack>
-                <Title order={2}>
+          <div className="md:col-span-9">
+            <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   Đơn hàng của tôi
-                </Title>
+                </h2>
 
                 {ordersContentFragment}
-              </Stack>
-            </Card>
-          </Grid.Col>
-        </Grid>
-      </Container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
 
 function ClientOrderCard({ order }: { order: ClientSimpleOrderResponse }) {
-  const theme = useMantineTheme();
-
   const orderStatusBadgeFragment = (status: number) => {
     switch (status) {
     case 1:
-      return <Badge color="gray" variant="filled" size="sm">Đơn hàng mới</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">Đơn hàng mới</span>;
     case 2:
-      return <Badge color="blue" variant="filled" size="sm">Đang xử lý</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">Đang xử lý</span>;
     case 3:
-      return <Badge color="violet" variant="filled" size="sm">Đang giao hàng</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-violet-100 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 rounded">Đang giao hàng</span>;
     case 4:
-      return <Badge color="green" variant="filled" size="sm">Đã giao hàng</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded">Đã giao hàng</span>;
     case 5:
-      return <Badge color="red" variant="filled" size="sm">Hủy bỏ</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded">Hủy bỏ</span>;
     }
   };
 
   const orderPaymentStatusBadgeFragment = (paymentStatus: number) => {
     switch (paymentStatus) {
     case 1:
-      return <Badge color="gray" variant="filled" size="sm">Chưa thanh toán</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">Chưa thanh toán</span>;
     case 2:
-      return <Badge color="green" variant="filled" size="sm">Đã thanh toán</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded">Đã thanh toán</span>;
     }
   };
 
   return (
-    <Card
-      p="md"
-      radius="md"
-      sx={{ backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0] }}
-    >
-      <Stack>
-        <Group position="apart">
-          <Group>
-            <Text weight={500}>Mã đơn hàng: {order.orderCode}</Text>
-            <Text color="dimmed">
+    <div className="p-4 rounded-md bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <p className="font-medium text-gray-900 dark:text-gray-100">Mã đơn hàng: {order.orderCode}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Ngày tạo: {DateUtils.isoDateToString(order.orderCreatedAt, 'DD/MM/YYYY')}
-            </Text>
-          </Group>
-          <Group spacing="xs">
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
             {orderStatusBadgeFragment(order.orderStatus)}
             {orderPaymentStatusBadgeFragment(order.orderPaymentStatus)}
-          </Group>
-        </Group>
+          </div>
+        </div>
 
-        <Divider/>
+        <div className="border-t border-gray-200 dark:border-gray-600"></div>
 
         {order.orderItems.map(orderItem => (
-          <Group key={orderItem.orderItemVariant.variantId} position="apart">
-            <Group>
-              <Image
-                radius="md"
-                width={55}
-                height={55}
+          <div key={orderItem.orderItemVariant.variantId} className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img
+                className="rounded-md w-[55px] h-[55px] object-cover"
                 src={orderItem.orderItemVariant.variantProduct.productThumbnail || undefined}
                 alt={orderItem.orderItemVariant.variantProduct.productName}
-                withPlaceholder
               />
-              <Stack spacing={3.5}>
-                <Anchor
-                  component={Link}
+              <div className="flex flex-col gap-2">
+                <Link
                   to={'/product/' + orderItem.orderItemVariant.variantProduct.productSlug}
-                  weight={500}
-                  size="sm"
+                  className="font-medium text-sm text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   {orderItem.orderItemVariant.variantProduct.productName}
-                </Anchor>
+                </Link>
                 {orderItem.orderItemVariant.variantProperties && (
-                  <Stack spacing={1.5}>
+                  <div className="flex flex-col gap-1">
                     {orderItem.orderItemVariant.variantProperties.content.map(variantProperty => (
-                      <Text key={variantProperty.id} size="xs" color="dimmed">
+                      <p key={variantProperty.id} className="text-xs text-gray-600 dark:text-gray-400">
                         {variantProperty.name}: {variantProperty.value}
-                      </Text>
+                      </p>
                     ))}
-                  </Stack>
+                  </div>
                 )}
-              </Stack>
-            </Group>
+              </div>
+            </div>
 
-            <Group spacing="xs">
-              <Text>{MiscUtils.formatPrice(orderItem.orderItemPrice) + '\u00A0₫'}</Text>
-              <Text color="blue" size="lg" sx={{ fontFamily: theme.fontFamilyMonospace }}>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-gray-900 dark:text-gray-100">{MiscUtils.formatPrice(orderItem.orderItemPrice) + '\u00A0₫'}</p>
+              <p className="text-lg font-mono text-blue-600 dark:text-blue-400">
                 ×{orderItem.orderItemQuantity}
-              </Text>
-            </Group>
-          </Group>
+              </p>
+            </div>
+          </div>
         ))}
 
-        <Divider/>
+        <div className="border-t border-gray-200 dark:border-gray-600"></div>
 
-        <Group position="apart">
-          <Button
-            radius="md"
-            variant="outline"
-            component={Link}
+        <div className="flex items-center justify-between">
+          <Link
             to={'/order/detail/' + order.orderCode}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             Xem chi tiết
-          </Button>
-          <Group spacing={5}>
-            <Text>Tổng tiền: </Text>
-            <Text weight={500} size="lg">{MiscUtils.formatPrice(order.orderTotalPay) + '\u00A0₫'}</Text>
-          </Group>
-        </Group>
-      </Stack>
-    </Card>
+          </Link>
+          <div className="flex items-center gap-1">
+            <p className="text-sm text-gray-700 dark:text-gray-300">Tổng tiền: </p>
+            <p className="font-medium text-lg text-gray-900 dark:text-gray-100">{MiscUtils.formatPrice(order.orderTotalPay) + '\u00A0₫'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

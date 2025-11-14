@@ -1,12 +1,8 @@
 import React from 'react';
-import { Box, Button, Grid, Stack } from '@mantine/core';
 import { FilterCriteriaRow } from 'components';
-import useFilterPanelStyles from 'components/FilterPanel/FilterPanel.styles';
 import useFilterPanelMainRightViewModel from 'components/FilterPanelMainRight/FilterPanelMainRight.vm';
 
 function FilterPanelMainRight() {
-  const { classes } = useFilterPanelStyles();
-
   const {
     filterCriteriaList,
     isDisabledCreateFilterCriteriaButton,
@@ -22,21 +18,21 @@ function FilterPanelMainRight() {
   ));
 
   return (
-    <Grid.Col span={3}>
-      <Stack spacing="sm">
-        <Box className={classes.titleFilterPanel}>
+    <div className="col-span-3">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           Lọc
-        </Box>
+        </h3>
         {filterCriteriaListFragment}
-        <Button
-          variant="outline"
+        <button
           onClick={handleCreateFilterCriteriaButton}
           disabled={isDisabledCreateFilterCriteriaButton}
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Thêm tiêu chí lọc
-        </Button>
-      </Stack>
-    </Grid.Col>
+        </button>
+      </div>
+    </div>
   );
 }
 

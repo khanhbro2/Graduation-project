@@ -1,56 +1,44 @@
 import React from 'react';
-import { Button, Card, Grid, Group, Stack, Text, Title, useMantineTheme } from '@mantine/core';
 import { List } from 'tabler-icons-react';
 import PageConfigs from 'pages/PageConfigs';
 import { Link } from 'react-router-dom';
 import MockUtils from 'utils/MockUtils';
 
 function ClientHomeFeaturedCategories() {
-  const theme = useMantineTheme();
 
   return (
-    <Stack>
-      <Group position="apart">
-        <Title order={2}>
-          <Text
-            color="#14372fe4"
-            inherit
-          >
-            Danh mục nổi bật
-          </Text>
-        </Title>
-        <Button component={Link} to="/all-categories" variant="light" leftIcon={<List size={16}/>} radius="md">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[#14372fe4]">
+          Danh mục nổi bật
+        </h2>
+        <Link
+          to="/all-categories"
+          className="flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+        >
+          <List size={16} />
           Xem tất cả
-        </Button>
-      </Group>
-      <Grid>
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-4">
         {MockUtils.featuredCategories.map(category => {
           const CategoryIcon = PageConfigs.categorySlugIconMap[category.categorySlug];
 
           return (
-            <Grid.Col key={category.categorySlug} span={6} sm={4} md={3}>
-              <Card
-                radius="md"
-                shadow="sm"
-                p="lg"
-                component={Link}
-                to={'/category/' + category.categorySlug}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
-                  },
-                }}
-              >
-                <Group>
-                  <CategoryIcon size={50} strokeWidth={1}/>
-                  <Text>{category.categoryName}</Text>
-                </Group>
-              </Card>
-            </Grid.Col>
+            <Link
+              key={category.categorySlug}
+              to={'/category/' + category.categorySlug}
+              className="p-6 rounded-md shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <CategoryIcon size={50} strokeWidth={1} />
+                <p className="text-gray-900 dark:text-gray-100">{category.categoryName}</p>
+              </div>
+            </Link>
           );
         })}
-      </Grid>
-    </Stack>
+      </div>
+    </div>
   );
 }
 

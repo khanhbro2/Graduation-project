@@ -1,22 +1,3 @@
-import {
-  Anchor,
-  Breadcrumbs,
-  Button,
-  Card,
-  Checkbox,
-  Chip,
-  Chips,
-  Container,
-  Grid,
-  Group,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-  useMantineTheme
-} from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MiscUtils from 'utils/MiscUtils';
@@ -31,11 +12,9 @@ import { ClientCategoryResponse, ClientFilterResponse } from 'types';
 import ClientCategorySkeleton from 'pages/client-category/ClientCategorySkeleton';
 import ClientCategoryProducts from 'pages/client-category/ClientCategoryProducts';
 import useClientCategoryStore from 'stores/use-client-category-store';
-import { useDebouncedValue } from '@mantine/hooks';
+import { useDebouncedValue } from 'hooks/use-debounced-value';
 
 function ClientCategory() {
-  const theme = useMantineTheme();
-
   const { slug } = useParams();
 
   const {
@@ -57,7 +36,7 @@ function ClientCategory() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
-  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 400);
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 400);
   useEffect(() => {
     if (debouncedSearchQuery !== activeSearch) {
       updateActivePage(1);
@@ -135,138 +114,210 @@ function ClientCategory() {
 
   return (
     <main>
-      <Container size="xl">
-        <Stack spacing={theme.spacing.xl * 2}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-12">
 
-          <Card radius="md" shadow="sm" p="lg">
-            <Stack>
-              <Breadcrumbs>
-                <Anchor component={Link} to="/">
+          <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col gap-4">
+              <nav className="flex items-center gap-2 text-sm">
+                <Link to="/" className="text-blue-600 dark:text-blue-400 hover:underline">
                   Trang chủ
-                </Anchor>
+                </Link>
                 {MiscUtils.makeCategoryBreadcrumbs(category).slice(0, -1).map(c => (
-                  <Anchor key={c.categorySlug} component={Link} to={'/category/' + c.categorySlug}>
-                    {c.categoryName}
-                  </Anchor>
+                  <React.Fragment key={c.categorySlug}>
+                    <span className="text-gray-400">/</span>
+                    <Link to={'/category/' + c.categorySlug} className="text-blue-600 dark:text-blue-400 hover:underline">
+                      {c.categoryName}
+                    </Link>
+                  </React.Fragment>
                 ))}
-                <Text color="dimmed">
+                <span className="text-gray-400">/</span>
+                <span className="text-gray-600 dark:text-gray-400">
                   {category.categoryName}
-                </Text>
-              </Breadcrumbs>
+                </span>
+              </nav>
 
-              <Group spacing="xs" sx={{ alignItems: 'baseline' }}>
-                <Title order={2}>{category.categoryName}</Title>
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{category.categoryName}</h2>
                 {category.categoryChildren.length > 0 && (
                   <>
-                    <Text color="dimmed">
-                      <ChevronRight size={14}/>
-                    </Text>
-                    <Breadcrumbs separator="·">
-                      {category.categoryChildren.map(c => (
-                        <Anchor key={c.categorySlug} component={Link} to={'/category/' + c.categorySlug} size="sm">
-                          {c.categoryName}
-                        </Anchor>
+                    <ChevronRight size={14} className="text-gray-400" />
+                    <nav className="flex items-center gap-1 text-sm">
+                      {category.categoryChildren.map((c, index) => (
+                        <React.Fragment key={c.categorySlug}>
+                          {index > 0 && <span className="text-gray-400">·</span>}
+                          <Link to={'/category/' + c.categorySlug} className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                            {c.categoryName}
+                          </Link>
+                        </React.Fragment>
                       ))}
-                    </Breadcrumbs>
+                    </nav>
                   </>
                 )}
-              </Group>
-            </Stack>
-          </Card>
+              </div>
+            </div>
+          </div>
 
-          <Grid gutter="xl">
-            <Grid.Col md={3} mb={theme.spacing.xl}>
-              <Stack spacing="lg">
-                <Group position="apart">
-                  <Group spacing="xs">
-                    <ChartCandle/>
-                    <Text weight={500}>Bộ lọc</Text>
-                  </Group>
-                  <Button
-                    variant="light"
-                    color="pink"
-                    radius="md"
-                    size="xs"
-                    compact
-                    leftIcon={<X size={10}/>}
-                    styles={{ leftIcon: { marginRight: 6 } }}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            <div className="md:col-span-3 mb-8">
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ChartCandle size={20} />
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Bộ lọc</p>
+                  </div>
+                  <button
                     onClick={handleResetButton}
                     disabled={disabledResetButton}
+                    className="px-2 py-1 text-xs flex items-center gap-1 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
+                    <X size={10} />
                     Đặt mặc định
-                  </Button>
-                </Group>
+                  </button>
+                </div>
 
-                <Stack>
-                  <Text weight={500}>Tìm kiếm</Text>
-                  <TextInput
-                    radius="md"
-                    placeholder={'Tìm kiếm trong ' + category.categoryName}
-                    icon={<Search size={16}/>}
-                    value={searchQuery || ''}
-                    onChange={(event) => setSearchQuery(event.currentTarget.value || null)}
-                  />
-                </Stack>
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Tìm kiếm</p>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search size={16} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder={'Tìm kiếm trong ' + category.categoryName}
+                      value={searchQuery || ''}
+                      onChange={(event) => setSearchQuery(event.currentTarget.value || null)}
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
 
-                <Stack>
-                  <Text weight={500}>Khoảng giá</Text>
-                  <Chips variant="filled" multiple value={priceOptions} onChange={handlePriceOptionChips}>
-                    {MiscUtils.generatePriceOptions(filter.filterPriceQuartiles).map((priceOption, index) => (
-                      <Chip key={index} value={priceOption.join('-')}>
-                        {MiscUtils.readablePriceOption(priceOption)}
-                      </Chip>
-                    ))}
-                  </Chips>
-                </Stack>
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Khoảng giá</p>
+                  <div className="flex flex-wrap gap-2">
+                    {MiscUtils.generatePriceOptions(filter.filterPriceQuartiles).map((priceOption, index) => {
+                      const priceOptionValue = priceOption.join('-');
+                      const isSelected = priceOptions.includes(priceOptionValue);
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            const newOptions = isSelected
+                              ? priceOptions.filter(opt => opt !== priceOptionValue)
+                              : [...priceOptions, priceOptionValue];
+                            handlePriceOptionChips(newOptions);
+                          }}
+                          className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                            isSelected
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          {MiscUtils.readablePriceOption(priceOption)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                <Stack>
-                  <Text weight={500}>Thương hiệu</Text>
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Thương hiệu</p>
                   {filter.filterBrands.length > 0
                     ? (
-                      <Chips variant="filled" multiple value={brandOptions} onChange={handleBrandChips}>
-                        {filter.filterBrands.map(brand => (
-                          <Chip key={brand.brandId} value={brand.brandId}>{brand.brandName}</Chip>
-                        ))}
-                      </Chips>
-                    ) : <Text sx={{ fontStyle: 'italic' }} color="dimmed">Không có tùy chọn</Text>}
-                </Stack>
+                      <div className="flex flex-wrap gap-2">
+                        {filter.filterBrands.map(brand => {
+                          const brandIdStr = String(brand.brandId);
+                          const isSelected = brandOptions.includes(brandIdStr);
+                          return (
+                            <button
+                              key={brand.brandId}
+                              onClick={() => {
+                                const newOptions = isSelected
+                                  ? brandOptions.filter(opt => opt !== brandIdStr)
+                                  : [...brandOptions, brandIdStr];
+                                handleBrandChips(newOptions);
+                              }}
+                              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                                isSelected
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                              }`}
+                            >
+                              {brand.brandName}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : <p className="text-sm italic text-gray-600 dark:text-gray-400">Không có tùy chọn</p>}
+                </div>
 
-                <Stack>
-                  <Text weight={500}>Khác</Text>
-                  <Checkbox
-                    label="Chỉ tính còn hàng"
-                    checked={activeSaleable}
-                    onChange={(event) => updateActiveSaleable(event.currentTarget.checked)}
-                  />
-                </Stack>
-              </Stack>
-            </Grid.Col>
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Khác</p>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={activeSaleable}
+                      onChange={(event) => updateActiveSaleable(event.currentTarget.checked)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Chỉ tính còn hàng</span>
+                  </label>
+                </div>
+              </div>
+            </div>
 
-            <Grid.Col md={9}>
-              <Stack spacing="lg">
-                <Group position="apart">
-                  <Group spacing="xs">
-                    <ArrowsDownUp size={20}/>
-                    <Text weight={500} mr={theme.spacing.xs}>Sắp xếp theo</Text>
-                    <RadioGroup
-                      value={activeSort || ''}
-                      onChange={(value) => updateActiveSort((value as '' | 'lowest-price' | 'highest-price') || null)}
-                    >
-                      <Radio value="" label="Mới nhất"/>
-                      <Radio value="lowest-price" label="Giá thấp → cao"/>
-                      <Radio value="highest-price" label="Giá cao → thấp"/>
-                    </RadioGroup>
-                  </Group>
-                  <Text>{totalProducts} sản phẩm</Text>
-                </Group>
+            <div className="md:col-span-9">
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ArrowsDownUp size={20} />
+                    <p className="font-medium text-gray-900 dark:text-gray-100 mr-2">Sắp xếp theo</p>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="sort"
+                          value=""
+                          checked={activeSort === null}
+                          onChange={(e) => updateActiveSort((e.target.value as '' | 'lowest-price' | 'highest-price') || null)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Mới nhất</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="sort"
+                          value="lowest-price"
+                          checked={activeSort === 'lowest-price'}
+                          onChange={(e) => updateActiveSort((e.target.value as '' | 'lowest-price' | 'highest-price') || null)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Giá thấp → cao</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="sort"
+                          value="highest-price"
+                          checked={activeSort === 'highest-price'}
+                          onChange={(e) => updateActiveSort((e.target.value as '' | 'lowest-price' | 'highest-price') || null)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Giá cao → thấp</span>
+                      </label>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{totalProducts} sản phẩm</p>
+                </div>
 
                 <ClientCategoryProducts categorySlug={category.categorySlug}/>
-              </Stack>
-            </Grid.Col>
-          </Grid>
+              </div>
+            </div>
+          </div>
 
-        </Stack>
-      </Container>
+        </div>
+      </div>
     </main>
   );
 }
@@ -306,6 +357,5 @@ function useGetFilterApi(categorySlug: string) {
 
   return { filterResponse, isLoadingFilterResponse, isErrorFilterResponse };
 }
-
 
 export default ClientCategory;

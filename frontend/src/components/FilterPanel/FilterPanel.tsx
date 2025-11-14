@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { Divider, Paper, Stack } from '@mantine/core';
 import {
   FilterPanelHeader,
   FilterPanelHeaderLeft,
@@ -20,8 +19,8 @@ function FilterPanel() {
   }
 
   return (
-    <Paper shadow="xs">
-      <Stack spacing={0}>
+    <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm">
+      <div className="flex flex-col gap-0">
         <FilterPanelHeader>
           <FilterPanelHeaderLeft
             filterNameInputRef={filterNameInputRef}
@@ -31,14 +30,14 @@ function FilterPanel() {
           />
         </FilterPanelHeader>
 
-        <Divider/>
+        <div className="border-t border-gray-200 dark:border-gray-700" />
 
         <FilterPanelMain>
           <FilterPanelMainLeft/>
           <FilterPanelMainRight/>
         </FilterPanelMain>
-      </Stack>
-    </Paper>
+      </div>
+    </div>
   );
 }
 

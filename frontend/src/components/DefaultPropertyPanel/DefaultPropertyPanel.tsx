@@ -1,5 +1,4 @@
 import React from 'react';
-import { Code, Group, Paper, Stack, Text } from '@mantine/core';
 import DateUtils from 'utils/DateUtils';
 
 interface DefaultPropertyPanelProps {
@@ -18,39 +17,41 @@ function DefaultPropertyPanel({
   updatedBy = '1',
 }: DefaultPropertyPanelProps) {
   return (
-    <Paper shadow="xs" p="sm">
-      <Group spacing="xl">
-        <Stack spacing={5}>
-          <Text size="sm">ID</Text>
-          <Text><Code color="blue">{id}</Code></Text>
-        </Stack>
-        <Stack spacing={5}>
-          <Text size="sm">Ngày tạo</Text>
-          <Text>
-            <Code color="blue">{DateUtils.isoDateToString(createdAt)}</Code>
-          </Text>
-        </Stack>
-        <Stack spacing={5}>
-          <Text size="sm">Ngày cập nhật</Text>
-          <Text>
-            <Code color="blue">{DateUtils.isoDateToString(updatedAt)}</Code>
-          </Text>
-        </Stack>
+    <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
+      <div className="flex items-center gap-6">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm text-gray-600 dark:text-gray-400">ID</p>
+          <code className="px-2 py-1 text-sm font-mono bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">
+            {id}
+          </code>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Ngày tạo</p>
+          <code className="px-2 py-1 text-sm font-mono bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">
+            {DateUtils.isoDateToString(createdAt)}
+          </code>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Ngày cập nhật</p>
+          <code className="px-2 py-1 text-sm font-mono bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">
+            {DateUtils.isoDateToString(updatedAt)}
+          </code>
+        </div>
         {/* TODO: Triển khai createdBy và updatedBy */}
-        {/*<Stack spacing={5}>*/}
-        {/*  <Text size="sm">Người tạo</Text>*/}
-        {/*  <Text>*/}
-        {/*    <Code color="blue">{createdBy}</Code>*/}
-        {/*  </Text>*/}
-        {/*</Stack>*/}
-        {/*<Stack spacing={5}>*/}
-        {/*  <Text size="sm">Người cập nhật</Text>*/}
-        {/*  <Text>*/}
-        {/*    <Code color="blue">{updatedBy}</Code>*/}
-        {/*  </Text>*/}
-        {/*</Stack>*/}
-      </Group>
-    </Paper>
+        {/*<div className="flex flex-col gap-1.5">*/}
+        {/*  <p className="text-sm text-gray-600 dark:text-gray-400">Người tạo</p>*/}
+        {/*  <code className="px-2 py-1 text-sm font-mono bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">*/}
+        {/*    {createdBy}*/}
+        {/*  </code>*/}
+        {/*</div>*/}
+        {/*<div className="flex flex-col gap-1.5">*/}
+        {/*  <p className="text-sm text-gray-600 dark:text-gray-400">Người cập nhật</p>*/}
+        {/*  <code className="px-2 py-1 text-sm font-mono bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded">*/}
+        {/*    {updatedBy}*/}
+        {/*  </code>*/}
+        {/*</div>*/}
+      </div>
+    </div>
   );
 }
 

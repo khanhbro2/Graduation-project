@@ -1,28 +1,3 @@
-import {
-  ActionIcon,
-  Anchor,
-  Badge,
-  Button,
-  Card,
-  Container,
-  Grid,
-  Group,
-  Image,
-  LoadingOverlay,
-  NumberInput,
-  NumberInputHandlers,
-  Radio,
-  RadioGroup,
-  ScrollArea,
-  Skeleton,
-  Stack,
-  Table,
-  Text,
-  ThemeIcon,
-  Title,
-  Tooltip,
-  useMantineTheme
-} from '@mantine/core';
 import { useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
@@ -32,7 +7,9 @@ import {
   Marquee,
   ShoppingCart,
   Trash,
-  X
+  X,
+  Minus,
+  Plus
 } from 'tabler-icons-react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
@@ -54,7 +31,7 @@ import useTitle from 'hooks/use-title';
 import { Link } from 'react-router-dom';
 import MiscUtils from 'utils/MiscUtils';
 import useAuthStore from 'stores/use-auth-store';
-import { useModals } from '@mantine/modals';
+import { Dialog } from '@headlessui/react';
 import ApplicationConstants from 'constants/ApplicationConstants';
 import useSaveCartApi from 'hooks/use-save-cart-api';
 import PageConfigs from 'pages/PageConfigs';
@@ -62,11 +39,13 @@ import { PaymentMethodType } from 'models/PaymentMethod';
 import useClientSiteStore from 'stores/use-client-site-store';
 import { NotificationType } from 'models/Notification';
 import React from 'react';
+import { useColorScheme } from 'hooks/use-color-scheme';
 function ClientCart() {
   useTitle();
 
-  const theme = useMantineTheme();
-  const modals = useModals();
+  const { colorScheme } = useColorScheme();
+  const [confirmOrderDialogOpen, setConfirmOrderDialogOpen] = useState(false);
+  const [confirmedOrderDialogOpen, setConfirmedOrderDialogOpen] = useState(false);
 
   const { user, currentPaymentMethod, updateCurrentPaymentMethod } =
 		useAuthStore();
@@ -83,89 +62,36 @@ function ClientCart() {
   const isError = isErrorCartResponse || isErrorPaymentMethodResponses;
 
   const handleOrderButton = () => {
-    const PaymentMethodIcon =
-			PageConfigs.paymentMethodIconMap[currentPaymentMethod];
+    setConfirmOrderDialogOpen(true);
+  };
 
-    modals.openConfirmModal({
-      size: 'md',
-      overlayColor:
-				theme.colorScheme === 'dark'
-				  ? theme.colors.dark[9]
-				  : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 0.5,
-      closeOnConfirm: false,
-      withCloseButton: false,
-      title: <strong>Thông báo xác nhận đặt mua</strong>,
-      children: (
-        <Stack>
-          <Text>
-						Bạn có muốn đặt mua những sản phẩm đã chọn với hình thức
-						thanh toán sau?
-          </Text>
-          <Group
-            spacing="xs"
-            direction="row"
-            style={{ width: '100%' }}
-          >
-            <PaymentMethodIcon color={theme.colors.gray[5]} />
-            <Text size="sm">
-              {
-                PageConfigs.paymentMethodNameMap[
-                  currentPaymentMethod
-                ]
-              }
-            </Text>
-          </Group>
-        </Stack>
-      ),
-      labels: {
-        cancel: 'Hủy',
-        confirm: 'Xác nhận đặt mua',
-      },
-      confirmProps: { color: 'blue' },
-      onConfirm: () =>
-        modals.openModal({
-          size: 'md',
-          overlayColor:
-						theme.colorScheme === 'dark'
-						  ? theme.colors.dark[9]
-						  : theme.colors.gray[2],
-          overlayOpacity: 0.55,
-          overlayBlur: 0.5,
-          closeOnClickOutside: false,
-          withCloseButton: false,
-          title: <strong>Thông báo xác nhận đặt mua</strong>,
-          children: <ConfirmedOrder />,
-        }),
-    });
+  const handleConfirmOrder = () => {
+    setConfirmOrderDialogOpen(false);
+    setConfirmedOrderDialogOpen(true);
   };
 
   let cartContentFragment;
 
   if (isLoading) {
     cartContentFragment = (
-      <Stack>
+      <div className="flex flex-col gap-4">
         {Array(5)
           .fill(0)
           .map((_, index) => (
-            <Skeleton key={index} height={50} radius="md" />
+            <div key={index} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse" />
           ))}
-      </Stack>
+      </div>
     );
   }
 
   if (isError) {
     cartContentFragment = (
-      <Stack
-        my={theme.spacing.xl}
-        sx={{ alignItems: 'center', color: theme.colors.pink[6] }}
-      >
+      <div className="flex flex-col items-center gap-4 my-8 text-pink-600 dark:text-pink-400">
         <AlertTriangle size={125} strokeWidth={1} />
-        <Text size="xl" weight={500}>
+        <p className="text-xl font-medium">
 					Đã có lỗi xảy ra
-        </Text>
-      </Stack>
+        </p>
+      </div>
     );
   }
 
@@ -201,62 +127,37 @@ function ClientCart() {
     const totalPay = totalAmount + taxCost + shippingCost;
 
     cartContentFragment = (
-      <Grid>
-        <Grid.Col md={9}>
-          <Card radius="md" shadow="sm" p={0}>
-            <ScrollArea>
-              <Table verticalSpacing="md" horizontalSpacing="lg">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <div className="md:col-span-9">
+          <div className="p-0 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <div className="overflow-auto max-h-[600px]">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr>
-                    <th style={{ minWidth: 325 }}>
-                      <Text
-                        weight="initial"
-                        size="sm"
-                        color="dimmed"
-                      >
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="p-4 text-left min-w-[325px]">
+                      <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
 												Mặt hàng
-                      </Text>
+                      </p>
                     </th>
-                    <th style={{ minWidth: 125 }}>
-                      <Text
-                        weight="initial"
-                        size="sm"
-                        color="dimmed"
-                      >
+                    <th className="p-4 text-left min-w-[125px]">
+                      <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
 												Đơn giá
-                      </Text>
+                      </p>
                     </th>
-                    <th style={{ minWidth: 150 }}>
-                      <Text
-                        weight="initial"
-                        size="sm"
-                        color="dimmed"
-                      >
+                    <th className="p-4 text-left min-w-[150px]">
+                      <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
 												Số lượng
-                      </Text>
+                      </p>
                     </th>
-                    <th style={{ minWidth: 125 }}>
-                      <Text
-                        weight="initial"
-                        size="sm"
-                        color="dimmed"
-                      >
+                    <th className="p-4 text-left min-w-[125px]">
+                      <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
 												Thành tiền
-                      </Text>
+                      </p>
                     </th>
-                    <th
-                      style={{
-                        textAlign: 'center',
-                        minWidth: 80,
-                      }}
-                    >
-                      <Text
-                        weight="initial"
-                        size="sm"
-                        color="dimmed"
-                      >
+                    <th className="p-4 text-center min-w-[80px]">
+                      <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
 												Thao tác
-                      </Text>
+                      </p>
                     </th>
                   </tr>
                 </thead>
@@ -272,69 +173,51 @@ function ClientCart() {
                   ))}
                   {cart.cartItems.length === 0 && (
                     <tr>
-                      <td colSpan={5}>
-                        <Stack
-                          my={theme.spacing.xl}
-                          sx={{
-                            alignItems: 'center',
-                            color: theme.colors
-                              .blue[6],
-                          }}
-                        >
+                      <td colSpan={5} className="p-8">
+                        <div className="flex flex-col items-center gap-4 my-8 text-blue-600 dark:text-blue-400">
                           <Marquee
                             size={125}
                             strokeWidth={1}
                           />
-                          <Text
-                            size="xl"
-                            weight={500}
-                          >
+                          <p className="text-xl font-medium">
 														Chưa thêm mặt hàng nào
-                          </Text>
-                        </Stack>
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   )}
                 </tbody>
-              </Table>
-            </ScrollArea>
-          </Card>
-        </Grid.Col>
+              </table>
+            </div>
+          </div>
+        </div>
 
-        <Grid.Col md={3}>
-          <Stack>
-            <Card radius="md" shadow="sm" px="lg" pt="md" pb="lg">
-              <Stack spacing="xs">
-                <Group position="apart">
-                  <Text weight={500} color="dimmed">
+        <div className="md:col-span-3">
+          <div className="flex flex-col gap-4">
+            <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-gray-600 dark:text-gray-400">
 										Giao tới
-                  </Text>
-                  <Button
-                    size="xs"
-                    variant="light"
-                    compact
-                    component={Link}
+                  </p>
+                  <Link
                     to="/user/setting/personal"
+                    className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                   >
 										Thay đổi
-                  </Button>
-                </Group>
-                <Stack spacing={3.5}>
-                  <Text weight={500} size="sm">
+                  </Link>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100 flex items-center gap-1">
                     {user?.fullname}
-                    <ThemeIcon
-                      size="xs"
-                      ml="xs"
-                      color="teal"
-                      title="Địa chỉ của người dùng đặt mua"
-                    >
+                    <span className="p-1 bg-teal-100 dark:bg-teal-900/20 rounded text-teal-600 dark:text-teal-400" title="Địa chỉ của người dùng đặt mua">
                       <Home size={12} />
-                    </ThemeIcon>
-                  </Text>
-                  <Text weight={500} size="sm">
+                    </span>
+                  </p>
+                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">
                     {user?.phone}
-                  </Text>
-                  <Text size="sm" color="dimmed">
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     {[
                       user?.address.line,
                       user?.address.ward?.name,
@@ -343,47 +226,41 @@ function ClientCart() {
                     ]
                       .filter(Boolean)
                       .join(', ')}
-                  </Text>
-                </Stack>
-              </Stack>
-            </Card>
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Card radius="md" shadow="sm" px="lg" pt="md" pb="lg">
-              <Stack spacing="xs">
-                <Text weight={500} color="dimmed">
+            <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-2">
+                <p className="font-medium text-gray-600 dark:text-gray-400">
 									Hình thức giao hàng
-                </Text>
-                <RadioGroup
-                  value="ghn"
-                  orientation="vertical"
-                  size="sm"
-                >
-                  <Radio
-                    value="ghn"
-                    label={
-                      <Image
-                        src={MiscUtils.ghnLogoPath}
-                        styles={{
-                          image: { maxWidth: 170 },
-                        }}
-                      />
-                    }
-                  />
-                </RadioGroup>
-              </Stack>
-            </Card>
+                </p>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="shipping"
+                      value="ghn"
+                      defaultChecked
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <img
+                      src={MiscUtils.ghnLogoPath}
+                      alt="GHN"
+                      className="max-w-[170px]"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
 
-            <Card radius="md" shadow="sm" px="lg" pt="md" pb="lg">
-              <Stack spacing="xs">
-                <Text weight={500} color="dimmed">
+            <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-2">
+                <p className="font-medium text-gray-600 dark:text-gray-400">
 									Hình thức thanh toán
-                </Text>
-                <RadioGroup
-                  value={currentPaymentMethod}
-                  onChange={updateCurrentPaymentMethod}
-                  orientation="vertical"
-                  size="sm"
-                >
+                </p>
+                <div className="flex flex-col gap-2">
                   {paymentMethodResponses.content.map(
                     (paymentMethod) => {
                       const PaymentMethodIcon =
@@ -394,130 +271,152 @@ function ClientCart() {
 												  ];
 
                       return (
-                        <Radio
-                          style={{ width: '100%' }}
-                          key={
-                            paymentMethod.paymentMethodId
-                          }
-                          value={
-                            paymentMethod.paymentMethodCode
-                          }
-                          classNames={{
-                            label: 'w-full',
-                          }}
-                          label={
-                            <Group
-                              spacing="xs"
-                              style={{
-                                width: '100%',
-                              }}
-                            >
-                              <PaymentMethodIcon
-                                size={24}
-                              />
-                              <Text size="sm">
-                                {
-                                  paymentMethod.paymentMethodName
-                                }
-                              </Text>
-                            </Group>
-                          }
-                        />
+                        <label
+                          key={paymentMethod.paymentMethodId}
+                          className="flex items-center gap-2 cursor-pointer w-full"
+                        >
+                          <input
+                            type="radio"
+                            name="payment"
+                            value={paymentMethod.paymentMethodCode}
+                            checked={currentPaymentMethod === paymentMethod.paymentMethodCode}
+                            onChange={() => updateCurrentPaymentMethod(paymentMethod.paymentMethodCode)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          />
+                          <PaymentMethodIcon size={24} />
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
+                            {paymentMethod.paymentMethodName}
+                          </p>
+                        </label>
                       );
                     }
                   )}
-                </RadioGroup>
-              </Stack>
-            </Card>
+                </div>
+              </div>
+            </div>
 
-            <Card radius="md" shadow="sm" p="lg">
-              <Stack spacing="xs">
-                <Stack spacing="sm">
-                  <Group position="apart">
-                    <Text size="sm" color="dimmed">
+            <div className="p-6 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
 											Tạm tính
-                    </Text>
-                    <Text
-                      size="sm"
-                      sx={{ textAlign: 'right' }}
-                    >
-                      {MiscUtils.formatPrice(
-                        totalAmount
-                      ) + '\u00A0₫'}
-                    </Text>
-                  </Group>
-                  <Group position="apart">
-                    <Text size="sm" color="dimmed">
+                    </p>
+                    <p className="text-sm text-right text-gray-900 dark:text-gray-100">
+                      {MiscUtils.formatPrice(totalAmount) + '\u00A0₫'}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
 											Thuế (10%)
-                    </Text>
-                    <Text
-                      size="sm"
-                      sx={{ textAlign: 'right' }}
-                    >
-                      {MiscUtils.formatPrice(taxCost) +
-												'\u00A0₫'}
-                    </Text>
-                  </Group>
-                  <Group position="apart">
-                    <Group spacing="xs">
-                      <Text size="sm" weight={500}>
+                    </p>
+                    <p className="text-sm text-right text-gray-900 dark:text-gray-100">
+                      {MiscUtils.formatPrice(taxCost) + '\u00A0₫'}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 group relative">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
 												Tổng tiền
-                      </Text>
-                      <Tooltip
-                        label="Chưa tính phí vận chuyển"
-                        withArrow
-                        sx={{ height: 20 }}
-                      >
-                        <ThemeIcon
-                          variant="light"
-                          color="blue"
-                          size="sm"
-                        >
-                          <InfoCircle size={14} />
-                        </ThemeIcon>
-                      </Tooltip>
-                    </Group>
-                    <Text
-                      size="lg"
-                      weight={700}
-                      color="blue"
-                      sx={{ textAlign: 'right' }}
-                    >
-                      {MiscUtils.formatPrice(totalPay) +
-												'\u00A0₫'}
-                    </Text>
-                  </Group>
-                </Stack>
-              </Stack>
-            </Card>
+                      </p>
+                      <div className="group relative">
+                        <InfoCircle size={14} className="text-blue-600 dark:text-blue-400 cursor-help" />
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 dark:bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                          Chưa tính phí vận chuyển
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400 text-right">
+                      {MiscUtils.formatPrice(totalPay) + '\u00A0₫'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Button
-              size="lg"
-              leftIcon={<ShoppingCart />}
+            <button
               onClick={handleOrderButton}
               disabled={cart.cartItems.length === 0}
+              className="w-full px-6 py-3 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors"
             >
+              <ShoppingCart size={20} />
 							Đặt mua
-            </Button>
-          </Stack>
-        </Grid.Col>
-      </Grid>
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <main>
-      <Container size="xl">
-        <Stack spacing="lg">
-          <Group spacing="xs">
-            <ShoppingCart />
-            <Title order={2}>Giỏ hàng</Title>
-          </Group>
+    <>
+      <main>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+              <ShoppingCart size={24} />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Giỏ hàng</h2>
+            </div>
 
-          {cartContentFragment}
-        </Stack>
-      </Container>
-    </main>
+            {cartContentFragment}
+          </div>
+        </div>
+      </main>
+
+      {/* Confirm Order Dialog */}
+      <Dialog open={confirmOrderDialogOpen} onClose={() => setConfirmOrderDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl">
+            <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Thông báo xác nhận đặt mua
+            </Dialog.Title>
+            <div className="flex flex-col gap-4">
+              <p className="text-gray-700 dark:text-gray-300">
+                Bạn có muốn đặt mua những sản phẩm đã chọn với hình thức thanh toán sau?
+              </p>
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const PaymentMethodIcon = PageConfigs.paymentMethodIconMap[currentPaymentMethod];
+                  return <PaymentMethodIcon size={20} className="text-gray-500" />;
+                })()}
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {PageConfigs.paymentMethodNameMap[currentPaymentMethod]}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end mt-6">
+              <button
+                onClick={() => setConfirmOrderDialogOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmOrder}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+              >
+                Xác nhận đặt mua
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Confirmed Order Dialog */}
+      <Dialog open={confirmedOrderDialogOpen} onClose={() => setConfirmedOrderDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl">
+            <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Thông báo xác nhận đặt mua
+            </Dialog.Title>
+            <ConfirmedOrder onClose={() => setConfirmedOrderDialogOpen(false)} />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </>
   );
 }
 
@@ -526,10 +425,8 @@ function CartItemTableRow({
 }: {
 	cartItem: ClientCartVariantResponse;
 }) {
-  const theme = useMantineTheme();
-  const modals = useModals();
-
-  const cartItemQuantityInputHandlers = useRef<NumberInputHandlers>();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [quantity, setQuantity] = useState(cartItem.cartItemQuantity);
 
   const { currentCartId, user } = useAuthStore();
 
@@ -559,200 +456,208 @@ function CartItemTableRow({
   };
 
   const handleDeleteCartItemButton = () => {
-    modals.openConfirmModal({
-      size: 'xs',
-      overlayColor:
-				theme.colorScheme === 'dark'
-				  ? theme.colors.dark[9]
-				  : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      closeOnClickOutside: false,
-      title: <strong>Xóa mặt hàng</strong>,
-      children: <Text size="sm">Bạn có muốn xóa mặt hàng này?</Text>,
-      labels: {
-        cancel: 'Không xóa',
-        confirm: 'Xóa',
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteCartItemsApi.mutate([
+      {
+        cartId: currentCartId as number,
+        variantId: cartItem.cartItemVariant.variantId,
       },
-      confirmProps: { color: 'red' },
-      onConfirm: () =>
-        deleteCartItemsApi.mutate([
-          {
-            cartId: currentCartId as number,
-            variantId: cartItem.cartItemVariant.variantId,
-          },
-        ]),
-    });
+    ]);
+    setDeleteDialogOpen(false);
   };
 
   return (
-    <tr key={cartItem.cartItemVariant.variantId}>
-      <td>
-        <Group spacing="xs">
-          <Image
-            radius="md"
-            width={65}
-            height={65}
-            src={
-              cartItem.cartItemVariant.variantProduct
-                .productThumbnail || undefined
-            }
-            alt={
-              cartItem.cartItemVariant.variantProduct.productName
-            }
-          />
-          <Stack spacing={3.5}>
-            <Anchor
-              component={Link}
-              to={
-                '/product/' +
-								cartItem.cartItemVariant.variantProduct
-								  .productSlug
-              }
-              size="sm"
-            >
-              {
+    <>
+      <tr key={cartItem.cartItemVariant.variantId} className="border-b border-gray-200 dark:border-gray-700">
+        <td className="p-4">
+          <div className="flex items-center gap-2">
+            <img
+              className="rounded-md w-[65px] h-[65px] object-cover"
+              src={
                 cartItem.cartItemVariant.variantProduct
-                  .productName
+                  .productThumbnail || undefined
               }
-            </Anchor>
-            {cartItem.cartItemVariant.variantProperties && (
-              <Stack spacing={1.5}>
-                {cartItem.cartItemVariant.variantProperties.content.map(
-                  (variantProperty) => (
-                    <Text
-                      key={variantProperty.id}
-                      size="xs"
-                      color="dimmed"
-                    >
-                      {variantProperty.name}:{' '}
-                      {variantProperty.value}
-                    </Text>
-                  )
-                )}
-              </Stack>
-            )}
-          </Stack>
-        </Group>
-      </td>
-      <td>
-        <Stack spacing={2.5}>
-          <Text weight={500} size="sm">
-            {MiscUtils.formatPrice(
-              MiscUtils.calculateDiscountedPrice(
-                cartItem.cartItemVariant.variantPrice,
-                cartItem.cartItemVariant.variantProduct
-                  .productPromotion
-                  ? cartItem.cartItemVariant.variantProduct
-                    .productPromotion.promotionPercent
-                  : 0
-              )
-            )}{' '}
-						₫
-          </Text>
-          {cartItem.cartItemVariant.variantProduct
-            .productPromotion && (
-            <Group spacing="xs">
-              <Text
-                size="xs"
-                color="dimmed"
-                sx={{ textDecoration: 'line-through' }}
+              alt={
+                cartItem.cartItemVariant.variantProduct.productName
+              }
+            />
+            <div className="flex flex-col gap-2">
+              <Link
+                to={
+                  '/product/' +
+                  cartItem.cartItemVariant.variantProduct
+                    .productSlug
+                }
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
-                {MiscUtils.formatPrice(
-                  cartItem.cartItemVariant.variantPrice
-                )}{' '}
-								₫
-              </Text>
-              <Badge color="pink" variant="filled" size="sm">
-								-
                 {
                   cartItem.cartItemVariant.variantProduct
-                    .productPromotion.promotionPercent
+                    .productName
                 }
-								%
-              </Badge>
-            </Group>
-          )}
-        </Stack>
-      </td>
-      <td>
-        <Stack spacing={3.5}>
-          <Group spacing={5}>
-            <ActionIcon
-              size={30}
-              variant="default"
-              onClick={() =>
-                cartItemQuantityInputHandlers.current?.decrement()
-              }
-            >
-							–
-            </ActionIcon>
+              </Link>
+              {cartItem.cartItemVariant.variantProperties && (
+                <div className="flex flex-col gap-1">
+                  {cartItem.cartItemVariant.variantProperties.content.map(
+                    (variantProperty) => (
+                      <p
+                        key={variantProperty.id}
+                        className="text-xs text-gray-600 dark:text-gray-400"
+                      >
+                        {variantProperty.name}:{' '}
+                        {variantProperty.value}
+                      </p>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </td>
+        <td className="p-4">
+          <div className="flex flex-col gap-2">
+            <p className="font-medium text-sm text-gray-900 dark:text-gray-100">
+              {MiscUtils.formatPrice(
+                MiscUtils.calculateDiscountedPrice(
+                  cartItem.cartItemVariant.variantPrice,
+                  cartItem.cartItemVariant.variantProduct
+                    .productPromotion
+                    ? cartItem.cartItemVariant.variantProduct
+                      .productPromotion.promotionPercent
+                    : 0
+                )
+              )}{' '}
+              ₫
+            </p>
+            {cartItem.cartItemVariant.variantProduct
+              .productPromotion && (
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400 line-through">
+                  {MiscUtils.formatPrice(
+                    cartItem.cartItemVariant.variantPrice
+                  )}{' '}
+                  ₫
+                </p>
+                <span className="px-2 py-0.5 text-xs font-medium bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-400 rounded">
+                  -
+                  {
+                    cartItem.cartItemVariant.variantProduct
+                      .productPromotion.promotionPercent
+                  }
+                  %
+                </span>
+              </div>
+            )}
+          </div>
+        </td>
+        <td className="p-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  const newQuantity = Math.max(1, quantity - 1);
+                  setQuantity(newQuantity);
+                  handleCartItemQuantityInput(newQuantity);
+                }}
+                className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Minus size={16} />
+              </button>
 
-            <NumberInput
-              hideControls
-              value={cartItem.cartItemQuantity}
-              onChange={(value) =>
-                handleCartItemQuantityInput(value || 1)
-              }
-              handlersRef={cartItemQuantityInputHandlers}
-              max={cartItem.cartItemVariant.variantInventory}
-              min={1}
-              size="xs"
-              styles={{
-                input: { width: 45, textAlign: 'center' },
-              }}
-            />
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => {
+                  const newQuantity = Number(e.target.value) || 1;
+                  setQuantity(newQuantity);
+                  handleCartItemQuantityInput(newQuantity);
+                }}
+                min={1}
+                max={cartItem.cartItemVariant.variantInventory}
+                className="w-12 h-8 text-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
 
-            <ActionIcon
-              size={30}
-              variant="default"
-              onClick={() =>
-                cartItemQuantityInputHandlers.current?.increment()
-              }
-            >
-							+
-            </ActionIcon>
-          </Group>
-          <Text size="xs" color="dimmed">
-						Tồn kho: {cartItem.cartItemVariant.variantInventory}
-          </Text>
-        </Stack>
-      </td>
-      <td>
-        <Text weight={500} size="sm" color="blue">
-          {MiscUtils.formatPrice(
-            cartItem.cartItemQuantity *
-							MiscUtils.calculateDiscountedPrice(
-							  cartItem.cartItemVariant.variantPrice,
-							  cartItem.cartItemVariant.variantProduct
-							    .productPromotion
-							    ? cartItem.cartItemVariant.variantProduct
-							      .productPromotion.promotionPercent
-							    : 0
-							)
-          ) + ' ₫'}
-        </Text>
-      </td>
-      <td>
-        <ActionIcon
-          color="red"
-          variant="outline"
-          size={24}
-          title="Xóa"
-          onClick={handleDeleteCartItemButton}
-          sx={{ margin: 'auto' }}
-        >
-          <Trash size={16} />
-        </ActionIcon>
-      </td>
-    </tr>
+              <button
+                onClick={() => {
+                  const newQuantity = Math.min(
+                    cartItem.cartItemVariant.variantInventory,
+                    quantity + 1
+                  );
+                  setQuantity(newQuantity);
+                  handleCartItemQuantityInput(newQuantity);
+                }}
+                className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Tồn kho: {cartItem.cartItemVariant.variantInventory}
+            </p>
+          </div>
+        </td>
+        <td className="p-4">
+          <p className="font-medium text-sm text-blue-600 dark:text-blue-400">
+            {MiscUtils.formatPrice(
+              cartItem.cartItemQuantity *
+                MiscUtils.calculateDiscountedPrice(
+                  cartItem.cartItemVariant.variantPrice,
+                  cartItem.cartItemVariant.variantProduct
+                    .productPromotion
+                    ? cartItem.cartItemVariant.variantProduct
+                      .productPromotion.promotionPercent
+                    : 0
+                )
+            ) + ' ₫'}
+          </p>
+        </td>
+        <td className="p-4">
+          <button
+            onClick={handleDeleteCartItemButton}
+            title="Xóa"
+            className="mx-auto flex items-center justify-center w-6 h-6 border border-red-300 dark:border-red-600 rounded text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <Trash size={16} />
+          </button>
+        </td>
+      </tr>
+
+      {/* Delete Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-xs rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl">
+            <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Xóa mặt hàng
+            </Dialog.Title>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Bạn có muốn xóa mặt hàng này?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setDeleteDialogOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+              >
+                Không xóa
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+              >
+                Xóa
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </>
   );
 }
 
-function ConfirmedOrder() {
-  const theme = useMantineTheme();
-  const modals = useModals();
-  const {  updateCurrentTotalCartItems } = useAuthStore();
+function ConfirmedOrder({ onClose }: { onClose: () => void }) {
+  const { updateCurrentTotalCartItems } = useAuthStore();
   const {
     mutate: createClientOrder,
     data: clientConfirmedOrderResponse,
@@ -814,23 +719,18 @@ function ConfirmedOrder() {
 
   if (isError) {
     contentFragment = (
-      <Stack justify="space-between" sx={{ height: '100%' }}>
-        <Stack
-          align="center"
-          sx={{ alignItems: 'center', color: theme.colors.pink[6] }}
-        >
+      <div className="flex flex-col justify-between min-h-[200px]">
+        <div className="flex flex-col items-center gap-4 text-pink-600 dark:text-pink-400">
           <AlertTriangle size={100} strokeWidth={1} />
-          <Text weight={500}>Đã có lỗi xảy ra</Text>
-        </Stack>
-        <Button
-          fullWidth
-          variant="default"
-          onClick={modals.closeAll}
-          mt="md"
+          <p className="font-medium">Đã có lỗi xảy ra</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full px-4 py-2 mt-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors"
         >
-					Đóng
-        </Button>
-      </Stack>
+          Đóng
+        </button>
+      </div>
     );
   }
 
@@ -840,37 +740,31 @@ function ConfirmedOrder() {
 			PaymentMethodType.CASH
   ) {
     contentFragment = (
-      <Stack justify="space-between" sx={{ height: '100%' }}>
-        <Stack
-          align="center"
-          sx={{ alignItems: 'center', color: theme.colors.teal[6] }}
-        >
+      <div className="flex flex-col justify-between min-h-[200px]">
+        <div className="flex flex-col items-center gap-4 text-teal-600 dark:text-teal-400">
           <Check size={100} strokeWidth={1} />
-          <Text>
+          <p className="text-center">
             <span>Đơn hàng </span>
-            <Anchor
-              component={Link}
+            <Link
               to={
                 '/order/detail/' +
-								clientConfirmedOrderResponse.orderCode
+                clientConfirmedOrderResponse.orderCode
               }
-              onClick={modals.closeAll}
-              weight={500}
+              onClick={onClose}
+              className="font-medium text-teal-600 dark:text-teal-400 hover:underline"
             >
               {clientConfirmedOrderResponse.orderCode}
-            </Anchor>
+            </Link>
             <span> đã được tạo!</span>
-          </Text>
-        </Stack>
-        <Button
-          fullWidth
-          variant="default"
-          onClick={modals.closeAll}
-          mt="md"
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full px-4 py-2 mt-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors"
         >
-					Đóng
-        </Button>
-      </Stack>
+          Đóng
+        </button>
+      </div>
     );
   }
 
@@ -880,72 +774,63 @@ function ConfirmedOrder() {
 			PaymentMethodType.PAYPAL
   ) {
     contentFragment = (
-      <Stack justify="space-between" sx={{ height: '100%' }}>
-        <Stack
-          align="center"
-          sx={{ alignItems: 'center', color: theme.colors.teal[6] }}
-        >
+      <div className="flex flex-col justify-between min-h-[200px]">
+        <div className="flex flex-col items-center gap-4 text-teal-600 dark:text-teal-400">
           <Check size={100} strokeWidth={1} />
-          <Text sx={{ textAlign: 'center' }}>
+          <p className="text-center">
             <span>Đơn hàng </span>
-            <Text weight={500} component="span">
+            <span className="font-medium">
               {clientConfirmedOrderResponse.orderCode}
-            </Text>
+            </span>
             <span> đã được tạo!</span>
-          </Text>
-          <Text color="dimmed" size="sm">
-						Hoàn tất thanh toán PayPal bằng cách bấm nút dưới
-          </Text>
-        </Stack>
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Hoàn tất thanh toán PayPal bằng cách bấm nút dưới
+          </p>
+        </div>
         {checkoutPaypalStatus === 'none' ? (
-          <Button
-            fullWidth
-            mt="md"
+          <button
             onClick={() =>
               handlePaypalCheckoutButton(
                 clientConfirmedOrderResponse.orderPaypalCheckoutLink ||
-									''
+                  ''
               )
             }
+            className="w-full px-4 py-2 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
           >
-						Thanh toán PayPal
-          </Button>
+            Thanh toán PayPal
+          </button>
         ) : checkoutPaypalStatus === 'success' ? (
-          <Button
-            fullWidth
-            mt="md"
-            color="teal"
-            leftIcon={<Check />}
-            onClick={modals.closeAll}
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 mt-4 flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-md transition-colors"
           >
-						Đã thanh toán thành công
-          </Button>
+            <Check size={16} />
+            Đã thanh toán thành công
+          </button>
         ) : (
-          <Stack spacing="sm">
-            <Button
-              fullWidth
-              mt="md"
-              variant="outline"
-              color="pink"
-              leftIcon={<X size={16} />}
-              onClick={modals.closeAll}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={onClose}
+              className="w-full px-4 py-2 mt-4 flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-600 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-md transition-colors"
             >
-							Đã hủy thanh toán. Đóng hộp thoại này.
-            </Button>
-            <Button
-              fullWidth
+              <X size={16} />
+              Đã hủy thanh toán. Đóng hộp thoại này.
+            </button>
+            <button
               onClick={() =>
                 handlePaypalCheckoutButton(
                   clientConfirmedOrderResponse.orderPaypalCheckoutLink ||
-										''
+                    ''
                 )
               }
+              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
             >
-							Thanh toán PayPal lần nữa
-            </Button>
-          </Stack>
+              Thanh toán PayPal lần nữa
+            </button>
+          </div>
         )}
-      </Stack>
+      </div>
     );
   }
   if (
@@ -954,87 +839,80 @@ function ConfirmedOrder() {
 			PaymentMethodType.VNPAY
   ) {
     contentFragment = (
-      <Stack justify="space-between" sx={{ height: '100%' }}>
-        <Stack
-          align="center"
-          sx={{ alignItems: 'center', color: theme.colors.teal[6] }}
-        >
+      <div className="flex flex-col justify-between min-h-[200px]">
+        <div className="flex flex-col items-center gap-4 text-teal-600 dark:text-teal-400">
           <Check size={100} strokeWidth={1} />
-          <Text sx={{ textAlign: 'center' }}>
+          <p className="text-center">
             <span>Đơn hàng </span>
-            <Text weight={500} component="span">
+            <span className="font-medium">
               {clientConfirmedOrderResponse.orderCode}
-            </Text>
+            </span>
             <span> đã được tạo!</span>
-          </Text>
-          <Text color="dimmed" size="sm">
-						Hoàn tất thanh toán VNPay bằng cách bấm nút dưới
-          </Text>
-        </Stack>
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Hoàn tất thanh toán VNPay bằng cách bấm nút dưới
+          </p>
+        </div>
         {checkoutPaypalStatus === 'none' ? (
-          <Button
-            fullWidth
-            mt="md"
+          <button
             onClick={() =>
               handlePaypalCheckoutButton(
                 clientConfirmedOrderResponse.orderPaypalCheckoutLink ||
-									''
+                  ''
               )
             }
+            className="w-full px-4 py-2 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
           >
-						Thanh toán VNPay
-          </Button>
+            Thanh toán VNPay
+          </button>
         ) : checkoutPaypalStatus === 'success' ? (
-          <Button
-            fullWidth
-            mt="md"
-            color="teal"
-            leftIcon={<Check />}
+          <button
             onClick={() => {
-						  modals.closeAll();
-						  updateCurrentTotalCartItems(0)	;
-            }
-            }
+              onClose();
+              updateCurrentTotalCartItems(0);
+            }}
+            className="w-full px-4 py-2 mt-4 flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-md transition-colors"
           >
-						Đã thanh toán thành công
-          </Button>
+            <Check size={16} />
+            Đã thanh toán thành công
+          </button>
         ) : (
-          <Stack spacing="sm">
-            <Button
-              fullWidth
-              mt="md"
-              variant="outline"
-              color="pink"
-              leftIcon={<X size={16} />}
+          <div className="flex flex-col gap-2">
+            <button
               onClick={() => {
-                modals.closeAll();
-                updateCurrentTotalCartItems(0)	;
-							  }
-							  }
+                onClose();
+                updateCurrentTotalCartItems(0);
+              }}
+              className="w-full px-4 py-2 mt-4 flex items-center justify-center gap-2 border border-pink-300 dark:border-pink-600 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-md transition-colors"
             >
-							Đã hủy thanh toán. Đóng hộp thoại này.
-            </Button>
-            <Button
-              fullWidth
+              <X size={16} />
+              Đã hủy thanh toán. Đóng hộp thoại này.
+            </button>
+            <button
               onClick={() =>
                 handlePaypalCheckoutButton(
                   clientConfirmedOrderResponse.orderPaypalCheckoutLink ||
-										''
+                    ''
                 )
               }
+              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
             >
-							Thanh toán VNPay lần nữa
-            </Button>
-          </Stack>
+              Thanh toán VNPay lần nữa
+            </button>
+          </div>
         )}
-      </Stack>
+      </div>
     );
   }
   return (
-    <Stack sx={{ minHeight: isLoading ? 200 : 'unset' }}>
-      <LoadingOverlay visible={isLoading} />
+    <div className="relative min-h-[200px]">
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm flex items-center justify-center rounded-lg z-10">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
       {contentFragment}
-    </Stack>
+    </div>
   );
 }
 

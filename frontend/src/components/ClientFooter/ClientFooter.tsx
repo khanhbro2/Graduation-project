@@ -1,18 +1,5 @@
 import React from 'react';
 import {
-  ActionIcon,
-  Anchor,
-  Badge,
-  Box,
-  Container,
-  createStyles,
-  Grid,
-  Group,
-  Stack,
-  Text,
-  useMantineTheme
-} from '@mantine/core';
-import {
   BrandFacebook,
   BrandInstagram,
   BrandLinkedin,
@@ -22,322 +9,167 @@ import {
 } from 'tabler-icons-react';
 import { Link } from 'react-router-dom';
 
-const useStyles = createStyles((theme) => ({
-  footer: {
-    marginTop: theme.spacing.xl * 2,
-    paddingTop: theme.spacing.xl * 2,
-    paddingBottom: theme.spacing.xl * 2,
-    backgroundColor: '#A48B77', // Dark brown
-  },
-
-  columnTitle: {
-    fontSize: theme.fontSizes.lg,
-    fontWeight: 700,
-    color: theme.white,
-    marginBottom: theme.spacing.sm,
-    position: 'relative',
-    paddingBottom: theme.spacing.xs,
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      width: 40,
-      height: 3,
-      background: `linear-gradient(90deg, ${theme.colors.blue[4]}, ${theme.colors.cyan[4]})`,
-      borderRadius: theme.radius.sm,
-    },
-  },
-
-  link: {
-    color: theme.colors.gray[3],
-    textDecoration: 'none',
-    transition: 'all 0.2s ease',
-    '&:hover': {
-      color: theme.colors.cyan[4],
-      transform: 'translateX(4px)',
-      fontWeight: 500,
-    },
-  },
-
-  companyName: {
-    fontSize: theme.fontSizes.md,
-    fontWeight: 700,
-    color: theme.white,
-    marginBottom: theme.spacing.xs,
-  },
-
-  contactText: {
-    color: theme.colors.gray[3],
-    lineHeight: 1.6,
-  },
-
-  socialIcon: {
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      transform: 'translateY(-3px) scale(1.1)',
-    },
-  },
-
-  regulatoryBadge: {
-    background: `linear-gradient(135deg, ${theme.colors.blue[6]}, ${theme.colors.cyan[6]})`,
-    padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-    borderRadius: theme.radius.md,
-    fontWeight: 600,
-    boxShadow: theme.shadows.sm,
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      transform: 'scale(1.05)',
-      boxShadow: theme.shadows.md,
-    },
-  },
-
-  footerLinks: {
-    [theme.fn.smallerThan('md')]: {
-      marginTop: theme.spacing.xl,
-    },
-  },
-
-  afterFooter: {
-    marginTop: theme.spacing.xl * 2,
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.md,
-    // backgroundColor: '#3D2817', // Darker brown for copyright section
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-
-  copyright: {
-    color: theme.colors.gray[4],
-    fontSize: theme.fontSizes.sm,
-    fontWeight: 500,
-    textAlign: 'center',
-    whiteSpace: 'nowrap',
-  },
-
-  copyrightLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    maxWidth: 200,
-  },
-}));
-
 function ClientFooter() {
-  const theme = useMantineTheme();
-  const { classes } = useStyles();
 
   return (
-    <footer className={classes.footer}>
-      <Container size="xl">
-        <Grid>
+    <footer className="mt-12 pt-12 pb-12 bg-[#8B7360]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Cột 1: Giới thiệu */}
-          <Grid.Col md={3}>
-            <Stack spacing={theme.spacing.md}>
-              <Text className={classes.columnTitle}>GIỚI THIỆU</Text>
-              <Stack spacing={theme.spacing.sm}>
-                <Text size="sm" className={classes.contactText} style={{ lineHeight: 1.7 }}>
-                  Thế Giới Trà Đạo chuyên cung cấp ấm tử sa Nghi Hưng chính hãng và các trà cụ cao cấp, 
+          <div className="col-span-1">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-white mb-3 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-gradient-to-r after:from-blue-400 after:to-cyan-400 after:rounded-sm">
+                GIỚI THIỆU
+              </h3>
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-white leading-relaxed">
+                  Thất An Nhiên chuyên cung cấp ấm tử sa Nghi Hưng chính hãng và các trà cụ cao cấp, 
                   được tuyển chọn kỹ lưỡng để nâng tầm trải nghiệm thưởng trà của bạn.
-                </Text>
-                <Text size="sm" className={classes.contactText} style={{ lineHeight: 1.7 }}>
-                  Mua sắm tại <Anchor href="https://phucanhduong.com" target="_blank" style={{ color: theme.colors.cyan[4], fontWeight: 600 }}>thegioitradao.com</Anchor>. Chúng tôi cam kết chất lượng, giao hàng tận nơi, 
+                </p>
+                <p className="text-sm text-white leading-relaxed">
+                  Mua sắm tại <a href="https://thatannhien.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 font-semibold hover:underline">thatannhien.com</a>. Chúng tôi cam kết chất lượng, giao hàng tận nơi, 
                   cho phép kiểm tra hàng trước khi thanh toán và miễn phí đổi trả.
-                </Text>
-              </Stack>
-            </Stack>
-          </Grid.Col>
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Cột 2: Danh mục sản phẩm */}
-          <Grid.Col md={3}>
-            <Stack spacing={theme.spacing.md}>
-              <Text className={classes.columnTitle}>DANH MỤC SẢN PHẨM</Text>
-              <Stack spacing={theme.spacing.xs}>
-                <Anchor component={Link} to="/category/am-tu-sa-nghi-hung" size="sm" className={classes.link}>
+          <div className="col-span-1">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-white mb-3 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-gradient-to-r after:from-blue-400 after:to-cyan-400 after:rounded-sm">
+                DANH MỤC SẢN PHẨM
+              </h3>
+              <div className="flex flex-col gap-2">
+                <Link to="/category/am-tu-sa-nghi-hung" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Ấm tử sa Nghi Hưng
-                </Anchor>
-                <Anchor component={Link} to="/category/khay-tra-thuyen-tra" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/category/khay-tra-thuyen-tra" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Khay trà, thuyền trà
-                </Anchor>
-                <Anchor component={Link} to="/category/chen-uong-tra" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/category/chen-uong-tra" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Chén uống trà
-                </Anchor>
-                <Anchor component={Link} to="/category/bo-am-tra" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/category/bo-am-tra" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Bộ ấm trà
-                </Anchor>
-                <Anchor component={Link} to="/category/dung-cu-pha-tra" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/category/dung-cu-pha-tra" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Dụng cụ pha trà
-                </Anchor>
-                <Anchor component={Link} to="/category/hu-dung-tra" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/category/hu-dung-tra" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Hũ đựng trà
-                </Anchor>
-                <Anchor component={Link} to="/category/trang-tri-ban-tra" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/category/trang-tri-ban-tra" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Trang trí bàn trà
-                </Anchor>
-              </Stack>
-            </Stack>
-          </Grid.Col>
+                </Link>
+              </div>
+            </div>
+          </div>
 
           {/* Cột 3: Quy định & Chính sách */}
-          <Grid.Col md={3}>
-            <Stack spacing={theme.spacing.md}>
-              <Text className={classes.columnTitle}>QUY ĐỊNH & CHÍNH SÁCH</Text>
-              <Stack spacing={theme.spacing.xs}>
-                <Anchor component={Link} to="/" size="sm" className={classes.link}>
+          <div className="col-span-1">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-white mb-3 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-gradient-to-r after:from-blue-400 after:to-cyan-400 after:rounded-sm">
+                QUY ĐỊNH & CHÍNH SÁCH
+              </h3>
+              <div className="flex flex-col gap-2">
+                <Link to="/" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Điều khoản và quy định chung
-                </Anchor>
-                <Anchor component={Link} to="/" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Chính sách bảo mật thông tin
-                </Anchor>
-                <Anchor component={Link} to="/" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Phương thức thanh toán
-                </Anchor>
-                <Anchor component={Link} to="/" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Chính sách vận chuyển và kiểm hàng
-                </Anchor>
-                <Anchor component={Link} to="/" size="sm" className={classes.link}>
+                </Link>
+                <Link to="/" className="text-sm text-white no-underline transition-all duration-200 hover:text-blue-400 hover:translate-x-1 hover:font-medium">
                   Chính sách bảo hành và đổi trả
-                </Anchor>
-              </Stack>
-            </Stack>
-          </Grid.Col>
+                </Link>
+              </div>
+            </div>
+          </div>
 
           {/* Cột 4: Về chúng tôi */}
-          <Grid.Col md={3}>
-            <Stack spacing={theme.spacing.md}>
-              <Text className={classes.columnTitle}>VỀ CHÚNG TÔI</Text>
-              <Stack spacing={theme.spacing.sm}>
-                <Text className={classes.companyName}>THẾ GIỚI TRÀ ĐẠO</Text>
-                <Stack spacing={theme.spacing.xs}>
-                  <Text size="sm" className={classes.contactText}>
-                    <strong>Địa chỉ:</strong> Số 5 ngõ 50 Lê Hiến Phủ, Phường Tứ Minh, TP Hải Phòng
-                  </Text>
-                  <Anchor 
+          <div className="col-span-1">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-white mb-3 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-gradient-to-r after:from-blue-400 after:to-cyan-400 after:rounded-sm">
+                VỀ CHÚNG TÔI
+              </h3>
+              <div className="flex flex-col gap-3">
+                <p className="text-base font-bold text-white mb-2">THẤT AN NHIÊN</p>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-white leading-relaxed">
+                    <strong>Địa chỉ:</strong> Số 2 Thuỵ Ứng  xã Đan Phượng , thành phố Hà Nội  
+                  </p>
+                  <a 
                     href="https://maps.google.com" 
                     target="_blank" 
-                    size="sm" 
-                    style={{ color: theme.colors.cyan[4], fontWeight: 500, textDecoration: 'underline' }}
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-400 font-medium underline"
                   >
                     (Chỉ đường)
-                  </Anchor>
-                  <Text size="sm" className={classes.contactText}>
-                    <strong>Email:</strong> <Anchor href="mailto:lienhe@phucanhduong.com" style={{ color: theme.colors.cyan[4] }}>lienhe@thegioitradao.com</Anchor>
-                  </Text>
-                  <Text size="sm" className={classes.contactText}>
-                    <strong>Điện thoại/Zalo:</strong> <span style={{ color: theme.colors.cyan[4], fontWeight: 600 }}>0988.043.899 - 0889.018.999</span>
-                  </Text>
-                </Stack>
-                <Group spacing="sm" mt="md">
-                  <ActionIcon 
-                    size="lg" 
-                    radius="xl" 
-                    variant="filled"
-                    className={classes.socialIcon}
-                    sx={{ 
-                      backgroundColor: '#1877F2',
-                      color: theme.white,
-                      '&:hover': { 
-                        backgroundColor: '#166FE5',
-                        transform: 'translateY(-3px) scale(1.1)',
-                      } 
-                    }}
+                  </a>
+                  <p className="text-sm text-white leading-relaxed">
+                    <strong>Email:</strong> <a href="mailto:lienhe@thatannhien.com" className="text-blue-400">lienhe@thathanhien.com</a>
+                  </p>
+                  <p className="text-sm text-white leading-relaxed">
+                    <strong>Điện thoại/Zalo:</strong> <span className="text-blue-400 font-semibold">0132.951.002</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 mt-4">
+                  <button 
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-[#1877F2] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:bg-[#166FE5]"
                   >
-                    <BrandFacebook strokeWidth={1.5}/>
-                  </ActionIcon>
-                  <ActionIcon 
-                    size="lg" 
-                    radius="xl" 
-                    variant="filled"
-                    className={classes.socialIcon}
-                    sx={{ 
-                      background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
-                      color: theme.white,
-                      '&:hover': { 
-                        transform: 'translateY(-3px) scale(1.1)',
-                      } 
-                    }}
+                    <BrandFacebook strokeWidth={1.5} size={20}/>
+                  </button>
+                  <button 
+                    type="button"
+                    className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:scale-110"
+                    style={{ background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)' }}
                   >
-                    <BrandInstagram strokeWidth={1.5}/>
-                  </ActionIcon>
-                  <ActionIcon 
-                    size="lg" 
-                    radius="xl" 
-                    variant="filled"
-                    className={classes.socialIcon}
-                    sx={{ 
-                      backgroundColor: '#1DA1F2',
-                      color: theme.white,
-                      '&:hover': { 
-                        backgroundColor: '#1a91da',
-                        transform: 'translateY(-3px) scale(1.1)',
-                      } 
-                    }}
+                    <BrandInstagram strokeWidth={1.5} size={20}/>
+                  </button>
+                  <button 
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-[#1DA1F2] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:bg-[#1a91da]"
                   >
-                    <BrandTwitter strokeWidth={1.5}/>
-                  </ActionIcon>
-                  <ActionIcon 
-                    size="lg" 
-                    radius="xl" 
-                    variant="filled"
-                    className={classes.socialIcon}
-                    sx={{ 
-                      backgroundColor: '#BD081C',
-                      color: theme.white,
-                      '&:hover': { 
-                        backgroundColor: '#a00716',
-                        transform: 'translateY(-3px) scale(1.1)',
-                      } 
-                    }}
+                    <BrandTwitter strokeWidth={1.5} size={20}/>
+                  </button>
+                  <button 
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-[#BD081C] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:bg-[#a00716]"
                   >
-                    <BrandPinterest strokeWidth={1.5}/>
-                  </ActionIcon>
-                  <ActionIcon 
-                    size="lg" 
-                    radius="xl" 
-                    variant="filled"
-                    className={classes.socialIcon}
-                    sx={{ 
-                      backgroundColor: '#0077B5',
-                      color: theme.white,
-                      '&:hover': { 
-                        backgroundColor: '#006399',
-                        transform: 'translateY(-3px) scale(1.1)',
-                      } 
-                    }}
+                    <BrandPinterest strokeWidth={1.5} size={20}/>
+                  </button>
+                  <button 
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-[#0077B5] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:bg-[#006399]"
                   >
-                    <BrandLinkedin strokeWidth={1.5}/>
-                  </ActionIcon>
-                  <ActionIcon 
-                    size="lg" 
-                    radius="xl" 
-                    variant="filled"
-                    className={classes.socialIcon}
-                    sx={{ 
-                      backgroundColor: '#FF0000',
-                      color: theme.white,
-                      '&:hover': { 
-                        backgroundColor: '#e60000',
-                        transform: 'translateY(-3px) scale(1.1)',
-                      } 
-                    }}
+                    <BrandLinkedin strokeWidth={1.5} size={20}/>
+                  </button>
+                  <button 
+                    type="button"
+                    className="w-10 h-10 rounded-full bg-[#FF0000] text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:bg-[#e60000]"
                   >
-                    <BrandYoutube strokeWidth={1.5}/>
-                  </ActionIcon>
-                </Group>
-              </Stack>
-            </Stack>
-          </Grid.Col>
-        </Grid>
-        <Box className={classes.afterFooter}>
-          <Box className={classes.copyrightLine} />
-          <Text className={classes.copyright}>
-            Bản quyền 2025 © Phucanhduong.com
-          </Text>
-          <Box className={classes.copyrightLine} />
-        </Box>
-      </Container>
+                    <BrandYoutube strokeWidth={1.5} size={20}/>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-12 pt-6 pb-4 flex justify-center items-center gap-4">
+          <div className="flex-1 h-px bg-white/30 max-w-[200px]" />
+          <p className="text-sm font-medium text-white/80 text-center whitespace-nowrap">
+            Bản quyền 2025 © ThatAnNhien.com
+          </p>
+          <div className="flex-1 h-px bg-white/30 max-w-[200px]" />
+        </div>
+      </div>
     </footer>
   );
 }

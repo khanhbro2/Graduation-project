@@ -1,12 +1,8 @@
 import React from 'react';
-import { Box, Button, Grid, Stack } from '@mantine/core';
 import { SortCriteriaRow } from 'components';
-import useFilterPanelStyles from 'components/FilterPanel/FilterPanel.styles';
 import useFilterPanelMainLeftViewModel from 'components/FilterPanelMainLeft/FilterPanelMainLeft.vm';
 
 function FilterPanelMainLeft() {
-  const { classes } = useFilterPanelStyles();
-
   const {
     sortCriteriaList,
     isDisabledCreateSortCriteriaButton,
@@ -22,21 +18,21 @@ function FilterPanelMainLeft() {
   ));
 
   return (
-    <Grid.Col span={1}>
-      <Stack spacing="sm">
-        <Box className={classes.titleFilterPanel}>
+    <div className="col-span-1">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           Sắp xếp
-        </Box>
+        </h3>
         {sortCriteriaListFragment}
-        <Button
-          variant="outline"
+        <button
           onClick={handleCreateSortCriteriaButton}
           disabled={isDisabledCreateSortCriteriaButton}
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Thêm tiêu chí sắp xếp
-        </Button>
-      </Stack>
-    </Grid.Col>
+        </button>
+      </div>
+    </div>
   );
 }
 

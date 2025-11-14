@@ -1,5 +1,4 @@
 import React from 'react';
-import { Group } from '@mantine/core';
 
 interface FilterPanelHeaderProps {
   children: React.ReactNode;
@@ -10,9 +9,9 @@ function FilterPanelHeader({
 }: FilterPanelHeaderProps) {
 
   return (
-    <Group position="apart" p="sm">
+    <div className="flex items-center justify-between p-3">
       {children}
-    </Group>
+    </div>
   );
 }
 

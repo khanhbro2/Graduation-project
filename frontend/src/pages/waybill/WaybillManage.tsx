@@ -1,5 +1,5 @@
-import React from 'react';
-import { Anchor, Badge, Highlight, Stack, Text, useMantineTheme } from '@mantine/core';
+import React, { useState } from 'react';
+import { Dialog } from '@headlessui/react';
 import {
   EntityDetailTable,
   FilterPanel,
@@ -21,15 +21,11 @@ import useInitFilterPanelState from 'hooks/use-init-filter-panel-state';
 import useGetAllApi from 'hooks/use-get-all-api';
 import useAppStore from 'stores/use-app-store';
 import MiscUtils from 'utils/MiscUtils';
-import { useModals } from '@mantine/modals';
 import OrderConfigs from 'pages/order/OrderConfigs';
 
 function WaybillManage() {
   useResetManagePageState();
   useInitFilterPanelState(WaybillConfigs.properties);
-
-  const theme = useMantineTheme();
-  const modals = useModals();
 
   const {
     isLoading,
@@ -38,35 +34,35 @@ function WaybillManage() {
 
   const { searchToken } = useAppStore();
 
+  const [viewOrderModalId, setViewOrderModalId] = useState<number | null>(null);
+
   const waybillStatusBadgeFragment = (status: number) => {
     switch (status) {
     case 1:
-      return <Badge variant="outline" size="sm" color="gray">Đợi lấy hàng</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Đợi lấy hàng</span>;
     case 2:
-      return <Badge variant="outline" size="sm" color="blue">Đang giao</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đang giao</span>;
     case 3:
-      return <Badge variant="outline" size="sm" color="green">Đã giao</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-green-300 dark:border-green-600 text-green-700 dark:text-green-400 rounded">Đã giao</span>;
     case 4:
-      return <Badge variant="outline" size="sm" color="red">Hủy</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Hủy</span>;
     }
   };
 
   const handleViewOrderAnchor = (orderId: number) => {
-    modals.openModal({
-      size: 'lg',
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      title: <strong>Thông tin đơn hàng</strong>,
-      children: (
-        <EntityDetailTable
-          entityDetailTableRowsFragment={OrderConfigs.entityDetailTableRowsFragment}
-          resourceUrl={OrderConfigs.resourceUrl}
-          resourceKey={OrderConfigs.resourceKey}
-          entityId={orderId}
-        />
-      ),
-    });
+    setViewOrderModalId(orderId);
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: WaybillResponse) => {
@@ -76,42 +72,33 @@ function WaybillManage() {
       <>
         <td>{entity.id}</td>
         <td>
-          <Highlight
-            highlight={searchToken}
-            highlightColor="blue"
-            size="sm"
-            sx={{ fontFamily: theme.fontFamilyMonospace }}
-          >
-            {entity.code}
-          </Highlight>
+          <span className="text-sm font-mono">
+            {highlightText(entity.code, searchToken)}
+          </span>
         </td>
         <td>
-          <Stack spacing={2.5}>
-            <Anchor onClick={() => handleViewOrderAnchor(entity.order.id)}>
-              <Highlight
-                highlight={searchToken}
-                highlightColor="blue"
-                size="sm"
-                sx={{ fontFamily: theme.fontFamilyMonospace }}
-              >
-                {entity.order.code}
-              </Highlight>
-            </Anchor>
-            <PaymentMethodIcon color={theme.colors.gray[5]}/>
-          </Stack>
+          <div className="flex flex-col gap-1">
+            <button
+              onClick={() => handleViewOrderAnchor(entity.order.id)}
+              className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-mono text-left"
+            >
+              {highlightText(entity.order.code, searchToken)}
+            </button>
+            <PaymentMethodIcon size={16} className="text-gray-400" />
+          </div>
         </td>
         <td>{DateUtils.isoDateToString(entity.shippingDate, 'DD/MM/YYYY')}</td>
         <td>{DateUtils.isoDateToString(entity.expectedDeliveryTime, 'DD/MM/YYYY')}</td>
         <td>{waybillStatusBadgeFragment(entity.status)}</td>
-        <td style={{ textAlign: 'right' }}>{MiscUtils.formatPrice(entity.codAmount) + ' ₫'}</td>
-        <td style={{ textAlign: 'right' }}>{MiscUtils.formatPrice(entity.shippingFee) + ' ₫'}</td>
+        <td className="text-right">{MiscUtils.formatPrice(entity.codAmount) + ' ₫'}</td>
+        <td className="text-right">{MiscUtils.formatPrice(entity.shippingFee) + ' ₫'}</td>
         <td>
-          <Stack spacing={0}>
-            <Text size="xs">Khối lượng: <b>{entity.weight}</b> (gram)</Text>
-            <Text size="xs">Chiều dài: <b>{entity.length}</b> (cm)</Text>
-            <Text size="xs">Chiều rộng: <b>{entity.width}</b> (cm)</Text>
-            <Text size="xs">Chiều cao: <b>{entity.height}</b> (cm)</Text>
-          </Stack>
+          <div className="flex flex-col gap-0">
+            <p className="text-xs">Khối lượng: <b>{entity.weight}</b> (gram)</p>
+            <p className="text-xs">Chiều dài: <b>{entity.length}</b> (cm)</p>
+            <p className="text-xs">Chiều rộng: <b>{entity.width}</b> (cm)</p>
+            <p className="text-xs">Chiều cao: <b>{entity.height}</b> (cm)</p>
+          </div>
         </td>
       </>
     );
@@ -162,17 +149,17 @@ function WaybillManage() {
       <tr>
         <td>{WaybillConfigs.properties.size.label}</td>
         <td>
-          <Stack spacing={0}>
-            <Text size="xs">Khối lượng: <b>{entity.weight}</b> (gram)</Text>
-            <Text size="xs">Chiều dài: <b>{entity.length}</b> (cm)</Text>
-            <Text size="xs">Chiều rộng: <b>{entity.width}</b> (cm)</Text>
-            <Text size="xs">Chiều cao: <b>{entity.height}</b> (cm)</Text>
-          </Stack>
+          <div className="flex flex-col gap-0">
+            <p className="text-xs">Khối lượng: <b>{entity.weight}</b> (gram)</p>
+            <p className="text-xs">Chiều dài: <b>{entity.length}</b> (cm)</p>
+            <p className="text-xs">Chiều rộng: <b>{entity.width}</b> (cm)</p>
+            <p className="text-xs">Chiều cao: <b>{entity.height}</b> (cm)</p>
+          </div>
         </td>
       </tr>
       <tr>
         <td>Ghi chú vận đơn</td>
-        <td style={{ maxWidth: 300 }}>{entity.note}</td>
+        <td className="max-w-[300px]">{entity.note}</td>
       </tr>
       <tr>
         <td>Người trả phí dịch vụ GHN</td>
@@ -186,7 +173,7 @@ function WaybillManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={WaybillConfigs.manageTitleLinks}
@@ -218,7 +205,25 @@ function WaybillManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+
+      {/* View Order Modal */}
+      {viewOrderModalId !== null && (
+        <Dialog open={true} onClose={() => setViewOrderModalId(null)} className="relative z-50">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-h-[90vh] overflow-auto">
+              <Dialog.Title className="text-lg font-semibold mb-4">Thông tin đơn hàng</Dialog.Title>
+              <EntityDetailTable
+                entityDetailTableRowsFragment={OrderConfigs.entityDetailTableRowsFragment}
+                resourceUrl={OrderConfigs.resourceUrl}
+                resourceKey={OrderConfigs.resourceKey}
+                entityId={viewOrderModalId}
+              />
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+      )}
+    </div>
   );
 }
 

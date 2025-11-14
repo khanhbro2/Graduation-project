@@ -1,23 +1,9 @@
-import {
-  ActionIcon,
-  Badge,
-  Button,
-  Group,
-  LoadingOverlay,
-  Paper,
-  Stack,
-  Switch,
-  Table,
-  Text,
-  TextInput,
-  useMantineTheme
-} from '@mantine/core';
 import React, { useState } from 'react';
+import { Dialog } from '@headlessui/react';
 import useResetManagePageState from 'hooks/use-reset-manage-page-state';
-import { formList, useForm, zodResolver } from '@mantine/form';
+import { useForm, zodResolver } from '@mantine/form';
 import { ManageHeader, ManageHeaderTitle } from 'components';
 import RewardStrategyConfigs from 'pages/reward-strategy/RewardStrategyConfigs';
-import { useModals } from '@mantine/modals';
 import { MathFunction } from 'tabler-icons-react';
 import { RewardStrategyRequest, RewardStrategyResponse } from 'models/RewardStrategy';
 import { useMutation, useQueryClient } from 'react-query';
@@ -29,17 +15,12 @@ import NotifyUtils from 'utils/NotifyUtils';
 import { z } from 'zod';
 
 function RewardStrategyManage() {
-  const theme = useMantineTheme();
-  const modals = useModals();
   const queryClient = useQueryClient();
 
   useResetManagePageState();
 
-  const form = useForm({
-    initialValues: {
-      rewardStrategies: formList([] as Array<{ status: boolean }>),
-    },
-  });
+  const [rewardStrategies, setRewardStrategies] = useState<Array<{ status: boolean }>>([]);
+  const [updateFormulaModalRewardStrategy, setUpdateFormulaModalRewardStrategy] = useState<RewardStrategyResponse | null>(null);
 
   const {
     isLoading,
@@ -48,8 +29,9 @@ function RewardStrategyManage() {
     RewardStrategyConfigs.resourceUrl,
     RewardStrategyConfigs.resourceKey,
     { all: 1, sort: 'id,asc' },
-    (data) =>
-      form.setFieldValue('rewardStrategies', formList(data.content.map(entity => ({ status: entity.status === 1 })))),
+    (data) => {
+      setRewardStrategies(data.content.map(entity => ({ status: entity.status === 1 })));
+    },
     { refetchOnWindowFocus: false }
   );
 
@@ -60,7 +42,7 @@ function RewardStrategyManage() {
       const updateRewardStrategyRequests: UpdateRewardStrategyRequest[] = [];
 
       listResponse.content.forEach((entity, index) => {
-        const currentStatus = form.values.rewardStrategies[index].status ? 1 : 2;
+        const currentStatus = rewardStrategies[index].status ? 1 : 2;
 
         if (currentStatus !== entity.status) {
           updateRewardStrategyRequests.push({
@@ -82,70 +64,74 @@ function RewardStrategyManage() {
   };
 
   const handleUpdateFormulaButton = (rewardStrategy: RewardStrategyResponse) => {
-    modals.openModal({
-      size: 'md',
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      title: <strong>Sửa công thức tính</strong>,
-      children: <UpdateFormulaModal rewardStrategy={rewardStrategy}/>,
-    });
+    setUpdateFormulaModalRewardStrategy(rewardStrategy);
+  };
+
+  const handleToggleStatus = (index: number) => {
+    const newRewardStrategies = [...rewardStrategies];
+    newRewardStrategies[index] = { ...newRewardStrategies[index], status: !newRewardStrategies[index].status };
+    setRewardStrategies(newRewardStrategies);
   };
 
   const rewardStrategyStatusBadgeFragment = (status: number) => {
     switch (status) {
     case 1:
-      return <Badge color="blue" variant="filled" size="sm">Đang kích hoạt</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-blue-500 text-white rounded">Đang kích hoạt</span>;
     case 2:
-      return <Badge color="pink" variant="filled" size="sm">Không kích hoạt</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium bg-pink-500 text-white rounded">Không kích hoạt</span>;
     }
   };
 
   const entitiesTableHeadsFragment = (
     <tr>
-      <th>Kích hoạt</th>
-      <th>Chiến lược điểm thưởng</th>
-      <th>Mã</th>
-      <th>Công thức tính</th>
-      <th>Trạng thái</th>
+      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Kích hoạt</th>
+      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Chiến lược điểm thưởng</th>
+      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Mã</th>
+      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Công thức tính</th>
+      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Trạng thái</th>
     </tr>
   );
 
   const entitiesTableRowsFragment = listResponse.content.map((entity, index) => (
-    <tr key={entity.id}>
-      <td>
-        <Switch
-          size="md"
-          {...form.getListInputProps('rewardStrategies', index, 'status', { type: 'checkbox' })}
-        />
+    <tr key={entity.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+      <td className="px-4 py-2">
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={rewardStrategies[index]?.status || false}
+            onChange={() => handleToggleStatus(index)}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+        </label>
       </td>
-      <td>{entity.name}</td>
-      <td><Text size="sm" sx={{ fontFamily: theme.fontFamilyMonospace }}>{entity.code}</Text></td>
-      <td>
-        <Group>
-          <Text size="sm" sx={{ fontFamily: theme.fontFamilyMonospace }}>{entity.formula}</Text>
-          <ActionIcon
-            color="blue"
-            variant="outline"
-            size="sm"
-            title="Cập nhật công thức mới"
+      <td className="px-4 py-2">{entity.name}</td>
+      <td className="px-4 py-2">
+        <span className="text-sm font-mono">{entity.code}</span>
+      </td>
+      <td className="px-4 py-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-mono">{entity.formula}</span>
+          <button
             onClick={() => handleUpdateFormulaButton(entity)}
+            className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+            title="Cập nhật công thức mới"
           >
             <MathFunction size={15} strokeWidth={1.5}/>
-          </ActionIcon>
-        </Group>
+          </button>
+        </div>
       </td>
-      <td>{rewardStrategyStatusBadgeFragment(entity.status)}</td>
+      <td className="px-4 py-2">{rewardStrategyStatusBadgeFragment(entity.status)}</td>
     </tr>
   ));
 
   const disabledUpdateButton = MiscUtils.isEquals(
     listResponse.content.map(entity => ({ status: entity.status === 1 })),
-    form.values.rewardStrategies
+    rewardStrategies
   );
 
   return (
-    <Stack sx={{ maxWidth: 850 }}>
+    <div className="flex flex-col gap-4 max-w-4xl">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={RewardStrategyConfigs.manageTitleLinks}
@@ -153,27 +139,44 @@ function RewardStrategyManage() {
         />
       </ManageHeader>
 
-      <Paper shadow="xs" sx={{ position: 'relative', height: listResponse.content.length === 0 ? 170 : 'auto' }}>
-        <LoadingOverlay visible={isLoading} zIndex={50}/>
-        <Table horizontalSpacing="sm" verticalSpacing="sm">
-          <thead>{entitiesTableHeadsFragment}</thead>
-          <tbody>{entitiesTableRowsFragment}</tbody>
-        </Table>
-      </Paper>
+      <div className="relative p-4 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" style={{ minHeight: listResponse.content.length === 0 ? 170 : 'auto' }}>
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-md">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        )}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              {entitiesTableHeadsFragment}
+            </thead>
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              {entitiesTableRowsFragment}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      <Button
-        sx={{ width: 'fit-content' }}
+      <button
+        className="w-fit px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={disabledUpdateButton}
         onClick={handleUpdateButton}
       >
         Cập nhật
-      </Button>
-    </Stack>
+      </button>
+
+      {/* Update Formula Modal */}
+      {updateFormulaModalRewardStrategy && (
+        <UpdateFormulaModal
+          rewardStrategy={updateFormulaModalRewardStrategy}
+          onClose={() => setUpdateFormulaModalRewardStrategy(null)}
+        />
+      )}
+    </div>
   );
 }
 
-function UpdateFormulaModal({ rewardStrategy }: { rewardStrategy: RewardStrategyResponse }) {
-  const modals = useModals();
+function UpdateFormulaModal({ rewardStrategy, onClose }: { rewardStrategy: RewardStrategyResponse, onClose: () => void }) {
   const queryClient = useQueryClient();
 
   const [currentFormula, setCurrentFormula] = useState(rewardStrategy.formula);
@@ -196,31 +199,55 @@ function UpdateFormulaModal({ rewardStrategy }: { rewardStrategy: RewardStrategy
       NotifyUtils.simpleSuccess('Cập nhật thành công');
       void queryClient.invalidateQueries([RewardStrategyConfigs.resourceKey, 'getAll']);
       setCurrentFormula(formValues.formula);
+      onClose();
     } catch (e) {
       NotifyUtils.simpleFailed('Cập nhật không thành công');
     }
   });
 
   return (
-    <form onSubmit={handleFormSubmit}>
-      <Stack>
-        <Text size="sm" color="dimmed">Công thức tính của chiến lược &quot;{rewardStrategy.name}&quot;</Text>
-        <TextInput
-          data-autofocus
-          required
-          placeholder="Nhập công thức tính"
-          {...form.getInputProps('formula')}
-        />
-        <Group position="right">
-          <Button variant="default" onClick={modals.closeAll}>
-            Đóng
-          </Button>
-          <Button type="submit" disabled={MiscUtils.isEquals(form.values, { formula: currentFormula })}>
-            Cập nhật
-          </Button>
-        </Group>
-      </Stack>
-    </form>
+    <Dialog open={true} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+          <Dialog.Title className="text-lg font-semibold mb-4">Sửa công thức tính</Dialog.Title>
+          <form onSubmit={handleFormSubmit}>
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Công thức tính của chiến lược &quot;{rewardStrategy.name}&quot;
+              </p>
+              <input
+                type="text"
+                autoFocus
+                required
+                placeholder="Nhập công thức tính"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                {...form.getInputProps('formula')}
+              />
+              {form.errors.formula && (
+                <p className="text-sm text-red-600 dark:text-red-400">{form.errors.formula}</p>
+              )}
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Đóng
+                </button>
+                <button
+                  type="submit"
+                  disabled={MiscUtils.isEquals(form.values, { formula: currentFormula })}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cập nhật
+                </button>
+              </div>
+            </div>
+          </form>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
   );
 }
 

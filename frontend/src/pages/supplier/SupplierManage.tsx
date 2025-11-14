@@ -1,5 +1,4 @@
 import React from 'react';
-import { Badge, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -33,39 +32,41 @@ function SupplierManage() {
 
   const supplierStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Có hiệu lực</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Có hiệu lực</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Vô hiệu lực</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Vô hiệu lực</span>;
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: SupplierResponse) => (
     <>
       <td>{entity.id}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.displayName}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.displayName, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.code}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.code, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.contactFullname || ''}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.contactFullname || '', searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.contactPhone || ''}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.contactPhone || '', searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.companyName || ''}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.companyName || '', searchToken)}
       </td>
       <td>{supplierStatusBadgeFragment(entity.status)}</td>
     </>
@@ -143,11 +144,11 @@ function SupplierManage() {
       </tr>
       <tr>
         <td>{SupplierConfigs.properties.description.label}</td>
-        <td style={{ maxWidth: 300 }}>{entity.description}</td>
+        <td className="max-w-[300px]">{entity.description}</td>
       </tr>
       <tr>
         <td>{SupplierConfigs.properties.note.label}</td>
-        <td style={{ maxWidth: 300 }}>{entity.note}</td>
+        <td className="max-w-[300px]">{entity.note}</td>
       </tr>
       <tr>
         <td>{SupplierConfigs.properties.status.label}</td>
@@ -157,7 +158,7 @@ function SupplierManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={SupplierConfigs.manageTitleLinks}
@@ -189,7 +190,7 @@ function SupplierManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

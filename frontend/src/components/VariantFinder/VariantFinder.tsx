@@ -1,18 +1,8 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Group,
-  Highlight,
-  Loader,
-  Popover,
-  Stack,
-  Text,
-  TextInput,
-  ThemeIcon,
-  UnstyledButton
-} from '@mantine/core';
 import { Check, Search } from 'tabler-icons-react';
-import { useDebouncedValue, useElementSize } from '@mantine/hooks';
+import { useDebouncedValue } from 'hooks/use-debounced-value';
+import { useElementSize } from 'hooks/use-element-size';
+import { Popover } from '@headlessui/react';
 import useGetAllApi from 'hooks/use-get-all-api';
 import { VariantResponse } from 'models/Variant';
 import ResourceURL from 'constants/ResourceURL';
@@ -24,40 +14,48 @@ interface VariantResultProps {
 }
 
 function VariantResult({ variant, keyword, disabled }: VariantResultProps) {
+  const highlightText = (text: string, keyword: string) => {
+    if (!keyword) return text;
+    const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === keyword.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
-    <Group
-      position="apart"
-      sx={(theme) => ({
-        padding: '5px 12px',
-        borderRadius: theme.radius.sm,
-        opacity: disabled ? 0.5 : 'unset',
-        '&:hover': { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[1] },
-      })}
+    <div
+      className={`flex items-center justify-between px-3 py-1.5 rounded-md ${
+        disabled ? 'opacity-50' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+      }`}
     >
-      <Stack spacing={2}>
-        <Highlight highlight={keyword} highlightColor="blue" size="sm">
-          {variant.product.name}
-        </Highlight>
-        <Group spacing="xs">
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-gray-900 dark:text-gray-100">
+          {highlightText(variant.product.name, keyword)}
+        </p>
+        <div className="flex items-center gap-2 flex-wrap">
           {variant.properties && variant.properties.content.map(property => (
-            <Text key={property.code} size="xs" color="blue">
+            <span key={property.code} className="text-xs text-blue-600 dark:text-blue-400">
               {property.name}: {property.value}
-            </Text>
+            </span>
           ))}
-          <Text size="xs" color="dimmed">
-            SKU: <Highlight component="span" highlight={keyword} highlightColor="blue" inherit>{variant.sku}</Highlight>
-          </Text>
-        </Group>
-      </Stack>
+          <span className="text-xs text-gray-400">
+            SKU: {highlightText(variant.sku, keyword)}
+          </span>
+        </div>
+      </div>
       {disabled && (
-        <Group spacing={5}>
-          <ThemeIcon radius="lg" color="green" size="xs">
-            <Check size={12}/>
-          </ThemeIcon>
-          <Text weight={500} color="green" size="xs">Đã thêm</Text>
-        </Group>
+        <div className="flex items-center gap-1">
+          <div className="p-1 bg-green-100 dark:bg-green-900/20 rounded-full">
+            <Check size={12} className="text-green-600 dark:text-green-400" />
+          </div>
+          <span className="text-xs font-medium text-green-600 dark:text-green-400">Đã thêm</span>
+        </div>
       )}
-    </Group>
+    </div>
   );
 }
 
@@ -73,7 +71,7 @@ function VariantFinder({ selectedVariants, onClickItem, errorSearchInput }: Vari
   const [popoverOpened, setPopoverOpened] = useState(false);
   const [keyword, setKeyword] = useState('');
 
-  const [debouncedKeyword] = useDebouncedValue(keyword, 400);
+  const debouncedKeyword = useDebouncedValue(keyword, 400);
 
   const { data: variants, isFetching } = useGetAllApi<VariantResponse>(
     ResourceURL.VARIANT,
@@ -84,51 +82,78 @@ function VariantFinder({ selectedVariants, onClickItem, errorSearchInput }: Vari
   const selectedVariantIds = selectedVariants.map(variant => variant.id);
 
   return (
-    <Box ref={refBox}>
-      <Popover
-        opened={popoverOpened}
-        position="bottom"
-        placement="start"
-        transition="pop-top-left"
-        styles={{ root: { width: '100%' }, popover: { width: widthBox }, inner: { padding: 4 } }}
-        trapFocus={false}
-        onFocusCapture={() => setPopoverOpened(true)}
-        onClose={() => setPopoverOpened(false)}
-        target={
-          <TextInput
-            required
-            label="Thêm mặt hàng"
-            placeholder="Nhập tên, mã sản phẩm hay SKU để tìm..."
-            value={keyword}
-            onChange={(event) => setKeyword(event.currentTarget.value)}
-            icon={<Search size={14}/>}
-            rightSection={isFetching ? <Loader size={16}/> : null}
-            error={errorSearchInput}
-          />
-        }
-      >
-        <Stack spacing={0}>
-          {(!variants || variants.totalElements === 0)
-            ? <Text size="sm" p="sm" color="dimmed" sx={{ fontStyle: 'italic' }}>Không có kết quả</Text>
-            : variants.content.map(variant => (
-              <UnstyledButton
-                key={variant.sku}
-                onClick={() => {
-                  onClickItem(variant);
-                  setPopoverOpened(false);
-                }}
-                disabled={selectedVariantIds.includes(variant.id)}
-              >
-                <VariantResult
-                  variant={variant}
-                  keyword={debouncedKeyword}
-                  disabled={selectedVariantIds.includes(variant.id)}
+    <div ref={refBox as React.RefObject<HTMLDivElement>} className="w-full">
+      <Popover className="relative">
+        {({ open, close }) => (
+          <>
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Thêm mặt hàng
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search size={14} className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nhập tên, mã sản phẩm hay SKU để tìm..."
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onFocus={() => setPopoverOpened(true)}
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-              </UnstyledButton>
-            ))}
-        </Stack>
+                {isFetching && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+              </div>
+              {errorSearchInput && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errorSearchInput}</p>
+              )}
+            </div>
+            {open && (
+              <Popover.Panel
+                static
+                className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-auto"
+                style={{ width: widthBox }}
+              >
+                <div className="p-1">
+                  {(!variants || variants.totalElements === 0) ? (
+                    <p className="text-sm text-gray-400 italic p-3">Không có kết quả</p>
+                  ) : (
+                    variants.content.map(variant => {
+                      const isDisabled = selectedVariantIds.includes(variant.id);
+                      return (
+                        <button
+                          key={variant.sku}
+                          onClick={() => {
+                            if (!isDisabled) {
+                              onClickItem(variant);
+                              setPopoverOpened(false);
+                              close();
+                            }
+                          }}
+                          disabled={isDisabled}
+                          className="w-full text-left"
+                        >
+                          <VariantResult
+                            variant={variant}
+                            keyword={debouncedKeyword}
+                            disabled={isDisabled}
+                          />
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </Popover.Panel>
+            )}
+          </>
+        )}
       </Popover>
-    </Box>
+    </div>
   );
 }
 

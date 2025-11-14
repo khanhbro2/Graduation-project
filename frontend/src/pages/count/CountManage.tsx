@@ -1,5 +1,4 @@
 import React from 'react';
-import { Badge, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -35,32 +34,40 @@ function CountManage() {
   const countStatusBadgeFragment = (status: number) => {
     switch (status) {
     case 1:
-      return <Badge color="gray" variant="outline" size="sm">Mới</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Mới</span>;
     case 2:
-      return <Badge color="blue" variant="outline" size="sm">Đang xử lý</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đang xử lý</span>;
     case 3:
-      return <Badge color="green" variant="outline" size="sm">Hoàn thành</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-green-300 dark:border-green-600 text-green-700 dark:text-green-400 rounded">Hoàn thành</span>;
     case 4:
-      return <Badge color="red" variant="outline" size="sm">Hủy bỏ</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Hủy bỏ</span>;
     }
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: CountResponse) => (
     <>
       <td>{entity.id}</td>
       <td>{DateUtils.isoDateToString(entity.createdAt)}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.code}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.code, searchToken)}
       </td>
-      <td style={{ textAlign: 'right' }}>
+      <td className="text-right">
         {MiscUtils.formatPrice(entity.countVariants.length)} SKU
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.warehouse.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.warehouse.name, searchToken)}
       </td>
       <td>{countStatusBadgeFragment(entity.status)}</td>
     </>
@@ -94,7 +101,7 @@ function CountManage() {
       </tr>
       <tr>
         <td>Ghi chú phiếu kiểm kho</td>
-        <td style={{ maxWidth: 300 }}>{entity.note}</td>
+        <td className="max-w-[300px]">{entity.note}</td>
       </tr>
       <tr>
         <td>{CountConfigs.properties.status.label}</td>
@@ -104,7 +111,7 @@ function CountManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={CountConfigs.manageTitleLinks}
@@ -136,7 +143,7 @@ function CountManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

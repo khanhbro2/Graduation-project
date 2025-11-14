@@ -1,5 +1,4 @@
 import React from 'react';
-import { Avatar, Badge, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -33,95 +32,95 @@ function EmployeeManage() {
 
   const userStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge color="blue" variant="outline" size="sm">Đã kích hoạt</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đã kích hoạt</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Chưa kích hoạt</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Chưa kích hoạt</span>;
   };
 
   const officeStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Đang hoạt động</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Đang hoạt động</span>;
     }
 
     if (status === 2) {
-      return <Badge color="teal" variant="outline" size="sm">Ít hoạt động</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-teal-300 dark:border-teal-600 text-teal-700 dark:text-teal-400 rounded">Ít hoạt động</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Không hoạt động</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Không hoạt động</span>;
   };
 
   const departmentStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Đang hoạt động</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Đang hoạt động</span>;
     }
 
     if (status === 2) {
-      return <Badge color="teal" variant="outline" size="sm">Ít hoạt động</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-teal-300 dark:border-teal-600 text-teal-700 dark:text-teal-400 rounded">Ít hoạt động</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Không hoạt động</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Không hoạt động</span>;
   };
 
   const jobTypeStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Có hiệu lực</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Có hiệu lực</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Vô hiệu lực</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Vô hiệu lực</span>;
   };
 
   const jobLevelStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Có hiệu lực</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Có hiệu lực</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Vô hiệu lực</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Vô hiệu lực</span>;
   };
 
   const jobTitleStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Có hiệu lực</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Có hiệu lực</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Vô hiệu lực</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Vô hiệu lực</span>;
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: EmployeeResponse) => (
     <>
       <td>{entity.id}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.user.fullname}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.user.fullname, searchToken)}
       </td>
       <td>
-        <Avatar src={entity.user.avatar} alt={entity.user.fullname} radius="xl" size="sm"/>
+        <img src={entity.user.avatar || undefined} alt={entity.user.fullname} className="w-8 h-8 rounded-full object-cover" />
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.office.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.office.name, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.department.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.department.name, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.jobType.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.jobType.name, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.jobLevel.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.jobLevel.name, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.jobTitle.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.jobTitle.name, searchToken)}
       </td>
     </>
   );
@@ -183,7 +182,7 @@ function EmployeeManage() {
       <tr>
         <td>{EmployeeConfigs.properties['user.avatar'].label}</td>
         <td>
-          <Avatar src={entity.user.avatar} alt={entity.user.fullname} radius="xl" size="sm"/>
+          <img src={entity.user.avatar || undefined} alt={entity.user.fullname} className="w-8 h-8 rounded-full object-cover" />
         </td>
       </tr>
       <tr>
@@ -193,9 +192,14 @@ function EmployeeManage() {
       <tr>
         <td>{EmployeeConfigs.properties['user.roles'].label}</td>
         <td>
-          <Stack spacing="xs" align="flex-start">
-            {entity.user.roles.map((role, index) => <Badge key={index} variant="dot" size="sm">{role.name}</Badge>)}
-          </Stack>
+          <div className="flex flex-col gap-1 items-start">
+            {entity.user.roles.map((role, index) => (
+              <span key={index} className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                {role.name}
+              </span>
+            ))}
+          </div>
         </td>
       </tr>
       <tr>
@@ -262,7 +266,7 @@ function EmployeeManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={EmployeeConfigs.manageTitleLinks}
@@ -294,7 +298,7 @@ function EmployeeManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

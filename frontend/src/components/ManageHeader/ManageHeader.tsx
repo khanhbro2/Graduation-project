@@ -1,5 +1,4 @@
 import React from 'react';
-import { Group } from '@mantine/core';
 
 interface ManageHeaderProps {
   children: React.ReactNode;
@@ -10,9 +9,9 @@ function ManageHeader({
 }: ManageHeaderProps) {
 
   return (
-    <Group position="apart">
+    <div className="flex items-center justify-between">
       {children}
-    </Group>
+    </div>
   );
 }
 

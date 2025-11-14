@@ -1,5 +1,4 @@
 import React from 'react';
-import { Badge, Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -33,14 +32,26 @@ function DepartmentManage() {
 
   const departmentStatusBadgeFragment = (status: number) => {
     if (status === 1) {
-      return <Badge variant="outline" size="sm">Đang hoạt động</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Đang hoạt động</span>;
     }
 
     if (status === 2) {
-      return <Badge color="teal" variant="outline" size="sm">Ít hoạt động</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-teal-300 dark:border-teal-600 text-teal-700 dark:text-teal-400 rounded">Ít hoạt động</span>;
     }
 
-    return <Badge color="red" variant="outline" size="sm">Không hoạt động</Badge>;
+    return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Không hoạt động</span>;
+  };
+
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const showedPropertiesFragment = (entity: DepartmentResponse) => (
@@ -48,10 +59,8 @@ function DepartmentManage() {
       <td>{entity.id}</td>
       <td>{DateUtils.isoDateToString(entity.createdAt)}</td>
       <td>{DateUtils.isoDateToString(entity.updatedAt)}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.name, searchToken)}
       </td>
       <td>{departmentStatusBadgeFragment(entity.status)}</td>
     </>
@@ -83,7 +92,7 @@ function DepartmentManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={DepartmentConfigs.manageTitleLinks}
@@ -115,7 +124,7 @@ function DepartmentManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

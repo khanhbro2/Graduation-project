@@ -1,4 +1,3 @@
-import { ActionIcon, Group, Select, TextInput } from '@mantine/core';
 import { AB, DragDrop, Keyboard, PlaystationX } from 'tabler-icons-react';
 import React from 'react';
 import { CollectionWrapper, SelectOption } from 'types';
@@ -72,46 +71,48 @@ function ProductSpecificationRow({
   };
 
   return (
-    <Group
-      spacing="sm"
-      sx={{ flexWrap: 'nowrap', justifyContent: 'space-between' }}
-    >
-      <ActionIcon
-        color="blue"
-        variant="hover"
-        size={36}
+    <div className="flex items-center gap-2 flex-nowrap justify-between">
+      <button
+        type="button"
         title="Di chuyển thông số sản phẩm"
+        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
       >
-        <DragDrop/>
-      </ActionIcon>
-      <Select
-        sx={{ width: '100%' }}
-        placeholder="Chọn thông số"
-        icon={<AB size={14}/>}
-        clearable
-        searchable
+        <DragDrop size={18} />
+      </button>
+      <select
         value={JSON.stringify({ id: specification.id, name: specification.name, code: specification.code })}
-        data={specificationSelectList}
-        onChange={specificationInfos => handleProductSpecificationSelect(specificationInfos, index)}
-      />
-      <TextInput
-        sx={{ width: '100%' }}
-        placeholder="Nhập giá trị"
-        icon={<Keyboard size={14}/>}
-        value={specification.value}
-        onChange={(event) => handleProductSpecificationValueInput(event.currentTarget.value, index)}
-        disabled={isDisabledProductSpecificationValueInput}
-      />
-      <ActionIcon
-        color="red"
-        variant="hover"
-        size={36}
-        title="Xóa thông số"
-        onClick={() => handleDeleteProductSpecificationButton(index)}
+        onChange={(e) => handleProductSpecificationSelect(e.target.value || null, index)}
+        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
-        <PlaystationX/>
-      </ActionIcon>
-    </Group>
+        <option value="">Chọn thông số</option>
+        {specificationSelectList.map((option) => (
+          <option key={option.value} value={option.value} disabled={option.disabled}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <div className="flex-1 relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Keyboard size={14} className="text-gray-400" />
+        </div>
+        <input
+          type="text"
+          placeholder="Nhập giá trị"
+          value={specification.value}
+          onChange={(e) => handleProductSpecificationValueInput(e.target.value, index)}
+          disabled={isDisabledProductSpecificationValueInput}
+          className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => handleDeleteProductSpecificationButton(index)}
+        title="Xóa thông số"
+        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+      >
+        <PlaystationX size={18} />
+      </button>
+    </div>
   );
 }
 

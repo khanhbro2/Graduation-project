@@ -1,6 +1,5 @@
-import React from 'react';
-import { Text, useMantineTheme } from '@mantine/core';
-import { useModals } from '@mantine/modals';
+import React, { useState } from 'react';
+import { Dialog } from '@headlessui/react';
 import useAppStore from 'stores/use-app-store';
 import { EntityDetailTable } from 'components';
 import BaseResponse from 'models/BaseResponse';
@@ -14,8 +13,8 @@ function useManageTableViewModel<T extends BaseResponse>({
   resourceKey,
   entityDetailTableRowsFragment,
 }: ManageTableProps<T>) {
-  const theme = useMantineTheme();
-  const modals = useModals();
+  const [viewModalEntityId, setViewModalEntityId] = useState<number | null>(null);
+  const [deleteModalEntityId, setDeleteModalEntityId] = useState<number | null>(null);
 
   const deleteByIdApi = useDeleteByIdApi(resourceUrl, resourceKey);
 
@@ -40,39 +39,11 @@ function useManageTableViewModel<T extends BaseResponse>({
   };
 
   const handleViewEntityButton = (entityId: number) => {
-    modals.openModal({
-      size: 'lg',
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      title: <strong>Thông tin chi tiết</strong>,
-      children: (
-        <EntityDetailTable
-          entityDetailTableRowsFragment={entityDetailTableRowsFragment}
-          resourceUrl={resourceUrl}
-          resourceKey={resourceKey}
-          entityId={entityId}
-        />
-      ),
-    });
+    setViewModalEntityId(entityId);
   };
 
   const handleDeleteEntityButton = (entityId: number) => {
-    modals.openConfirmModal({
-      size: 'xs',
-      overlayColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
-      overlayOpacity: 0.55,
-      overlayBlur: 3,
-      closeOnClickOutside: false,
-      title: <strong>Xác nhận xóa</strong>,
-      children: <Text size="sm">Xóa phần tử có ID {entityId}?</Text>,
-      labels: {
-        cancel: 'Không xóa',
-        confirm: 'Xóa',
-      },
-      confirmProps: { color: 'red' },
-      onConfirm: () => handleConfirmedDeleteEntityButton(entityId),
-    });
+    setDeleteModalEntityId(entityId);
   };
 
   const handleConfirmedDeleteEntityButton = (entityId: number) => {
@@ -81,9 +52,57 @@ function useManageTableViewModel<T extends BaseResponse>({
         if (listResponse.content.length === 1) {
           setActivePage(activePage - 1 || 1);
         }
+        setDeleteModalEntityId(null);
       },
     });
   };
+
+  const ViewModal = () => (
+    <Dialog open={viewModalEntityId !== null} onClose={() => setViewModalEntityId(null)} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-h-[90vh] overflow-auto">
+          <Dialog.Title className="text-lg font-semibold mb-4">Thông tin chi tiết</Dialog.Title>
+          {viewModalEntityId !== null && (
+            <EntityDetailTable
+              entityDetailTableRowsFragment={entityDetailTableRowsFragment}
+              resourceUrl={resourceUrl}
+              resourceKey={resourceKey}
+              entityId={viewModalEntityId}
+            />
+          )}
+        </Dialog.Panel>
+      </div>
+    </Dialog>
+  );
+
+  const DeleteModal = () => (
+    <Dialog open={deleteModalEntityId !== null} onClose={() => setDeleteModalEntityId(null)} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="w-full max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+          <Dialog.Title className="text-lg font-semibold mb-2">Xác nhận xóa</Dialog.Title>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Xóa phần tử có ID {deleteModalEntityId}?
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setDeleteModalEntityId(null)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+            >
+              Không xóa
+            </button>
+            <button
+              onClick={() => deleteModalEntityId !== null && handleConfirmedDeleteEntityButton(deleteModalEntityId)}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+            >
+              Xóa
+            </button>
+          </div>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
+  );
 
   return {
     listResponse,
@@ -93,6 +112,8 @@ function useManageTableViewModel<T extends BaseResponse>({
     handleToggleRowCheckbox,
     handleViewEntityButton,
     handleDeleteEntityButton,
+    ViewModal,
+    DeleteModal,
   };
 }
 

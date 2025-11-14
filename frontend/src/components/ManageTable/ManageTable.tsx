@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ActionIcon, Checkbox, Group, Table } from '@mantine/core';
 import { Edit, Eye, Trash } from 'tabler-icons-react';
 import BaseResponse from 'models/BaseResponse';
 import { EntityPropertySchema } from 'types';
 import { ListResponse } from 'utils/FetchUtils';
-import useManageTableStyles from 'components/ManageTable/ManageTable.styles';
 import useManageTableViewModel from 'components/ManageTable/ManageTable.vm';
 
 export interface ManageTableProps<T> {
@@ -18,8 +16,6 @@ export interface ManageTableProps<T> {
 }
 
 function ManageTable<T extends BaseResponse>(props: ManageTableProps<T>) {
-  const { classes, cx } = useManageTableStyles();
-
   const {
     listResponse,
     selection,
@@ -28,20 +24,34 @@ function ManageTable<T extends BaseResponse>(props: ManageTableProps<T>) {
     handleToggleRowCheckbox,
     handleViewEntityButton,
     handleDeleteEntityButton,
+    ViewModal,
+    DeleteModal,
   } = useManageTableViewModel<T>(props);
+
+  const isAllSelected = selection.length === listResponse.content.length && listResponse.content.length > 0;
+  const isIndeterminate = selection.length > 0 && selection.length !== listResponse.content.length;
 
   const entitiesTableHeadsFragment = (
     <tr>
       <th style={{ width: 40 }}>
-        <Checkbox
+        <input
+          type="checkbox"
           onChange={handleToggleAllRowsCheckbox}
-          checked={selection.length === listResponse.content.length}
-          indeterminate={selection.length > 0 && selection.length !== listResponse.content.length}
-          transitionDuration={0}
+          checked={isAllSelected}
+          ref={(input) => {
+            if (input) input.indeterminate = isIndeterminate;
+          }}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
       </th>
-      {tableHeads.map((item) => <th key={item}>{item}</th>)}
-      <th style={{ width: 120 }}>Thao tác</th>
+      {tableHeads.map((item) => (
+        <th key={item} className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          {item}
+        </th>
+      ))}
+      <th style={{ width: 120 }} className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+        Thao tác
+      </th>
     </tr>
   );
 
@@ -51,68 +61,65 @@ function ManageTable<T extends BaseResponse>(props: ManageTableProps<T>) {
     return (
       <tr
         key={entity.id}
-        className={cx({
-          [classes.rowSelected]: selected,
-        })}
+        className={`border-b border-gray-200 dark:border-gray-700 ${
+          selected
+            ? 'bg-blue-50 dark:bg-blue-900/20'
+            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+        }`}
       >
-        <td>
-          <Checkbox
+        <td className="px-3 py-2">
+          <input
+            type="checkbox"
             checked={selection.includes(entity.id)}
             onChange={() => handleToggleRowCheckbox(entity.id)}
-            transitionDuration={0}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
           />
         </td>
         {props.showedPropertiesFragment(entity as T)}
-        <td>
-          <Group spacing="xs">
-            <ActionIcon
-              color="blue"
-              variant="outline"
-              size={24}
-              title="Xem"
+        <td className="px-3 py-2">
+          <div className="flex items-center gap-2">
+            <button
               onClick={() => handleViewEntityButton(entity.id)}
+              title="Xem"
+              className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
             >
               <Eye size={16}/>
-            </ActionIcon>
-            <ActionIcon
-              component={Link}
+            </button>
+            <Link
               to={'update/' + entity.id}
-              color="teal"
-              variant="outline"
-              size={24}
               title="Cập nhật"
+              className="p-1.5 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 rounded transition-colors"
             >
               <Edit size={16}/>
-            </ActionIcon>
-            <ActionIcon
-              color="red"
-              variant="outline"
-              size={24}
-              title="Xóa"
+            </Link>
+            <button
               onClick={() => handleDeleteEntityButton(entity.id)}
+              title="Xóa"
+              className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
             >
               <Trash size={16}/>
-            </ActionIcon>
-          </Group>
+            </button>
+          </div>
         </td>
       </tr>
     );
   });
 
   return (
-    <Table
-      horizontalSpacing="sm"
-      verticalSpacing="sm"
-      highlightOnHover
-      striped
-      sx={(theme) => ({
-        borderRadius: theme.radius.sm,
-        overflow: 'hidden',
-      })}
-    >
-      <thead>{entitiesTableHeadsFragment}</thead>
-      <tbody>{entitiesTableRowsFragment}</tbody>
-    </Table>
+    <>
+      <div className="rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
+            {entitiesTableHeadsFragment}
+          </thead>
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            {entitiesTableRowsFragment}
+          </tbody>
+        </table>
+      </div>
+      <ViewModal />
+      <DeleteModal />
+    </>
   );
 }
 

@@ -1,4 +1,3 @@
-import { Table } from '@mantine/core';
 import React, { useEffect } from 'react';
 import { VariantRequest } from 'models/Variant';
 import { CollectionWrapper } from 'types';
@@ -55,34 +54,32 @@ function ProductVariants({
   }, [productProperties]);
 
   return (
-    <Table
-      horizontalSpacing="xs"
-      verticalSpacing="sm"
-      striped
-    >
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Phiên bản</th>
-          <th>SKU</th>
-          <th>Giá vốn</th>
-          <th>Giá bán</th>
-        </tr>
-      </thead>
-      <tbody>
-        {variants.map((variant, index) => (
-          <ProductVariantRow
-            key={index}
-            variant={variant}
-            index={index}
-            variants={variants}
-            setVariants={setVariants}
-            selectedVariantIndexes={selectedVariantIndexes}
-            setSelectedVariantIndexes={setSelectedVariantIndexes}
-          />
-        ))}
-      </tbody>
-    </Table>
+    <div className="rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phiên bản</th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">SKU</th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá vốn</th>
+            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giá bán</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {variants.map((variant, index) => (
+            <ProductVariantRow
+              key={index}
+              variant={variant}
+              index={index}
+              variants={variants}
+              setVariants={setVariants}
+              selectedVariantIndexes={selectedVariantIndexes}
+              setSelectedVariantIndexes={setSelectedVariantIndexes}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

@@ -10,7 +10,6 @@ import ApplicationConstants from 'constants/ApplicationConstants';
 import { PaymentMethodType } from 'models/PaymentMethod';
 import { OrderResponse } from 'models/Order';
 import DateUtils from 'utils/DateUtils';
-import { Badge, ColorSwatch, Group, Stack, Text } from '@mantine/core';
 import MiscUtils from 'utils/MiscUtils';
 import React from 'react';
 
@@ -124,24 +123,24 @@ class OrderConfigs extends Configs {
   static orderStatusBadgeFragment = (status: number) => {
     switch (status) {
     case 1:
-      return <Badge color="gray" variant="outline" size="sm">Đơn hàng mới</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Đơn hàng mới</span>;
     case 2:
-      return <Badge color="blue" variant="outline" size="sm">Đang xử lý</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-400 rounded">Đang xử lý</span>;
     case 3:
-      return <Badge color="violet" variant="outline" size="sm">Đang giao hàng</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-violet-300 dark:border-violet-600 text-violet-700 dark:text-violet-400 rounded">Đang giao hàng</span>;
     case 4:
-      return <Badge color="green" variant="outline" size="sm">Đã giao hàng</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-green-300 dark:border-green-600 text-green-700 dark:text-green-400 rounded">Đã giao hàng</span>;
     case 5:
-      return <Badge color="red" variant="outline" size="sm">Hủy bỏ</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded">Hủy bỏ</span>;
     }
   };
 
   static orderPaymentStatusBadgeFragment = (paymentStatus: number) => {
     switch (paymentStatus) {
     case 1:
-      return <Badge color="gray" variant="outline" size="sm">Chưa thanh toán</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded">Chưa thanh toán</span>;
     case 2:
-      return <Badge color="green" variant="outline" size="sm">Đã thanh toán</Badge>;
+      return <span className="px-2 py-1 text-xs font-medium border border-green-300 dark:border-green-600 text-green-700 dark:text-green-400 rounded">Đã thanh toán</span>;
     }
   };
 
@@ -173,10 +172,10 @@ class OrderConfigs extends Configs {
         <tr>
           <td>{OrderConfigs.properties['orderResource.name'].label}</td>
           <td>
-            <Group spacing="xs">
-              <ColorSwatch color={entity.orderResource.color}/>
-              {entity.orderResource.name}
-            </Group>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded" style={{ backgroundColor: entity.orderResource.color }}></div>
+              <span>{entity.orderResource.name}</span>
+            </div>
           </td>
         </tr>
         <tr>
@@ -185,27 +184,27 @@ class OrderConfigs extends Configs {
         </tr>
         <tr>
           <td>Ghi chú đơn hàng</td>
-          <td style={{ maxWidth: 300 }}>{entity.note}</td>
+          <td className="max-w-[300px]">{entity.note}</td>
         </tr>
         <tr>
           <td>Người đặt hàng</td>
           <td>
-            <Stack spacing={0}>
-              <Text size="sm">{entity.user.fullname}</Text>
-              <Text size="xs" color="dimmed">{entity.user.username}</Text>
-            </Stack>
+            <div className="flex flex-col gap-0">
+              <p className="text-sm">{entity.user.fullname}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{entity.user.username}</p>
+            </div>
           </td>
         </tr>
         <tr>
           <td>Người nhận hàng</td>
           <td>
-            <Stack spacing={0}>
-              <Text size="sm">{entity.toName}</Text>
-              <Text size="xs">{entity.toPhone}</Text>
-              <Text size="xs" color="dimmed">
+            <div className="flex flex-col gap-0">
+              <p className="text-sm">{entity.toName}</p>
+              <p className="text-xs">{entity.toPhone}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {[entity.toAddress, entity.toWardName, entity.toDistrictName, entity.toProvinceName].join(', ')}
-              </Text>
-            </Stack>
+              </p>
+            </div>
           </td>
         </tr>
         <tr>
@@ -230,7 +229,7 @@ class OrderConfigs extends Configs {
         </tr>
         <tr>
           <td>Hình thức thanh toán</td>
-          <td><PaymentMethodIcon/></td>
+          <td><PaymentMethodIcon /></td>
         </tr>
         <tr>
           <td>Trạng thái thanh toán</td>

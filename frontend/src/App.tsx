@@ -86,6 +86,7 @@ import RewardManage from 'pages/reward-strategy';
 import ClientReward from 'pages/client-reward';
 import ClientSignup from 'pages/client-signup';
 import ClientForgotPassword, { ClientChangePassword } from 'pages/client-forgot-password';
+import ClientContact from 'pages/client-contact';
 
 const queryClient = new QueryClient();
 
@@ -102,13 +103,16 @@ function App() {
               <Toaster position="top-right" />
               <ScrollToTop/>
               <Routes>
+                <Route path="/signin" element={<ClientSignin/>}/>
+                <Route path="/signup" element={<ClientSignup/>}/>
+                <Route path="/forgot" element={<ClientForgotPassword/>}/>
+                <Route path="/change-password" element={<ClientChangePassword/>}/>
                 <Route path="/" element={<Client/>}>
                   <Route index element={<ClientHome/>}/>
                   <Route path="/*" element={<ClientError/>}/>
                   <Route path="/all-categories" element={<ClientAllCategories/>}/>
                   <Route path="/category/:slug" element={<ClientCategory/>}/>
                   <Route path="/search" element={<ClientSearch/>}/>
-                  <Route path="/signin" element={<ClientSignin/>}/>
                   <Route path="/user" element={(
                     <ProtectedRoute>
                       <ClientUser/>
@@ -187,9 +191,8 @@ function App() {
                       <ClientReward/>
                     </ProtectedRoute>
                   )}/>
-                  <Route path="/signup" element={<ClientSignup/>}/>
-                  <Route path="/forgot" element={<ClientForgotPassword/>}/>
-                  <Route path="/change-password" element={<ClientChangePassword/>}/>
+                  <Route path="/contact" element={<ClientContact/>}/>
+                  <Route path="/lien-he" element={<ClientContact/>}/>
                 </Route>
                 <Route path="/admin" element={<Admin/>}>
                   <Route path="/admin/*" element={<AdminError/>}/>

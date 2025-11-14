@@ -1,60 +1,10 @@
 import React from 'react';
-import { ActionIcon, Box, Burger, createStyles, Group, Header, MediaQuery, useMantineColorScheme } from '@mantine/core';
-import { Bell, Browser, Icon, Logout, Messages, MoonStars, Search, Sun, User } from 'tabler-icons-react';
+import { Bell, Browser, Icon, Logout, Messages, MoonStars, Search, Sun, User, Menu, Leaf, ChevronLeft, ChevronRight } from 'tabler-icons-react';
 import { Link } from 'react-router-dom';
 import useAppStore from 'stores/use-app-store';
-import { ElectroLogo } from 'components';
 import NotifyUtils from 'utils/NotifyUtils';
 import useAdminAuthStore from 'stores/use-admin-auth-store';
-
-const useStyles = createStyles((theme) => ({
-  header: {
-    paddingLeft: theme.spacing.md,
-    paddingRight: theme.spacing.md,
-  },
-
-  inner: {
-    height: 56,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  links: {
-    [theme.fn.smallerThan('lg')]: {
-      display: 'none',
-    },
-  },
-
-  search: {
-    [theme.fn.smallerThan('xs')]: {
-      display: 'none',
-    },
-    width: 300,
-  },
-
-  link: {
-    display: 'flex',
-    alignItems: 'center',
-    lineHeight: 1,
-    padding: '8px 12px',
-    borderRadius: theme.radius.sm,
-    textDecoration: 'none',
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
-    fontSize: theme.fontSizes.sm,
-    fontWeight: 500,
-
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-      color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    },
-
-    '&:active': {
-      backgroundColor: theme.colors[theme.primaryColor][6],
-      color: theme.white,
-    },
-  },
-}));
+import { useColorScheme } from 'hooks/use-color-scheme';
 
 interface HeaderLink {
   link: string;
@@ -88,10 +38,8 @@ const headerLinks: HeaderLink[] = [
 ];
 
 export function DefaultHeader() {
-  const { classes } = useStyles();
-
-  const { opened, toggleOpened } = useAppStore();
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { opened, toggleOpened, collapsed, toggleCollapsed } = useAppStore();
+  const { colorScheme, toggleColorScheme } = useColorScheme();
 
   const { user, resetAdminAuthState } = useAdminAuthStore();
 
@@ -102,9 +50,9 @@ export function DefaultHeader() {
       key={headerLink.label}
       to={headerLink.link}
       target={headerLink.target}
-      className={classes.link}
+      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 no-underline hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-blue-50 dark:active:bg-blue-900/20 transition-all"
     >
-      <headerLink.icon size={16} style={{ marginRight: 7.5 }}/>
+      <headerLink.icon size={16} strokeWidth={1.5} />
       {headerLink.label}
     </Link>
   ));
@@ -118,48 +66,64 @@ export function DefaultHeader() {
   };
 
   return (
-    <Header height={56} className={classes.header}>
-      <div className={classes.inner}>
-        <Group>
-          <MediaQuery largerThan="md" styles={{ display: 'none' }}>
-            <Burger opened={opened} onClick={toggleOpened} size="sm"/>
-          </MediaQuery>
-          <Box component={Link} to="/admin">
-            <ElectroLogo/>
-          </Box>
-        </Group>
+    <header className="h-14 px-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-50 shadow-sm">
+      <div className="h-full flex items-center justify-between max-w-full">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleOpened}
+            className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <Menu size={20} />
+          </button>
+          <button
+            onClick={toggleCollapsed}
+            className="hidden md:flex p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            title={collapsed ? "Mở rộng menu" : "Thu gọn menu"}
+          >
+            {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
+          <Link to="/admin" className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30">
+              <Leaf size={20} className="text-green-600 dark:text-green-400" strokeWidth={2} />
+            </div>
+            {!collapsed && (
+              <span className="hidden md:block text-lg font-semibold text-gray-800 dark:text-gray-200">Thất An Nhiên</span>
+            )}
+          </Link>
+        </div>
 
-        <Group>
-          <Group ml={50} spacing={5} className={classes.links}>
+        <div className="flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-1">
             {headerLinksFragment}
-          </Group>
-          <Group spacing="xs">
-            <ActionIcon
-              variant="outline"
+          </div>
+          <div className="flex items-center gap-2">
+            <button
               title="Tìm kiếm"
-              color="blue"
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
             >
-              <Search size={18}/>
-            </ActionIcon>
-            <ActionIcon
-              variant="outline"
-              title="Thay đổi chế độ màu"
-              color={dark ? 'yellow' : 'blue'}
+              <Search size={18} strokeWidth={1.5}/>
+            </button>
+            <button
               onClick={() => toggleColorScheme()}
+              title="Thay đổi chế độ màu"
+              className={`p-2 border rounded-lg transition-all ${
+                dark
+                  ? 'border-yellow-300 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
+                  : 'border-blue-300 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+              }`}
             >
-              {dark ? <Sun size={18}/> : <MoonStars size={18}/>}
-            </ActionIcon>
-            <ActionIcon
-              variant="outline"
-              title="Đăng xuất"
-              color="blue"
+              {dark ? <Sun size={18} strokeWidth={1.5}/> : <MoonStars size={18} strokeWidth={1.5}/>}
+            </button>
+            <button
               onClick={handleSignoutButton}
+              title="Đăng xuất"
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-all"
             >
-              <Logout size={18}/>
-            </ActionIcon>
-          </Group>
-        </Group>
+              <Logout size={18} strokeWidth={1.5}/>
+            </button>
+          </div>
+        </div>
       </div>
-    </Header>
+    </header>
   );
 }

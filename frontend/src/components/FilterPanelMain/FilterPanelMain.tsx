@@ -1,5 +1,4 @@
 import React from 'react';
-import { Grid } from '@mantine/core';
 
 interface FilterPanelMainProps {
   children: React.ReactNode;
@@ -9,9 +8,9 @@ function FilterPanelMain({
   children,
 }: FilterPanelMainProps) {
   return (
-    <Grid grow p="sm" gutter="sm">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3">
       {children}
-    </Grid>
+    </div>
   );
 }
 

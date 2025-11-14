@@ -1,4 +1,3 @@
-import { Checkbox, NumberInput, TextInput, useMantineTheme } from '@mantine/core';
 import React from 'react';
 import { VariantRequest } from 'models/Variant';
 import produce from 'immer';
@@ -23,7 +22,6 @@ function ProductVariantRow({
   setSelectedVariantIndexes,
   isNewable,
 }: ProductVariantRowProps) {
-  const theme = useMantineTheme();
 
   const handleVariantCheckbox = (index: number) => {
     setSelectedVariantIndexes(indexes => indexes.includes(index) ? indexes.filter(i => i !== index) : [...indexes, index]);
@@ -47,61 +45,66 @@ function ProductVariantRow({
     }));
   };
 
+  const isSelected = selectedVariantIndexes.includes(index);
+  const isDisabled = !isSelected;
+
   return (
-    <tr style={isNewable
-      ? {
-        backgroundColor: theme.colorScheme === 'dark'
-          ? theme.fn.rgba(theme.colors.yellow[8], 0.1)
-          : theme.colors.yellow[0],
-      }
-      : {}}>
-      <td>
-        <Checkbox
-          checked={selectedVariantIndexes.includes(index)}
+    <tr className={`border-b border-gray-200 dark:border-gray-700 ${
+      isNewable
+        ? 'bg-yellow-50 dark:bg-yellow-900/10'
+        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+    }`}>
+      <td className="px-3 py-2">
+        <input
+          type="checkbox"
+          checked={isSelected}
           onChange={() => handleVariantCheckbox(index)}
-          disabled={selectedVariantIndexes.includes(index) && selectedVariantIndexes.length === 1}
+          disabled={isSelected && selectedVariantIndexes.length === 1}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
       </td>
-      <td>
+      <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
         {variant.properties ? variant.properties.content.map(p => p.value).join(' ⋅ ') : <em>mặc định</em>}
       </td>
-      <td>
-        <TextInput
-          styles={{ input: { fontFamily: 'monospace' } }}
-          size="xs"
+      <td className="px-3 py-2">
+        <input
+          type="text"
           placeholder="Nhập SKU"
           value={variant.sku}
-          onChange={(event) => handleVariantSkuInput(event.currentTarget.value, index)}
-          disabled={!selectedVariantIndexes.includes(index)}
+          onChange={(e) => handleVariantSkuInput(e.target.value, index)}
+          disabled={isDisabled}
+          className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </td>
-      <td>
-        <NumberInput
-          size="xs"
-          placeholder="Nhập giá gốc"
-          value={variant.cost}
-          onChange={(value) => handleVariantCostInput(value || 0, index)}
-          disabled={!selectedVariantIndexes.includes(index)}
-          min={0}
-          step={100}
-          icon={'₫'}
-          parser={MiscUtils.parserPrice}
-          formatter={MiscUtils.formatterPrice}
-        />
+      <td className="px-3 py-2">
+        <div className="relative">
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₫</span>
+          <input
+            type="number"
+            placeholder="Nhập giá gốc"
+            value={variant.cost || ''}
+            onChange={(e) => handleVariantCostInput(Number(e.target.value) || 0, index)}
+            disabled={isDisabled}
+            min={0}
+            step={100}
+            className="w-full pl-6 pr-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
       </td>
-      <td>
-        <NumberInput
-          size="xs"
-          placeholder="Nhập giá bán"
-          value={variant.price}
-          onChange={(value) => handleVariantPriceInput(value || 0, index)}
-          disabled={!selectedVariantIndexes.includes(index)}
-          min={0}
-          step={100}
-          icon={'₫'}
-          parser={MiscUtils.parserPrice}
-          formatter={MiscUtils.formatterPrice}
-        />
+      <td className="px-3 py-2">
+        <div className="relative">
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₫</span>
+          <input
+            type="number"
+            placeholder="Nhập giá bán"
+            value={variant.price || ''}
+            onChange={(e) => handleVariantPriceInput(Number(e.target.value) || 0, index)}
+            disabled={isDisabled}
+            min={0}
+            step={100}
+            className="w-full pl-6 pr-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
       </td>
     </tr>
   );

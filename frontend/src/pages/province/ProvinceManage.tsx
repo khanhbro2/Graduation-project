@@ -1,5 +1,4 @@
 import React from 'react';
-import { Highlight, Stack } from '@mantine/core';
 import {
   FilterPanel,
   ManageHeader,
@@ -31,20 +30,28 @@ function ProvinceManage() {
 
   const { searchToken } = useAppStore();
 
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === highlight.toLowerCase() ? (
+        <mark key={i} className="bg-blue-200 dark:bg-blue-800">{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   const showedPropertiesFragment = (entity: ProvinceResponse) => (
     <>
       <td>{entity.id}</td>
       <td>{DateUtils.isoDateToString(entity.createdAt)}</td>
       <td>{DateUtils.isoDateToString(entity.updatedAt)}</td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.name}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.name, searchToken)}
       </td>
-      <td>
-        <Highlight highlight={searchToken} highlightColor="blue" size="sm">
-          {entity.code}
-        </Highlight>
+      <td className="text-sm">
+        {highlightText(entity.code, searchToken)}
       </td>
     </>
   );
@@ -75,7 +82,7 @@ function ProvinceManage() {
   );
 
   return (
-    <Stack>
+    <div className="flex flex-col gap-4">
       <ManageHeader>
         <ManageHeaderTitle
           titleLinks={ProvinceConfigs.manageTitleLinks}
@@ -107,7 +114,7 @@ function ProvinceManage() {
       </ManageMain>
 
       <ManagePagination listResponse={listResponse}/>
-    </Stack>
+    </div>
   );
 }
 

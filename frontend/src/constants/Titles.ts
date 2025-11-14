@@ -22,13 +22,15 @@ const titles: Record<string, string> = {
   '/user/reward': 'Điểm thưởng',
   '/signup': 'Đăng ký',
   '/forgot': 'Yêu cầu cấp lại mật khẩu',
+  '/contact': 'Liên hệ',
+  '/lien-he': 'Liên hệ',
 
   '/admin': 'Admin',
 };
 
 const handler = {
   get: function (target: typeof titles, name: string) {
-    return Object.prototype.hasOwnProperty.call(target, name) ? target[name] + ' – PhucAnhDuong' : 'PhucAnhDuong';
+    return Object.prototype.hasOwnProperty.call(target, name) ? target[name] + ' – ThatAnNhien' : 'ThatAnNhien';
   },
 };
 
