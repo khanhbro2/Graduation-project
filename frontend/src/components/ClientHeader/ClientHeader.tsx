@@ -255,17 +255,6 @@ function ClientHeader() {
                             <HeadlessMenu.Item>
                               {({ active }) => (
                                 <Link
-                                  to="/user/setting"
-                                  className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
-                                >
-                                  <Settings size={14} />
-                                  Thiết đặt
-                                </Link>
-                              )}
-                            </HeadlessMenu.Item>
-                            <HeadlessMenu.Item>
-                              {({ active }) => (
-                                <Link
                                   to="/user/review"
                                   className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
                                 >

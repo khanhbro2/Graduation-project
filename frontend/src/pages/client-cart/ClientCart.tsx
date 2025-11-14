@@ -46,6 +46,7 @@ function ClientCart() {
   const { colorScheme } = useColorScheme();
   const [confirmOrderDialogOpen, setConfirmOrderDialogOpen] = useState(false);
   const [confirmedOrderDialogOpen, setConfirmedOrderDialogOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
 
   const { user, currentPaymentMethod, updateCurrentPaymentMethod } =
 		useAuthStore();
@@ -69,6 +70,15 @@ function ClientCart() {
     setConfirmOrderDialogOpen(false);
     setConfirmedOrderDialogOpen(true);
   };
+
+  // Initialize selected items when cart loads
+  useEffect(() => {
+    if (cartResponse && Object.hasOwn(cartResponse, 'cartId')) {
+      const cart = cartResponse as ClientCartResponse;
+      // Auto-select all items when cart loads
+      setSelectedItems(new Set(cart.cartItems.map(item => item.cartItemVariant.variantId)));
+    }
+  }, [cartResponse]);
 
   let cartContentFragment;
 
@@ -105,6 +115,7 @@ function ClientCart() {
     }
 
     const totalAmount = cart.cartItems
+      .filter((cartItem) => selectedItems.has(cartItem.cartItemVariant.variantId))
       .map(
         (cartItem) =>
           cartItem.cartItemQuantity *
@@ -134,6 +145,20 @@ function ClientCart() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="p-4 text-center min-w-[50px]">
+                      <input
+                        type="checkbox"
+                        checked={cart.cartItems.length > 0 && selectedItems.size === cart.cartItems.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedItems(new Set(cart.cartItems.map(item => item.cartItemVariant.variantId)));
+                          } else {
+                            setSelectedItems(new Set());
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                    </th>
                     <th className="p-4 text-left min-w-[325px]">
                       <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
 												Mặt hàng
@@ -169,11 +194,21 @@ function ClientCart() {
                           .variantId
                       }
                       cartItem={cartItem}
+                      isSelected={selectedItems.has(cartItem.cartItemVariant.variantId)}
+                      onToggleSelect={(variantId) => {
+                        const newSelected = new Set(selectedItems);
+                        if (newSelected.has(variantId)) {
+                          newSelected.delete(variantId);
+                        } else {
+                          newSelected.add(variantId);
+                        }
+                        setSelectedItems(newSelected);
+                      }}
                     />
                   ))}
                   {cart.cartItems.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="p-8">
+                      <td colSpan={6} className="p-8">
                         <div className="flex flex-col items-center gap-4 my-8 text-blue-600 dark:text-blue-400">
                           <Marquee
                             size={125}
@@ -337,11 +372,11 @@ function ClientCart() {
 
             <button
               onClick={handleOrderButton}
-              disabled={cart.cartItems.length === 0}
+              disabled={cart.cartItems.length === 0 || selectedItems.size === 0}
               className="w-full px-6 py-3 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors"
             >
               <ShoppingCart size={20} />
-							Đặt mua
+							Đặt mua ({selectedItems.size})
             </button>
           </div>
         </div>
@@ -412,7 +447,13 @@ function ClientCart() {
             <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Thông báo xác nhận đặt mua
             </Dialog.Title>
-            <ConfirmedOrder onClose={() => setConfirmedOrderDialogOpen(false)} />
+            <ConfirmedOrder 
+              onClose={() => {
+                setConfirmedOrderDialogOpen(false);
+                setSelectedItems(new Set());
+              }} 
+              selectedItems={selectedItems} 
+            />
           </Dialog.Panel>
         </div>
       </Dialog>
@@ -422,8 +463,12 @@ function ClientCart() {
 
 function CartItemTableRow({
   cartItem,
+  isSelected,
+  onToggleSelect,
 }: {
 	cartItem: ClientCartVariantResponse;
+  isSelected: boolean;
+  onToggleSelect: (variantId: number) => void;
 }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [quantity, setQuantity] = useState(cartItem.cartItemQuantity);
@@ -471,7 +516,15 @@ function CartItemTableRow({
 
   return (
     <>
-      <tr key={cartItem.cartItemVariant.variantId} className="border-b border-gray-200 dark:border-gray-700">
+      <tr key={cartItem.cartItemVariant.variantId} className={`border-b border-gray-200 dark:border-gray-700 ${isSelected ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}>
+        <td className="p-4 text-center">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onToggleSelect(cartItem.cartItemVariant.variantId)}
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+        </td>
         <td className="p-4">
           <div className="flex items-center gap-2">
             <img
@@ -656,14 +709,18 @@ function CartItemTableRow({
   );
 }
 
-function ConfirmedOrder({ onClose }: { onClose: () => void }) {
-  const { updateCurrentTotalCartItems } = useAuthStore();
+function ConfirmedOrder({ onClose, selectedItems }: { onClose: () => void; selectedItems: Set<number> }) {
+  const { updateCurrentTotalCartItems, currentCartId, user } = useAuthStore();
+  const queryClient = useQueryClient();
   const {
     mutate: createClientOrder,
     data: clientConfirmedOrderResponse,
     isLoading,
     isError,
   } = useCreateClientOrderApi();
+  
+  const deleteCartItemsApi = useDeleteCartItemsApi();
+  const hasProcessedRef = useRef(false);
 
   const [checkoutPaypalStatus, setCheckoutPaypalStatus] = useState<
 		'none' | 'success' | 'cancel'
@@ -674,13 +731,61 @@ function ConfirmedOrder({ onClose }: { onClose: () => void }) {
   let contentFragment;
 
   useEffect(() => {
-    if (checkoutPaypalStatus === 'none') {
-      const request: ClientSimpleOrderRequest = {
-        paymentMethodType: currentPaymentMethod,
+    if (checkoutPaypalStatus === 'none' && !hasProcessedRef.current) {
+      hasProcessedRef.current = true;
+      
+      const processOrder = () => {
+        // Get current cart
+        const cartResponse = queryClient.getQueryData<ClientCartResponse | Empty>(['client-api', 'carts', 'getCart']);
+        
+        if (cartResponse && Object.hasOwn(cartResponse, 'cartId')) {
+          const cart = cartResponse as ClientCartResponse;
+          // Find items to remove (not selected)
+          const itemsToRemove = cart.cartItems
+            .filter(item => !selectedItems.has(item.cartItemVariant.variantId))
+            .map(item => ({
+              cartId: currentCartId as number,
+              variantId: item.cartItemVariant.variantId,
+            }));
+
+          if (itemsToRemove.length > 0) {
+            // Remove unselected items before creating order
+            deleteCartItemsApi.mutate(itemsToRemove, {
+              onSuccess: () => {
+                // After removing unselected items, create order
+                const request: ClientSimpleOrderRequest = {
+                  paymentMethodType: currentPaymentMethod,
+                };
+                createClientOrder(request);
+              },
+              onError: () => {
+                // Even if delete fails (items might already be deleted), proceed with order
+                // This handles the case where items were already removed
+                const request: ClientSimpleOrderRequest = {
+                  paymentMethodType: currentPaymentMethod,
+                };
+                createClientOrder(request);
+              },
+            });
+          } else {
+            // All items are selected, create order directly
+            const request: ClientSimpleOrderRequest = {
+              paymentMethodType: currentPaymentMethod,
+            };
+            createClientOrder(request);
+          }
+        } else {
+          // No cart, create order directly
+          const request: ClientSimpleOrderRequest = {
+            paymentMethodType: currentPaymentMethod,
+          };
+          createClientOrder(request);
+        }
       };
-      createClientOrder(request);
+
+      processOrder();
     }
-  }, [checkoutPaypalStatus, createClientOrder, currentPaymentMethod]);
+  }, [checkoutPaypalStatus, queryClient, selectedItems, currentCartId, deleteCartItemsApi, createClientOrder, currentPaymentMethod]);
 
   const { newNotifications } = useClientSiteStore();
 

@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MiscUtils from 'utils/MiscUtils';
 import { ClientCarousel, ReviewStarGroup } from 'components';
-import { BellPlus, Heart, PhotoOff, ShoppingCart, Minus, Plus } from 'tabler-icons-react';
+import { BellPlus, Heart, PhotoOff, ShoppingCart, Minus, Plus, Bolt } from 'tabler-icons-react';
 import React, { useState } from 'react';
 import {
   ClientCartRequest,
@@ -23,6 +23,7 @@ interface ClientProductIntroProps {
 function ClientProductIntro({ product }: ClientProductIntroProps) {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
   const { user, currentCartId } = useAuthStore();
 
@@ -78,6 +79,33 @@ function ClientProductIntro({ product }: ClientProductIntroProps) {
       };
       saveCartApi.mutate(cartRequest, {
         onSuccess: () => NotifyUtils.simpleSuccess('Đã thêm sản phẩm vào giỏ hàng thành công'),
+      });
+    }
+  };
+
+  const handleBuyNowButton = () => {
+    if (!user) {
+      NotifyUtils.simple('Vui lòng đăng nhập để sử dụng chức năng');
+    } else {
+      const cartRequest: ClientCartRequest = {
+        cartId: currentCartId,
+        userId: user.id,
+        cartItems: [
+          {
+            variantId: product.productVariants[selectedVariantIndex].variantId,
+            quantity: quantity,
+          },
+        ],
+        status: 1,
+        updateQuantityType: UpdateQuantityType.INCREMENTAL,
+      };
+      saveCartApi.mutate(cartRequest, {
+        onSuccess: () => {
+          NotifyUtils.simpleSuccess('Đã thêm sản phẩm vào giỏ hàng');
+          setTimeout(() => {
+            navigate('/cart');
+          }, 500);
+        },
       });
     }
   };
@@ -262,13 +290,22 @@ function ClientProductIntro({ product }: ClientProductIntroProps) {
                     </button>
                   )
                   : (
-                    <button
-                      onClick={handleAddToCartButton}
-                      className="px-6 py-3 flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium rounded-md transition-colors"
-                    >
-                      <ShoppingCart size={20} />
-                      Chọn mua
-                    </button>
+                    <>
+                      <button
+                        onClick={handleBuyNowButton}
+                        className="px-6 py-3 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+                      >
+                        <Bolt size={20} />
+                        Mua ngay
+                      </button>
+                      <button
+                        onClick={handleAddToCartButton}
+                        className="px-6 py-3 flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium rounded-md transition-colors"
+                      >
+                        <ShoppingCart size={20} />
+                        Chọn mua
+                      </button>
+                    </>
                   )}
                 <button
                   onClick={handleCreateWishButton}

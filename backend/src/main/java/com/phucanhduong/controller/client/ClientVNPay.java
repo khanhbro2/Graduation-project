@@ -1,14 +1,6 @@
 package com.phucanhduong.controller.client;
 
 import com.phucanhduong.constant.AppConstants;
-import com.phucanhduong.constant.FieldName;
-import com.phucanhduong.constant.ResourceName;
-import com.phucanhduong.entity.general.Notification;
-import com.phucanhduong.entity.general.NotificationType;
-import com.phucanhduong.entity.order.Order;
-import com.phucanhduong.exception.ResourceNotFoundException;
-import com.phucanhduong.repository.general.NotificationRepository;
-import com.phucanhduong.service.general.NotificationService;
 import com.phucanhduong.service.order.OrderService;
 import com.phucanhduong.utils.VNpayService;
 import lombok.AllArgsConstructor;
@@ -29,20 +21,33 @@ public class ClientVNPay {
     private final OrderService orderService;
     @GetMapping("/return")
     public RedirectView returnFromVNPay(HttpServletRequest request) {
-        Map<String, String[]> paramMap = request.getParameterMap();
-        var result = vnpayService.handleResult(paramMap);
-        System.out.println("result = " + result);
-        orderService.captureTransactionVNPay(result.getOrderId(), result.isSuccess());
-        RedirectView redirectView = new RedirectView();
-        if (result.isSuccess()) {
-            System.out.println("Chuyen huong den trang thanh cong");
-            redirectView.setUrl(AppConstants.FRONTEND_HOST + "/payment/success");
-        }else
-        {
+        try {
+            Map<String, String[]> paramMap = request.getParameterMap();
+            var result = vnpayService.handleResult(paramMap);
+            System.out.println("result = " + result);
+            
+            // Only process order if order ID is valid
+            if (result.getOrderId() != null && !result.getOrderId().isEmpty()) {
+                orderService.captureTransactionVNPay(result.getOrderId(), result.isSuccess());
+            }
+            
+            RedirectView redirectView = new RedirectView();
+            if (result.isSuccess()) {
+                System.out.println("Chuyen huong den trang thanh cong");
+                redirectView.setUrl(AppConstants.FRONTEND_HOST + "/payment/success");
+            } else {
+                System.out.println("Chuyen huong den trang that bai");
+                redirectView.setUrl(AppConstants.FRONTEND_HOST + "/payment/cancel");
+            }
+
+            return redirectView;
+        } catch (Exception e) {
+            System.out.println("Error processing VNPay return: " + e.getMessage());
+            e.printStackTrace();
+            // Redirect to cancel page on error
+            RedirectView redirectView = new RedirectView();
             redirectView.setUrl(AppConstants.FRONTEND_HOST + "/payment/cancel");
+            return redirectView;
         }
-
-        return redirectView;
-
     }
 }

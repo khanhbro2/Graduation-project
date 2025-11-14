@@ -1,13 +1,8 @@
 package com.phucanhduong.utils;
 
 import com.phucanhduong.config.VNPayConfig;
-import com.phucanhduong.constant.AppConstants;
 import com.phucanhduong.dto.VNpayResult;
-import com.phucanhduong.dto.client.ClientConfirmedOrderResponse;
-import com.phucanhduong.entity.cashbook.PaymentMethodType;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -37,15 +32,38 @@ public class VNpayService {
     }
 
     public VNpayResult handleResult(Map<String, String[]> paramMap) {
-        VNpayResult vnpayResult = new VNpayResult ();
-        String vnp_ResponseCode = paramMap.get("vnp_ResponseCode")[0];
-        String vnp_TransactionStatus = paramMap.get("vnp_TransactionStatus")[0];
-        String vnp_TxnRef = paramMap.get("vnp_TxnRef")[0];
+        VNpayResult vnpayResult = new VNpayResult();
+        
+        // Safely get parameters with null checks
+        String[] vnp_ResponseCodeArray = paramMap.get("vnp_ResponseCode");
+        String[] vnp_TransactionStatusArray = paramMap.get("vnp_TransactionStatus");
+        String[] vnp_TxnRefArray = paramMap.get("vnp_TxnRef");
+        
+        String vnp_ResponseCode = (vnp_ResponseCodeArray != null && vnp_ResponseCodeArray.length > 0) 
+            ? vnp_ResponseCodeArray[0] : null;
+        String vnp_TransactionStatus = (vnp_TransactionStatusArray != null && vnp_TransactionStatusArray.length > 0) 
+            ? vnp_TransactionStatusArray[0] : null;
+        String vnp_TxnRef = (vnp_TxnRefArray != null && vnp_TxnRefArray.length > 0) 
+            ? vnp_TxnRefArray[0] : null;
+        
         System.out.println("vnp_ResponseCode = " + vnp_ResponseCode);
         System.out.println("vnp_TransactionStatus = " + vnp_TransactionStatus);
+        System.out.println("vnp_TxnRef = " + vnp_TxnRef);
+        
+        // Set order ID if available
+        if (vnp_TxnRef != null && !vnp_TxnRef.isEmpty()) {
+            vnpayResult.setOrderId(vnp_TxnRef);
+        } else {
+            // If order ID is not available, set to empty string to avoid null
+            vnpayResult.setOrderId("");
+            vnpayResult.setSuccess(false);
+            return vnpayResult;
+        }
+        
         // todo: check vnpay hash
         try {
-            if (vnp_ResponseCode.equals("00") && vnp_TransactionStatus.equals("00")) {
+            if (vnp_ResponseCode != null && vnp_TransactionStatus != null 
+                && vnp_ResponseCode.equals("00") && vnp_TransactionStatus.equals("00")) {
                 System.out.println("Thanh toan thanh cong");
                 vnpayResult.setSuccess(true);
             } else {
@@ -53,9 +71,11 @@ public class VNpayService {
                 vnpayResult.setSuccess(false);
             }
         } catch (Exception e) {
+            System.out.println("Error processing VNPay result: " + e.getMessage());
             e.printStackTrace();
+            vnpayResult.setSuccess(false);
         }
-        vnpayResult.setOrderId(vnp_TxnRef);
+        
         return vnpayResult;
     }
 
@@ -73,7 +93,7 @@ public class VNpayService {
 
 
             Map<String, String> vnpParams = new HashMap<>();
-            vnpParams.put("vnp_Version", "2.1.1");
+            vnpParams.put("vnp_Version", "2.1.0");
             vnpParams.put("vnp_Command", "pay");
             vnpParams.put("vnp_TmnCode", vnpayConfig.getVnp_TmnCode());
             vnpParams.put("vnp_Locale", "vn");
@@ -81,34 +101,47 @@ public class VNpayService {
             vnpParams.put("vnp_TxnRef", orderId);
             vnpParams.put("vnp_OrderInfo", "Thanh toan cho ma GD:" + orderId);
             vnpParams.put("vnp_OrderType", "billpayment");
-            vnpParams.put("vnp_Amount", String.valueOf(totalPrice)+"00");
+            vnpParams.put("vnp_Amount", String.valueOf(totalPrice * 100)); // Convert to cents
             vnpParams.put("vnp_ReturnUrl", vnpayConfig.getVnp_ReturnUrl());
             vnpParams.put("vnp_IpAddr", ipAddr);
             vnpParams.put("vnp_CreateDate", createDate);
             vnpParams.put("vnp_ExpireDate", expireDateStr);
 
-            // Sort parameters
+            // Sort parameters alphabetically
             List<String> fieldNames = new ArrayList<>(vnpParams.keySet());
             Collections.sort(fieldNames);
 
-            // Build hash data
+            // Build hash data and query string
             StringBuilder hashData = new StringBuilder();
             StringBuilder query = new StringBuilder();
-            Iterator<String> itr = fieldNames.iterator();
-            while (itr.hasNext()) {
-                String fieldName = itr.next();
+            
+            // First, collect all non-empty fields
+            List<String> validFields = new ArrayList<>();
+            for (String fieldName : fieldNames) {
                 String fieldValue = vnpParams.get(fieldName);
-                if ((fieldValue != null) && (!fieldValue.isEmpty())) {
-                    hashData.append(fieldName);
-                    hashData.append('=');
-                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
-                    query.append('=');
-                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-                    if (itr.hasNext()) {
-                        query.append('&');
-                        hashData.append('&');
-                    }
+                if (fieldValue != null && !fieldValue.isEmpty()) {
+                    validFields.add(fieldName);
+                }
+            }
+            
+            // Build hash data and query string
+            for (int i = 0; i < validFields.size(); i++) {
+                String fieldName = validFields.get(i);
+                String fieldValue = vnpParams.get(fieldName);
+                
+                // Build hash data (for signature)
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                
+                // Build query string (for URL)
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                
+                if (i < validFields.size() - 1) {
+                    hashData.append('&');
+                    query.append('&');
                 }
             }
 

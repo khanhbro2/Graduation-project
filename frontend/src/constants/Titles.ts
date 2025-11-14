@@ -4,7 +4,7 @@ const titles: Record<string, string> = {
   '/category/:slug': 'Thể loại',
   '/signin': 'Đăng nhập',
   '/user': 'Tài khoản',
-  '/user/setting': 'Thiết đặt',
+  '/user/setting': 'Thông tin cá nhân',
   '/user/setting/personal': 'Cập nhật thông tin cá nhân',
   '/user/setting/phone': 'Cập nhật số điện thoại',
   '/user/setting/email': 'Cập nhật email',
