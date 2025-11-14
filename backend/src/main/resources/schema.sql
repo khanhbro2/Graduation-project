@@ -992,6 +992,21 @@ ALTER TABLE wish
 ALTER TABLE wish
     ADD CONSTRAINT FK_WISH_ON_USER FOREIGN KEY (user_id) REFERENCES user (id);
 
+CREATE TABLE newsletter_subscription
+(
+    id         BIGINT AUTO_INCREMENT NOT NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    created_by BIGINT                NULL,
+    updated_by BIGINT                NULL,
+    email      VARCHAR(255)          NOT NULL,
+    status     TINYINT               NOT NULL,
+    CONSTRAINT pk_newsletter_subscription PRIMARY KEY (id)
+);
+
+ALTER TABLE newsletter_subscription
+    ADD CONSTRAINT uc_newsletter_subscription_email UNIQUE (email);
+
 CREATE TABLE preorder
 (
     id         BIGINT AUTO_INCREMENT NOT NULL,

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Menu as HeadlessMenu, Popover as HeadlessPopover } from '@headlessui/react';
+import { Menu as HeadlessMenu, Popover as HeadlessPopover, Dialog as HeadlessDialog } from '@headlessui/react';
 import { ElectroLogo } from 'components';
 import {
   Award,
@@ -18,7 +18,10 @@ import {
   Star,
   Sun,
   User,
-  UserCircle
+  UserCircle,
+  Mailbox,
+  At,
+  X
 } from 'tabler-icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import CategoryMenu from 'components/ClientHeader/CategoryMenu';
@@ -35,11 +38,13 @@ import {
 } from 'models/Notification';
 import MiscUtils from 'utils/MiscUtils';
 import useClientSiteStore from 'stores/use-client-site-store';
-import { ClientCartResponse, Empty } from 'types';
+import { ClientCartResponse, Empty, ClientNewsletterSubscriptionRequest } from 'types';
+import useSubscribeNewsletterApi from 'hooks/use-subscribe-newsletter-api';
 
 function ClientHeader() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const [openedCategoryMenu, setOpenedCategoryMenu] = useState(false);
+  const [openedNewsletterModal, setOpenedNewsletterModal] = useState(false);
   const { ref: refHeaderStack, width: widthHeaderStack } = useElementSize();
 
   const { user, resetAuthState, currentTotalCartItems } = useAuthStore();
@@ -382,11 +387,11 @@ function ClientHeader() {
           </div>
 
           {/* Bottom Navigation Bar - Dark Reddish-Brown Background */}
-          <div className="flex w-full bg-[#7F1D1D] dark:bg-[#5a1414]">
+          <div className="flex w-full bg-[#8B7360] dark:bg-[#5a1414]">
             <div className="container mx-auto px-4">
               <div className="flex w-full">
                 {/* Product Categories Button - Orange-Brown */}
-                <div className="bg-[#D97706] dark:bg-[#B8620A] px-6 py-3 flex-shrink-0 flex items-center">
+                <div className="bg-[#A8988B] dark:bg-[#B8620A] px-6 py-3 flex-shrink-0 flex items-center">
                   <HeadlessPopover className="relative">
                     {({ open, close }) => (
                       <>
@@ -425,9 +430,12 @@ function ClientHeader() {
                     BÀI VIẾT
                   </Link>
                   <div className="w-px h-5 bg-white/30" />
-                  <Link to="/" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
-                    VỀ CHÚNG TÔI
-                  </Link>
+                  <button
+                    onClick={() => setOpenedNewsletterModal(true)}
+                    className="text-white no-underline text-sm tracking-wide uppercase transition-opacity hover:opacity-80 bg-transparent border-none cursor-pointer"
+                  >
+                    ĐĂNG KÝ NHẬN KM
+                  </button>
                   <div className="w-px h-5 bg-white/30" />
                   <Link to="/contact" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
                     LIÊN HỆ
@@ -438,7 +446,132 @@ function ClientHeader() {
           </div>
         </div>
       </div>
+
+      {/* Newsletter Subscription Modal */}
+      <NewsletterModal 
+        isOpen={openedNewsletterModal} 
+        onClose={() => setOpenedNewsletterModal(false)} 
+      />
     </header>
+  );
+}
+
+function NewsletterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const subscribeNewsletterApi = useSubscribeNewsletterApi();
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setEmail(value);
+    if (emailError) {
+      setEmailError('');
+    }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) {
+      setEmailError('Vui lòng nhập địa chỉ email');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Email không hợp lệ');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    if (!validateEmail(email)) {
+      return;
+    }
+
+    const request: ClientNewsletterSubscriptionRequest = {
+      email: email.trim(),
+    };
+
+    subscribeNewsletterApi.mutate(request, {
+      onSuccess: () => {
+        setEmail('');
+        // Close modal after a short delay to show success message
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      },
+    });
+  };
+
+  return (
+    <HeadlessDialog open={isOpen} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <HeadlessDialog.Panel className="mx-auto max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Mailbox size={32} className="text-blue-600 dark:text-blue-400" />
+                <HeadlessDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Đăng ký nhận tin
+                </HeadlessDialog.Title>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Nhận thông tin về sản phẩm mới và khuyến mãi đặc biệt
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <At size={16} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    placeholder="Nhập địa chỉ email của bạn"
+                    disabled={subscribeNewsletterApi.isLoading}
+                    className={`w-full pl-10 pr-3 py-2.5 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
+                      emailError ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                  />
+                </div>
+                {emailError && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">{emailError}</p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={subscribeNewsletterApi.isLoading}
+                  className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors font-medium"
+                >
+                  {subscribeNewsletterApi.isLoading ? 'Đang gửi...' : 'Đăng ký'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </HeadlessDialog.Panel>
+      </div>
+    </HeadlessDialog>
   );
 }
 

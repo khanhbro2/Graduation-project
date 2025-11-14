@@ -352,3 +352,16 @@ export interface ResetPasswordRequest {
   email: string;
   password: string;
 }
+
+// NEWSLETTER
+
+export interface ClientNewsletterSubscriptionRequest {
+  email: string;
+}
+
+export interface ClientNewsletterSubscriptionResponse {
+  subscriptionId: number;
+  email: string;
+  status: number;
+  createdAt: string;
+}

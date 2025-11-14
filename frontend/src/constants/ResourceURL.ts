@@ -95,6 +95,8 @@ class ResourceURL {
   static CLIENT_CHAT_GET_ROOM = ResourceURL.CLIENT_CHAT + '/get-room';
   static CLIENT_CHAT_CREATE_ROOM = ResourceURL.CLIENT_CHAT + '/create-room';
   static CLIENT_REWARD = clientApiPath + '/rewards';
+  static CLIENT_NEWSLETTER = clientApiPath + '/newsletter';
+  static CLIENT_NEWSLETTER_SUBSCRIBE = ResourceURL.CLIENT_NEWSLETTER + '/subscribe';
 
   // AUTHENTICATION
   static LOGIN = apiPath + '/auth/login';

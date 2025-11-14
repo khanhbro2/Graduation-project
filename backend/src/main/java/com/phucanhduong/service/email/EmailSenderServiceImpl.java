@@ -33,6 +33,13 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         sendEmail(toEmail, "[Phúc Anh Đường] Yêu cầu cấp lại mật khẩu", text);
     }
 
+    @Override
+    @Async
+    public void sendNewsletterConfirmation(String toEmail, Map<String, Object> attributes) {
+        String text = getEmailContent("newsletter-confirmation.ftlh", attributes);
+        sendEmail(toEmail, "[Phúc Anh Đường] Đăng ký nhận tin thành công", text);
+    }
+
     private String getEmailContent(String template, Map<String, Object> model) {
         try {
             StringWriter stringWriter = new StringWriter();

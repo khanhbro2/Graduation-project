@@ -20,7 +20,8 @@ public interface SecurityConstants {
             "/client-api/notifications/events",
             "/client-api/reviews/products/**",
             "/client-api/orders/success",
-            "/client-api/orders/cancel"
+            "/client-api/orders/cancel",
+            "/client-api/newsletter/**"
     };
 
     interface Role {

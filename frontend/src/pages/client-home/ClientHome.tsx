@@ -2,7 +2,6 @@ import React from 'react';
 import ClientHomeBanner from 'pages/client-home/ClientHomeBanner';
 import ClientHomeFeaturedCategories from 'pages/client-home/ClientHomeFeaturedCategories';
 import ClientHomeLatestProducts from 'pages/client-home/ClientHomeLatestProducts';
-import ClientHomeNewsletter from 'pages/client-home/ClientHomeNewsletter';
 import useTitle from 'hooks/use-title';
 
 function ClientHome() {
@@ -15,7 +14,6 @@ function ClientHome() {
           <ClientHomeBanner/>
           <ClientHomeFeaturedCategories/>
           <ClientHomeLatestProducts/>
-          <ClientHomeNewsletter/>
         </div>
       </div>
     </main>
