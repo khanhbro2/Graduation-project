@@ -51,9 +51,9 @@ function CategoryMenu({ setOpenedCategoryMenu }: { setOpenedCategoryMenu: Dispat
   };
 
   return (
-    <div className="w-full">
-      {/* Tab buttons */}
-      <div className="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="w-full flex">
+      {/* Tab buttons - Vertical */}
+      <div className="flex flex-col gap-1 p-4 border-r border-gray-200 dark:border-gray-700 w-[180px] flex-shrink-0">
         {categoryResponses?.content.map((firstCategory, index) => {
           const FirstCategoryIcon = PageConfigs.categorySlugIconMap[firstCategory.categorySlug];
           const isActive = activeTab === index;
@@ -62,21 +62,24 @@ function CategoryMenu({ setOpenedCategoryMenu }: { setOpenedCategoryMenu: Dispat
             <button
               key={index}
               onClick={() => setActiveTab(index)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`px-4 py-3 rounded-md text-sm font-medium transition-all flex items-center gap-3 text-left relative group ${
                 isActive
-                  ? 'bg-blue-50 dark:bg-blue-900/35 text-blue-600 dark:text-blue-300'
+                  ? 'bg-blue-50 dark:bg-blue-900/35 text-blue-600 dark:text-blue-300 shadow-sm'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
-              <FirstCategoryIcon size={14}/>
-              {firstCategory.categoryName}
+              <FirstCategoryIcon size={16} className={isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}/>
+              <span className="flex-1">{firstCategory.categoryName}</span>
+              {isActive && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 dark:bg-blue-400 rounded-r-md" />
+              )}
             </button>
           );
         })}
       </div>
 
       {/* Tab content */}
-      <div className="p-4">
+      <div className="flex-1 p-4 overflow-auto" style={{ maxHeight: '500px' }}>
         {categoryResponses?.content.map((firstCategory, index) => {
           if (activeTab !== index) return null;
           

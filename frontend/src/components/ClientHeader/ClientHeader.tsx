@@ -46,6 +46,7 @@ function ClientHeader() {
   const [openedCategoryMenu, setOpenedCategoryMenu] = useState(false);
   const [openedNewsletterModal, setOpenedNewsletterModal] = useState(false);
   const { ref: refHeaderStack, width: widthHeaderStack } = useElementSize();
+  const { ref: refNavBar, width: widthNavBar } = useElementSize();
 
   const { user, resetAuthState, currentTotalCartItems } = useAuthStore();
   const queryClient = useQueryClient();
@@ -389,7 +390,7 @@ function ClientHeader() {
           {/* Bottom Navigation Bar - Dark Reddish-Brown Background */}
           <div className="flex w-full bg-[#8B7360] dark:bg-[#5a1414]">
             <div className="container mx-auto px-4">
-              <div className="flex w-full">
+              <div className="flex w-full" ref={refNavBar as React.RefObject<HTMLDivElement>}>
                 {/* Product Categories Button - Orange-Brown */}
                 <div className="bg-[#A8988B] dark:bg-[#B8620A] px-6 py-3 flex-shrink-0 flex items-center">
                   <HeadlessPopover className="relative">
@@ -397,16 +398,28 @@ function ClientHeader() {
                       <>
                         <HeadlessPopover.Button
                           onClick={() => setOpenedCategoryMenu(!openedCategoryMenu)}
-                          className="flex items-center gap-2 px-4 py-2 font-semibold text-white tracking-wide uppercase hover:bg-white/10 transition-colors"
+                          className={`flex items-center gap-2 px-4 py-2 font-semibold text-white tracking-wide uppercase transition-all duration-300 relative outline-none focus:outline-none ${
+                            open 
+                              ? 'transform scale-105' 
+                              : 'hover:transform hover:scale-105'
+                          }`}
                         >
-                          <List size={18} />
-                          DANH MỤC SẢN PHẨM
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 hover:opacity-100 transition-opacity duration-300 rounded" />
+                          <List size={18} className={`transition-transform duration-300 ${open ? 'rotate-90' : ''}`} />
+                          <span className="relative z-10">DANH MỤC SẢN PHẨM</span>
+                          {open && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/50 rounded-full" />
+                          )}
                         </HeadlessPopover.Button>
                         {open && (
                           <HeadlessPopover.Panel
                             static
-                            className="absolute z-50 mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700"
-                            style={{ width: widthHeaderStack }}
+                            className="absolute z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl"
+                            style={{ 
+                              width:'500px',
+                              maxWidth: '90vw',
+                              animation: 'fadeInDown 0.3s ease-out'
+                            }}
                           >
                             <CategoryMenu setOpenedCategoryMenu={setOpenedCategoryMenu} />
                           </HeadlessPopover.Panel>
