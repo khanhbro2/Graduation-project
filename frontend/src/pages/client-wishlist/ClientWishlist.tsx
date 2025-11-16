@@ -26,6 +26,7 @@ import { Link } from 'react-router-dom';
 import DateUtils from 'utils/DateUtils';
 import ApplicationConstants from 'constants/ApplicationConstants';
 import { useModals } from '@mantine/modals';
+import useAuthStore from 'stores/use-auth-store';
 
 function ClientWishlist() {
   useTitle();
@@ -180,6 +181,8 @@ function ClientWishCard({ wish }: { wish: ClientWishResponse }) {
 }
 
 function useGetAllWishesApi(activePage: number) {
+  const { user } = useAuthStore();
+  
   const requestParams = {
     page: activePage,
     size: ApplicationConstants.DEFAULT_CLIENT_WISHLIST_PAGE_SIZE,
@@ -193,6 +196,7 @@ function useGetAllWishesApi(activePage: number) {
     ['client-api', 'wishes', 'getAllWishes', requestParams],
     () => FetchUtils.getWithToken(ResourceURL.CLIENT_WISH, requestParams),
     {
+      enabled: !!user,
       onError: () => NotifyUtils.simpleFailed('Lấy dữ liệu không thành công'),
       refetchOnWindowFocus: false,
       keepPreviousData: true,

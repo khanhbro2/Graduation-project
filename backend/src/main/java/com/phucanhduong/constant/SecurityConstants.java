@@ -21,7 +21,8 @@ public interface SecurityConstants {
             "/client-api/reviews/products/**",
             "/client-api/orders/success",
             "/client-api/orders/cancel",
-            "/client-api/newsletter/**"
+            "/client-api/newsletter/**",
+            "/images/**"
     };
 
     interface Role {

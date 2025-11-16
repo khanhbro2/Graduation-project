@@ -2,7 +2,10 @@ package com.phucanhduong.controller.general;
 
 import com.phucanhduong.constant.AppConstants;
 import com.phucanhduong.dto.CollectionWrapper;
+import com.phucanhduong.dto.general.ImageResponse;
 import com.phucanhduong.dto.general.UploadedImageResponse;
+import com.phucanhduong.mapper.general.ImageMapper;
+import com.phucanhduong.repository.general.ImageRepository;
 import com.phucanhduong.service.general.ImageService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,6 +41,8 @@ import java.util.stream.Stream;
 public class ImageController {
 
     private ImageService imageService;
+    private ImageRepository imageRepository;
+    private ImageMapper imageMapper;
 
     @PostMapping("/upload-single")
     public ResponseEntity<UploadedImageResponse> uploadSingleImage(@RequestParam("image") MultipartFile image) {
@@ -68,7 +75,7 @@ public class ImageController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
 
@@ -82,6 +89,57 @@ public class ImageController {
     public ResponseEntity<Void> deleteMultipleImages(@RequestBody List<String> imageNames) {
         imageNames.forEach(imageService::delete);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * Update path của image theo ID
+     * Body: { "path": "https://thegioitradao.com/wp-content/uploads/2025/11/image.jpg" }
+     */
+    @PutMapping("/{id}/path")
+    public ResponseEntity<ImageResponse> updateImagePath(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String newPath = request.get("path");
+        if (newPath == null || newPath.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        
+        return imageRepository.findById(id)
+                .map(image -> {
+                    image.setPath(newPath.trim());
+                    return imageRepository.save(image);
+                })
+                .map(imageMapper::entityToResponse)
+                .map(response -> ResponseEntity.status(HttpStatus.OK).body(response))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * Update path của nhiều images cùng lúc
+     * Body: { "updates": [{ "id": 1, "path": "https://..." }, { "id": 2, "path": "https://..." }] }
+     */
+    @PutMapping("/batch-update-paths")
+    public ResponseEntity<CollectionWrapper<ImageResponse>> batchUpdateImagePaths(@RequestBody Map<String, List<Map<String, Object>>> request) {
+        List<Map<String, Object>> updates = request.get("updates");
+        if (updates == null || updates.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        List<ImageResponse> updatedImages = updates.stream()
+                .map(update -> {
+                    Long id = Long.valueOf(update.get("id").toString());
+                    String newPath = update.get("path").toString();
+                    return imageRepository.findById(id)
+                            .map(image -> {
+                                image.setPath(newPath.trim());
+                                return imageRepository.save(image);
+                            })
+                            .map(imageMapper::entityToResponse)
+                            .orElse(null);
+                })
+                .filter(response -> response != null)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new CollectionWrapper<>(updatedImages));
     }
 
 }

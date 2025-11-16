@@ -1022,6 +1022,8 @@ function ConfirmedOrder({ onClose, selectedItems }: { onClose: () => void; selec
 }
 
 function useGetCartApi() {
+  const { user } = useAuthStore();
+  
   const {
     data: cartResponse,
     isLoading: isLoadingCartResponse,
@@ -1030,6 +1032,7 @@ function useGetCartApi() {
     ['client-api', 'carts', 'getCart'],
     () => FetchUtils.getWithToken(ResourceURL.CLIENT_CART),
     {
+      enabled: !!user,
       onError: () =>
         NotifyUtils.simpleFailed('Lấy dữ liệu không thành công'),
       keepPreviousData: true,
