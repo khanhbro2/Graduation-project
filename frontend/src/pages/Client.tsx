@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { ActionIcon, Affix, Anchor, Button, Card, Group, Tooltip, useMantineColorScheme } from '@mantine/core';
 import { ClientFooter, ClientHeader, LoadingMiddleware } from 'components';
@@ -6,11 +6,42 @@ import { Messages, MoonStars, Sun } from 'tabler-icons-react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useIsFetching } from 'react-query';
 import useAuthStore from 'stores/use-auth-store';
+import { useQuery } from 'react-query';
+import FetchUtils, { ErrorMessage } from 'utils/FetchUtils';
+import ResourceURL from 'constants/ResourceURL';
+import { UserResponse } from 'models/User';
 
 function Client() {
   const isLoading = useIsFetching();
 
-  const { user } = useAuthStore();
+  const { user, jwtToken, updateUser, resetAuthState } = useAuthStore();
+
+  // Validate token khi app khởi động nếu có token
+  // Nếu token không hợp lệ hoặc hết hạn, clear state để hiển thị menu chưa đăng nhập
+  useQuery<UserResponse, ErrorMessage>(
+    ['client-api', 'users', 'info', 'validate'],
+    () => FetchUtils.getWithToken(ResourceURL.CLIENT_USER_INFO),
+    {
+      enabled: !!jwtToken, // Chỉ chạy khi có token
+      retry: false,
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        // Nếu validate thành công, cập nhật user (đảm bảo user info là mới nhất)
+        updateUser(data);
+      },
+      onError: () => {
+        // Nếu token không hợp lệ hoặc hết hạn, clear state
+        resetAuthState();
+      },
+    }
+  );
+
+  // Nếu có user nhưng không có token, clear state
+  useEffect(() => {
+    if (user && !jwtToken) {
+      resetAuthState();
+    }
+  }, [user, jwtToken, resetAuthState]);
 
   return (
     <>
