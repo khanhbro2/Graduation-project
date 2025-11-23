@@ -50,13 +50,14 @@ public class ClientProductController {
             @RequestParam(name = "sort", required = false) @Nullable String sort,
             @RequestParam(name = "search", required = false) @Nullable String search,
             @RequestParam(name = "saleable", required = false) boolean saleable,
-            @RequestParam(name = "newable", required = false) boolean newable
+            @RequestParam(name = "newable", required = false) boolean newable,
+            @RequestParam(name = "slowSelling", required = false) boolean slowSelling
     ) {
         // Phân trang
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách sản phẩm theo điều kiện lọc và phân trang
-        Page<Product> products = productRepository.findByParams(filter, sort, search, saleable, newable, pageable);
+        Page<Product> products = productRepository.findByParams(filter, sort, search, saleable, newable, slowSelling, pageable);
 
         // Lấy thông tin tồn kho của sản phẩm
         List<Long> productIds = products.map(Product::getId).toList();
@@ -89,6 +90,7 @@ public class ClientProductController {
                         product.getId()),
                 "random",
                 null,
+                false,
                 false,
                 false,
                 PageRequest.of(0, 4));

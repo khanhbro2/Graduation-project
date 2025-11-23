@@ -3,6 +3,8 @@ package com.phucanhduong.repository.product;
 import com.phucanhduong.constant.SearchFields;
 import com.phucanhduong.entity.inventory.Docket;
 import com.phucanhduong.entity.inventory.DocketVariant;
+import com.phucanhduong.entity.order.Order;
+import com.phucanhduong.entity.order.OrderVariant;
 import com.phucanhduong.entity.product.Product;
 import com.phucanhduong.entity.product.Variant;
 import com.phucanhduong.utils.SearchUtils;
@@ -19,7 +21,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -48,6 +49,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                                        String search,
                                        boolean saleable,
                                        boolean newable,
+                                       boolean slowSelling,
                                        Pageable pageable) {
         // Xử lý `filter` thành Specification
         RSQLCustomPredicate<String> jsonPredicate = new RSQLCustomPredicate<>(
@@ -80,7 +82,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         // Lọc theo `saleable` (có thể bán) và `newable` (thứ tự mới nhất)
         Specification<Product> docketable = (root, query, cb) -> {
             List<Predicate> wheres = new ArrayList<>();
-            List<Order> orders = new ArrayList<>();
+            List<javax.persistence.criteria.Order> orders = new ArrayList<>();
 
             Join<Product, Variant> variant = root.join("variants");
             Join<Variant, DocketVariant> docketVariant = variant.join("docketVariants");
@@ -138,6 +140,29 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                 orders.add(cb.asc(root.get("id")));
             }
 
+            if (slowSelling) {
+                // Tính tổng số lượng bán từ OrderVariant trong các đơn hàng đã hoàn thành (status = 4)
+                Subquery<Integer> salesSubquery = query.subquery(Integer.class);
+                Root<Variant> variantSalesSq = salesSubquery.from(Variant.class);
+                Join<Variant, OrderVariant> orderVariantSq = variantSalesSq.join("orderVariants");
+                Join<OrderVariant, Order> orderSq = orderVariantSq.join("order");
+
+                salesSubquery.select(cb.coalesce(cb.sum(orderVariantSq.get("quantity")), 0));
+                salesSubquery.where(
+                    cb.and(
+                        cb.equal(variantSalesSq.get("product").get("id"), root.get("id")),
+                        cb.equal(orderSq.get("status"), 4) // Đơn hàng đã giao thành công
+                    )
+                );
+                salesSubquery.groupBy(variantSalesSq.get("product").get("id"));
+
+                // Chỉ lấy sản phẩm đã có bán (số lượng bán > 0)
+                wheres.add(cb.greaterThan(salesSubquery, 0));
+
+                // Sắp xếp: sử dụng cách tiếp cận khác vì không thể dùng subquery trong ORDER BY với GROUP BY
+                // Sẽ sort sau khi lấy dữ liệu
+            }
+
             Optional.ofNullable(filterable.toPredicate(root, query, cb)).ifPresent(wheres::add);
             Optional.ofNullable(searchable.toPredicate(root, query, cb)).ifPresent(wheres::add);
 
@@ -156,6 +181,32 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
          * TODO: Cần tìm cách hiệu quả hơn (sử dụng EntityManager)
          */
         List<Product> products = findAll(docketable);
+        
+        // Nếu slowSelling = true, sort theo số lượng bán giảm dần
+        if (slowSelling) {
+            List<Long> productIds = products.stream().map(Product::getId).toList();
+            List<Object[]> salesData = findTotalSalesByProductIds(productIds);
+            
+            // Tạo map productId -> totalSales
+            java.util.Map<Long, Integer> salesMap = new java.util.HashMap<>();
+            for (Object[] row : salesData) {
+                Long productId = ((Number) row[0]).longValue();
+                Integer totalSales = ((Number) row[1]).intValue();
+                salesMap.put(productId, totalSales);
+            }
+            
+            // Sort products theo số lượng bán giảm dần
+            products.sort((p1, p2) -> {
+                Integer sales1 = salesMap.getOrDefault(p1.getId(), 0);
+                Integer sales2 = salesMap.getOrDefault(p2.getId(), 0);
+                int compare = sales2.compareTo(sales1); // Giảm dần
+                if (compare == 0) {
+                    return p1.getId().compareTo(p2.getId()); // Nếu bằng nhau, sort theo ID
+                }
+                return compare;
+            });
+        }
+        
         final int start = (int) pageable.getOffset();
         final int end = Math.min(start + pageable.getPageSize(), products.size());
 
@@ -167,5 +218,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("SELECT COUNT(p.id) FROM Product p")
     int countByProductId();
+
+    @Query("SELECT v.product.id, COALESCE(SUM(ov.quantity), 0) " +
+           "FROM Variant v " +
+           "INNER JOIN v.orderVariants ov " +
+           "INNER JOIN ov.order o " +
+           "WHERE v.product.id IN :productIds AND o.status = 4 " +
+           "GROUP BY v.product.id")
+    List<Object[]> findTotalSalesByProductIds(List<Long> productIds);
 
 }
