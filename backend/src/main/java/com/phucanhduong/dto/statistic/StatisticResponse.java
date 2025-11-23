@@ -18,4 +18,5 @@ public class StatisticResponse {
     private List<StatisticResource> statisticOrder;
     private List<StatisticResource> statisticReview;
     private List<StatisticResource> statisticWaybill;
+    private List<StatisticResource> statisticRevenue;
 }

@@ -54,6 +54,7 @@ public class StatisticServiceImpl implements StatisticService {
         List<StatisticResource> statisticOrder = orderProjectionRepository.getOrderCountByCreateDate();
         List<StatisticResource> statisticReview = reviewProjectionRepository.getReviewCountByCreateDate();
         List<StatisticResource> statisticWaybill = waybillProjectionRepository.getWaybillCountByCreateDate();
+        List<StatisticResource> statisticRevenue = orderProjectionRepository.getRevenueByCreateDate();
 
         statisticResponse.setTotalCustomer(totalCustomer);
         statisticResponse.setTotalProduct(totalProduct);
@@ -67,6 +68,7 @@ public class StatisticServiceImpl implements StatisticService {
         statisticResponse.setStatisticOrder(statisticOrder);
         statisticResponse.setStatisticReview(statisticReview);
         statisticResponse.setStatisticWaybill(statisticWaybill);
+        statisticResponse.setStatisticRevenue(statisticRevenue);
 
         return statisticResponse;
     }

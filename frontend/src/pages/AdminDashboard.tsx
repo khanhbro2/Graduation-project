@@ -4,6 +4,7 @@ import {
   Box,
   BrandApple,
   BuildingWarehouse,
+  CurrencyDollar,
   FileBarcode,
   Icon,
   Percentage,
@@ -18,6 +19,7 @@ import ResourceURL from 'constants/ResourceURL';
 import NotifyUtils from 'utils/NotifyUtils';
 import { StatisticResource, StatisticResponse } from 'models/Statistic';
 import DateUtils from 'utils/DateUtils';
+import MiscUtils from 'utils/MiscUtils';
 
 const dateReducerForStatisticResources = (statisticResources: StatisticResource[]) => statisticResources.map((statisticResource) => ({
   date: DateUtils.isoDateToString(statisticResource.date, 'DD/MM/YY'),
@@ -29,6 +31,32 @@ function AdminDashboard() {
 
   const { statisticResponse } = useGetStatisticApi();
   const statistic = statisticResponse as StatisticResponse;
+
+  // Tính doanh thu tuần (7 ngày gần nhất)
+  const calculateWeeklyRevenue = () => {
+    if (!statistic.statisticRevenue || statistic.statisticRevenue.length === 0) return 0;
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    return statistic.statisticRevenue
+      .filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= weekAgo && itemDate <= now;
+      })
+      .reduce((sum, item) => sum + item.total, 0);
+  };
+
+  // Tính doanh thu tháng (30 ngày gần nhất)
+  const calculateMonthlyRevenue = () => {
+    if (!statistic.statisticRevenue || statistic.statisticRevenue.length === 0) return 0;
+    const now = new Date();
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return statistic.statisticRevenue
+      .filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= monthAgo && itemDate <= now;
+      })
+      .reduce((sum, item) => sum + item.total, 0);
+  };
 
   return (
     <Stack mb={30}>
@@ -71,6 +99,30 @@ function AdminDashboard() {
             </Grid.Col>
             <Grid.Col span={3}>
               <OverviewCard title="Tổng số thương hiệu" number={statistic.totalBrand} color="indigo" icon={BrandApple}/>
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <OverviewCard 
+                title="Tổng doanh thu" 
+                number={statistic.statisticRevenue?.reduce((sum, item) => sum + item.total, 0) || 0} 
+                color="green" 
+                icon={CurrencyDollar}
+              />
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <OverviewCard 
+                title="Doanh thu tuần" 
+                number={calculateWeeklyRevenue()} 
+                color="lime" 
+                icon={CurrencyDollar}
+              />
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <OverviewCard 
+                title="Doanh thu tháng" 
+                number={calculateMonthlyRevenue()} 
+                color="cyan" 
+                icon={CurrencyDollar}
+              />
             </Grid.Col>
           </Grid>
         </Stack>
@@ -183,6 +235,31 @@ function AdminDashboard() {
                 </BarChart>
               </Stack>
             </Paper>
+
+            <Paper shadow="xs" p="md">
+              <Stack>
+                <Group position="apart">
+                  <Text size="lg" weight={500} color="dimmed">Doanh thu</Text>
+                  <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
+                </Group>
+
+                <BarChart
+                  width={650}
+                  height={275}
+                  data={dateReducerForStatisticResources(statistic.statisticRevenue || [])}
+                  margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
+                >
+                  <XAxis dataKey="date"/>
+                  <YAxis/>
+                  <Tooltip formatter={(value: number) => `${MiscUtils.formatPrice(value)} VNĐ`}/>
+                  <Bar
+                    name="Doanh thu"
+                    dataKey="total"
+                    fill={theme.colors.green[5]}
+                  />
+                </BarChart>
+              </Stack>
+            </Paper>
           </Stack>
         </Grid.Col>
       </Grid>
@@ -231,6 +308,7 @@ const defaultStatisticResponse: StatisticResponse = {
   statisticOrder: [],
   statisticReview: [],
   statisticWaybill: [],
+  statisticRevenue: [],
 };
 
 function useGetStatisticApi() {

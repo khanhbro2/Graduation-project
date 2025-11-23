@@ -16,4 +16,5 @@ export interface StatisticResponse {
   statisticOrder: StatisticResource[];
   statisticReview: StatisticResource[];
   statisticWaybill: StatisticResource[];
+  statisticRevenue: StatisticResource[];
 }
