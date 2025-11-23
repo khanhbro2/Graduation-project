@@ -221,7 +221,7 @@ function ClientSignin() {
 
           {/* Right side - Image/Decoration */}
           <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-teal-600 via-emerald-600 to-amber-500 p-12 relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url(https://bizweb.dktcdn.net/100/430/027/articles/tra-dao-1.jpg?v=1625217068023)] bg-cover bg-center opacity-20"></div>
+            <div className="absolute inset-0 bg-[url(https://tinhhoabattrang.vn/wp-content/uploads/2023/01/tra-cu-Viet-nam.jpg)] bg-cover bg-center opacity-20"></div>
             <div className="relative z-10 text-center text-white">
               <div className="mb-6">
                 <div className="inline-block p-4 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
