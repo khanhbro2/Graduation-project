@@ -106,6 +106,10 @@ public class VNpayService {
             vnpParams.put("vnp_IpAddr", ipAddr);
             vnpParams.put("vnp_CreateDate", createDate);
             vnpParams.put("vnp_ExpireDate", expireDateStr);
+            // Thêm BankCode để tránh lỗi "Ngân hàng không được hỗ trợ" khi test
+            // NCB = Ngân hàng Quốc Dân (thường dùng để test VNPay sandbox)
+            // Có thể để null nếu muốn user tự chọn ngân hàng trên trang VNPay
+            vnpParams.put("vnp_BankCode", "NCB");
 
             // Sort parameters alphabetically
             List<String> fieldNames = new ArrayList<>(vnpParams.keySet());
