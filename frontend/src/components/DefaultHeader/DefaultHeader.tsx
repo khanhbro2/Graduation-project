@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Bell, Browser, Icon, Logout, Messages, MoonStars, Search, Sun, User, Menu, Leaf, ChevronLeft, ChevronRight } from 'tabler-icons-react';
 import { Link } from 'react-router-dom';
 import useAppStore from 'stores/use-app-store';
 import NotifyUtils from 'utils/NotifyUtils';
 import useAdminAuthStore from 'stores/use-admin-auth-store';
 import { useColorScheme } from 'hooks/use-color-scheme';
+import { useQuery } from 'react-query';
+import FetchUtils, { ErrorMessage, ListResponse } from 'utils/FetchUtils';
+import ResourceURL from 'constants/ResourceURL';
+import { RoomResponse } from 'models/Room';
 
 interface HeaderLink {
   link: string;
@@ -45,17 +49,69 @@ export function DefaultHeader() {
 
   const dark = colorScheme === 'dark';
 
-  const headerLinksFragment = headerLinks.map((headerLink) => (
-    <Link
-      key={headerLink.label}
-      to={headerLink.link}
-      target={headerLink.target}
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 no-underline hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-blue-50 dark:active:bg-blue-900/20 transition-all"
-    >
-      <headerLink.icon size={16} strokeWidth={1.5} />
-      {headerLink.label}
-    </Link>
-  ));
+  // Đếm số tin nhắn chưa đọc từ user
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const { data: roomResponses } = useQuery<ListResponse<RoomResponse>, ErrorMessage>(
+    ['rooms', 'unread-count'],
+    () => FetchUtils.getAll<RoomResponse>(ResourceURL.ROOM, { all: 1, sort: 'updatedAt,desc' }),
+    {
+      refetchInterval: 5000, // Refresh mỗi 5 giây
+      onSuccess: (data) => {
+        if (user && data?.content) {
+          // Lấy thời gian admin đã xem các room từ localStorage
+          const viewedRooms = JSON.parse(localStorage.getItem('admin_viewed_rooms') || '{}');
+          
+          // Đếm số room có tin nhắn chưa đọc từ user
+          const count = data.content.filter(room => {
+            // Nếu có lastMessage và lastMessage không phải từ admin
+            if (!room.lastMessage || !room.lastMessage.user || room.lastMessage.user.id === user.id) {
+              return false;
+            }
+            
+            // Kiểm tra xem admin đã xem room này chưa
+            const viewedAt = viewedRooms[room.id];
+            if (!viewedAt) {
+              // Chưa xem bao giờ -> có tin nhắn chưa đọc
+              return true;
+            }
+            
+            // So sánh thời gian lastMessage với thời gian admin xem
+            const lastMessageTime = new Date(room.lastMessage.createdAt).getTime();
+            const viewedTime = new Date(viewedAt).getTime();
+            
+            // Nếu lastMessage mới hơn thời gian admin xem -> có tin nhắn mới
+            return lastMessageTime > viewedTime;
+          }).length;
+          
+          setUnreadCount(count);
+        } else {
+          setUnreadCount(0);
+        }
+      },
+      enabled: !!user, // Chỉ chạy khi có user
+    }
+  );
+
+  const headerLinksFragment = headerLinks.map((headerLink) => {
+    const isMessagesLink = headerLink.label === 'Tin nhắn';
+    return (
+      <Link
+        key={headerLink.label}
+        to={headerLink.link}
+        target={headerLink.target}
+        className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 no-underline hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-blue-50 dark:active:bg-blue-900/20 transition-all"
+      >
+        <headerLink.icon size={16} strokeWidth={1.5} />
+        {headerLink.label}
+        {isMessagesLink && unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
+      </Link>
+    );
+  });
 
   const handleSignoutButton = () => {
     if (user) {

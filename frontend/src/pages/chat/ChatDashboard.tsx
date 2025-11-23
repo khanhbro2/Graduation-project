@@ -141,7 +141,15 @@ function ChatPanel({ roomId }: { roomId: number }) {
     ResourceURL.MESSAGE,
     'messages',
     { filter: 'room.id==' + roomId },
-    (messageResponses) => setMessages(messageResponses.content.sort((a, b) => a.id - b.id)), // TODO
+    (messageResponses) => {
+      setMessages(messageResponses.content.sort((a, b) => a.id - b.id));
+      // Lưu thời gian admin xem room này
+      if (roomId) {
+        const viewedRooms = JSON.parse(localStorage.getItem('admin_viewed_rooms') || '{}');
+        viewedRooms[roomId] = new Date().toISOString();
+        localStorage.setItem('admin_viewed_rooms', JSON.stringify(viewedRooms));
+      }
+    },
     { refetchOnWindowFocus: false }
   );
 
