@@ -34,8 +34,11 @@ import com.phucanhduong.repository.order.OrderRepository;
 import com.phucanhduong.repository.promotion.PromotionRepository;
 import com.phucanhduong.repository.waybill.WaybillLogRepository;
 import com.phucanhduong.repository.waybill.WaybillRepository;
+import com.phucanhduong.repository.inventory.DocketVariantRepository;
 import com.phucanhduong.service.general.NotificationService;
 import com.phucanhduong.utils.VNpayService;
+import com.phucanhduong.utils.InventoryUtils;
+import com.phucanhduong.entity.cart.CartVariant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
@@ -78,6 +81,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final PromotionRepository promotionRepository;
+    private final DocketVariantRepository docketVariantRepository;
 
     private final PayPalHttpClient payPalHttpClient;
     private final ClientOrderMapper clientOrderMapper;
@@ -149,6 +153,19 @@ public class OrderServiceImpl implements OrderService {
 
         Cart cart = cartRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceName.CART, FieldName.USERNAME, username));
+
+        // (0) Validate Variant Inventory - Kiểm tra tồn kho trước khi tạo đơn hàng
+        for (CartVariant cartVariant : cart.getCartVariants()) {
+            int inventory = InventoryUtils
+                    .calculateInventoryIndices(docketVariantRepository.findByVariantId(cartVariant.getCartVariantKey().getVariantId()))
+                    .get("canBeSold");
+            if (cartVariant.getQuantity() > inventory) {
+                throw new RuntimeException(
+                        String.format("Sản phẩm %s không đủ số lượng trong kho. Số lượng có thể bán: %d, số lượng yêu cầu: %d",
+                                cartVariant.getVariant().getSku(), inventory, cartVariant.getQuantity())
+                );
+            }
+        }
 
         // (1) Tạo đơn hàng
         Order order = new Order();

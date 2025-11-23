@@ -472,17 +472,59 @@ function CartItemTableRow({
 }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [quantity, setQuantity] = useState(cartItem.cartItemQuantity);
+  const [quantityError, setQuantityError] = useState<string | null>(null);
 
   const { currentCartId, user } = useAuthStore();
 
   const saveCartApi = useSaveCartApi();
   const deleteCartItemsApi = useDeleteCartItemsApi();
 
+  // Đồng bộ quantity khi cartItem thay đổi
+  useEffect(() => {
+    setQuantity(cartItem.cartItemQuantity);
+    setQuantityError(null);
+  }, [cartItem.cartItemQuantity]);
+
   const handleCartItemQuantityInput = (cartItemQuantity: number) => {
+    const maxInventory = cartItem.cartItemVariant.variantInventory;
+    
+    // Kiểm tra nếu vượt quá tồn kho
+    if (cartItemQuantity > maxInventory) {
+      setQuantityError(`Số lượng không được vượt quá tồn kho (${maxInventory})`);
+      NotifyUtils.simpleFailed(`Số lượng không được vượt quá tồn kho. Tồn kho hiện có: ${maxInventory}`);
+      // Tự động điều chỉnh về số lượng tối đa
+      const adjustedQuantity = maxInventory;
+      setQuantity(adjustedQuantity);
+      
+      if (
+        user &&
+        adjustedQuantity !== cartItem.cartItemQuantity &&
+        adjustedQuantity <= maxInventory
+      ) {
+        const cartRequest: ClientCartRequest = {
+          cartId: currentCartId,
+          userId: user.id,
+          cartItems: [
+            {
+              variantId: cartItem.cartItemVariant.variantId,
+              quantity: adjustedQuantity,
+            },
+          ],
+          status: 1,
+          updateQuantityType: UpdateQuantityType.OVERRIDE,
+        };
+        saveCartApi.mutate(cartRequest);
+      }
+      return;
+    }
+    
+    // Xóa thông báo lỗi nếu hợp lệ
+    setQuantityError(null);
+    
     if (
       user &&
 			cartItemQuantity !== cartItem.cartItemQuantity &&
-			cartItemQuantity <= cartItem.cartItemVariant.variantInventory
+			cartItemQuantity <= maxInventory
     ) {
       const cartRequest: ClientCartRequest = {
         cartId: currentCartId,
@@ -627,9 +669,25 @@ function CartItemTableRow({
                   setQuantity(newQuantity);
                   handleCartItemQuantityInput(newQuantity);
                 }}
+                onBlur={(e) => {
+                  // Khi blur, đảm bảo số lượng hợp lệ
+                  const newQuantity = Number(e.target.value) || 1;
+                  const maxInventory = cartItem.cartItemVariant.variantInventory;
+                  if (newQuantity > maxInventory) {
+                    setQuantity(maxInventory);
+                    handleCartItemQuantityInput(maxInventory);
+                  } else if (newQuantity < 1) {
+                    setQuantity(1);
+                    handleCartItemQuantityInput(1);
+                  }
+                }}
                 min={1}
                 max={cartItem.cartItemVariant.variantInventory}
-                className="w-12 h-8 text-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-12 h-8 text-center border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  quantityError 
+                    ? 'border-red-500 dark:border-red-500' 
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
               />
 
               <button
@@ -646,9 +704,16 @@ function CartItemTableRow({
                 <Plus size={16} />
               </button>
             </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Tồn kho: {cartItem.cartItemVariant.variantInventory}
-            </p>
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Tồn kho: {cartItem.cartItemVariant.variantInventory}
+              </p>
+              {quantityError && (
+                <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                  {quantityError}
+                </p>
+              )}
+            </div>
           </div>
         </td>
         <td className="p-4">
