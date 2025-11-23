@@ -17,7 +17,7 @@ function ClientPaymentSuccess() {
       <ElectroLogo />
       <div className="flex flex-col items-center gap-4 text-teal-600 dark:text-teal-400">
         <Check size={100} strokeWidth={1} />
-        <p className="font-medium text-lg">Thanh toán PayPal thành công</p>
+        <p className="font-medium text-lg">Thanh toán VNPay thành công</p>
       </div>
       <button
         onClick={handleCloseWindow}

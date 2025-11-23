@@ -138,7 +138,7 @@ function ClientHeader() {
                   <img 
                     src="/images/logo.png" 
                     alt="Thế Giới Trà Đạo Logo" 
-                    className="h-16 w-auto sm:h-20 object-contain"
+                    className="h-28 w-auto sm:h-32 object-contain"
                   />
                 </Link>
 
@@ -151,7 +151,7 @@ function ClientHeader() {
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       onKeyDown={handleSearchInput}
-                      className="w-full pl-4 pr-14 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                      className="w-full pl-4 pr-16 py-3.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-base"
                     />
                     <button
                       onClick={() => {
@@ -159,11 +159,11 @@ function ClientHeader() {
                           navigate('/search?q=' + search.trim());
                         }
                       }}
-                      className="absolute right-0 top-0 bottom-0 flex items-center justify-center w-12 bg-[#8B4513] hover:bg-[#A0522D] text-white rounded-r-lg transition-colors"
+                      className="absolute right-0 top-0 bottom-0 flex items-center justify-center w-14 bg-[#8B4513] hover:bg-[#A0522D] text-white rounded-r-lg transition-colors"
                       type="button"
                     >
                       <svg 
-                        className="w-5 h-5" 
+                        className="w-6 h-6" 
                         fill="none" 
                         stroke="currentColor" 
                         strokeWidth="2.5" 
@@ -196,10 +196,10 @@ function ClientHeader() {
                       <div className="group relative">
                         <Link
                           to="/order"
-                          className="flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
+                          className="flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
                           title="Đơn hàng"
                         >
-                          <FileBarcode size={18} strokeWidth={1.5} className="text-gray-700 dark:text-gray-300" />
+                          <FileBarcode size={22} strokeWidth={1.5} className="text-gray-700 dark:text-gray-300" />
                         </Link>
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                           Đơn hàng
@@ -211,13 +211,13 @@ function ClientHeader() {
                   <div className="group relative">
                     <button
                       onClick={handleNotificationButton}
-                      className="relative flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
+                      className="relative flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
                       title="Thông báo"
                     >
                       {!disabledNotificationIndicator && (
-                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-pink-500 border-2 border-white dark:border-gray-800 rounded-full" />
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 border-2 border-white dark:border-gray-800 rounded-full" />
                       )}
-                      <Bell size={18} strokeWidth={1.5} className="text-gray-700 dark:text-gray-300" />
+                      <Bell size={22} strokeWidth={1.5} className="text-gray-700 dark:text-gray-300" />
                     </button>
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                       Thông báo
@@ -228,10 +228,10 @@ function ClientHeader() {
                     {({ open }) => (
                       <>
                         <HeadlessMenu.Button className="group relative">
-                          <div className={`flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm ${
+                          <div className={`flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm ${
                             user ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
                           }`}>
-                            <UserCircle size={18} strokeWidth={1.5} />
+                            <UserCircle size={22} strokeWidth={1.5} />
                           </div>
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                             Tài khoản
