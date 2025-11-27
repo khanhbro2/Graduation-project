@@ -179,7 +179,7 @@
           <td align="left" bgcolor="#ffffff"
               style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
             <p style="margin: 0;">
-              Phúc Anh Đường Shop sẽ không bao giờ gửi email cho bạn và yêu cầu bạn tiết lộ hoặc xác minh mật khẩu của bạn.
+              Thất An Nhiên sẽ không bao giờ gửi email cho bạn và yêu cầu bạn tiết lộ hoặc xác minh mật khẩu của bạn.
             </p>
           </td>
         </tr>
