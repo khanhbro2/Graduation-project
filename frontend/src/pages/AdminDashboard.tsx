@@ -58,6 +58,32 @@ function AdminDashboard() {
       .reduce((sum, item) => sum + item.total, 0);
   };
 
+  // Tính doanh thu quý (90 ngày gần nhất)
+  const calculateQuarterlyRevenue = () => {
+    if (!statistic.statisticRevenue || statistic.statisticRevenue.length === 0) return 0;
+    const now = new Date();
+    const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    return statistic.statisticRevenue
+      .filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= quarterAgo && itemDate <= now;
+      })
+      .reduce((sum, item) => sum + item.total, 0);
+  };
+
+  // Tính doanh thu năm (365 ngày gần nhất)
+  const calculateYearlyRevenue = () => {
+    if (!statistic.statisticRevenue || statistic.statisticRevenue.length === 0) return 0;
+    const now = new Date();
+    const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+    return statistic.statisticRevenue
+      .filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= yearAgo && itemDate <= now;
+      })
+      .reduce((sum, item) => sum + item.total, 0);
+  };
+
   return (
     <Stack mb={30}>
       <Title order={3}>Thống kê hệ thống</Title>
@@ -121,6 +147,22 @@ function AdminDashboard() {
                 title="Doanh thu tháng" 
                 number={calculateMonthlyRevenue()} 
                 color="cyan" 
+                icon={CurrencyDollar}
+              />
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <OverviewCard 
+                title="Doanh thu quý" 
+                number={calculateQuarterlyRevenue()} 
+                color="orange" 
+                icon={CurrencyDollar}
+              />
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <OverviewCard 
+                title="Doanh thu năm" 
+                number={calculateYearlyRevenue()} 
+                color="red" 
                 icon={CurrencyDollar}
               />
             </Grid.Col>
