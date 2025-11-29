@@ -1,5 +1,6 @@
 package com.thatannhien.service.statistic;
 
+import com.thatannhien.dto.statistic.ProductSalesStatistic;
 import com.thatannhien.dto.statistic.StatisticResource;
 import com.thatannhien.dto.statistic.StatisticResponse;
 import com.thatannhien.repository.authentication.UserProjectionRepository;
@@ -69,6 +70,12 @@ public class StatisticServiceImpl implements StatisticService {
         statisticResponse.setStatisticReview(statisticReview);
         statisticResponse.setStatisticWaybill(statisticWaybill);
         statisticResponse.setStatisticRevenue(statisticRevenue);
+
+        // Lấy top 10 sản phẩm bán chạy và bán chậm trong tháng
+        List<ProductSalesStatistic> topSellingProducts = orderProjectionRepository.getTopSellingProductsThisMonth(10);
+        List<ProductSalesStatistic> slowSellingProducts = orderProjectionRepository.getSlowSellingProductsThisMonth(10);
+        statisticResponse.setTopSellingProducts(topSellingProducts);
+        statisticResponse.setSlowSellingProducts(slowSellingProducts);
 
         return statisticResponse;
     }

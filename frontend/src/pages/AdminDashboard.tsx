@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Grid, Group, MantineColor, Paper, Stack, Text, Title, useMantineTheme } from '@mantine/core';
+import { Card, Grid, Group, MantineColor, Paper, Stack, Table, Text, Title, useMantineTheme } from '@mantine/core';
 import {
   Box,
   BrandApple,
@@ -10,6 +10,8 @@ import {
   Percentage,
   Star,
   Truck,
+  TrendingDown,
+  TrendingUp,
   Users
 } from 'tabler-icons-react';
 import { Bar, BarChart, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
@@ -17,7 +19,7 @@ import { useQuery } from 'react-query';
 import FetchUtils, { ErrorMessage } from 'utils/FetchUtils';
 import ResourceURL from 'constants/ResourceURL';
 import NotifyUtils from 'utils/NotifyUtils';
-import { StatisticResource, StatisticResponse } from 'models/Statistic';
+import { ProductSalesStatistic, StatisticResource, StatisticResponse } from 'models/Statistic';
 import DateUtils from 'utils/DateUtils';
 import MiscUtils from 'utils/MiscUtils';
 
@@ -305,6 +307,94 @@ function AdminDashboard() {
           </Stack>
         </Grid.Col>
       </Grid>
+
+      <Grid>
+        <Grid.Col lg={6}>
+          <Paper shadow="xs" p="md">
+            <Stack>
+              <Group position="apart">
+                <Group spacing="xs">
+                  <TrendingUp size={20} color={theme.colors.green[6]} />
+                  <Text size="lg" weight={500} color="dimmed">Sản phẩm bán chạy</Text>
+                </Group>
+                <Text size="sm" color="dimmed">30 ngày gần nhất</Text>
+              </Group>
+
+              {statistic.topSellingProducts && statistic.topSellingProducts.length > 0 ? (
+                <Table striped highlightOnHover>
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Tên sản phẩm</th>
+                      <th>Mã sản phẩm</th>
+                      <th>Số lượng</th>
+                      <th>Doanh thu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {statistic.topSellingProducts.map((product, index) => (
+                      <tr key={product.productId}>
+                        <td>{index + 1}</td>
+                        <td>{product.productName}</td>
+                        <td>{product.productCode}</td>
+                        <td>{product.totalQuantitySold}</td>
+                        <td>{MiscUtils.formatPrice(product.totalRevenue)} ₫</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <Text size="sm" color="dimmed" align="center" py="md">
+                  Chưa có dữ liệu sản phẩm bán chạy
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        </Grid.Col>
+
+        <Grid.Col lg={6}>
+          <Paper shadow="xs" p="md">
+            <Stack>
+              <Group position="apart">
+                <Group spacing="xs">
+                  <TrendingDown size={20} color={theme.colors.red[6]} />
+                  <Text size="lg" weight={500} color="dimmed">Sản phẩm không bán được</Text>
+                </Group>
+                <Text size="sm" color="dimmed">30 ngày gần nhất</Text>
+              </Group>
+
+              {statistic.slowSellingProducts && statistic.slowSellingProducts.length > 0 ? (
+                <Table striped highlightOnHover>
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Tên sản phẩm</th>
+                      <th>Mã sản phẩm</th>
+                      <th>Số lượng</th>
+                      <th>Doanh thu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {statistic.slowSellingProducts.map((product, index) => (
+                      <tr key={product.productId}>
+                        <td>{index + 1}</td>
+                        <td>{product.productName}</td>
+                        <td>{product.productCode}</td>
+                        <td>{product.totalQuantitySold}</td>
+                        <td>{MiscUtils.formatPrice(product.totalRevenue)} ₫</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <Text size="sm" color="dimmed" align="center" py="md">
+                  Tất cả sản phẩm đều có bán trong tháng
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        </Grid.Col>
+      </Grid>
     </Stack>
   );
 }
@@ -351,6 +441,8 @@ const defaultStatisticResponse: StatisticResponse = {
   statisticReview: [],
   statisticWaybill: [],
   statisticRevenue: [],
+  topSellingProducts: [],
+  slowSellingProducts: [],
 };
 
 function useGetStatisticApi() {

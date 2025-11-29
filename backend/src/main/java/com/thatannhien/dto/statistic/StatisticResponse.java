@@ -19,4 +19,6 @@ public class StatisticResponse {
     private List<StatisticResource> statisticReview;
     private List<StatisticResource> statisticWaybill;
     private List<StatisticResource> statisticRevenue;
+    private List<ProductSalesStatistic> topSellingProducts;
+    private List<ProductSalesStatistic> slowSellingProducts;
 }

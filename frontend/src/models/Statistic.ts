@@ -3,6 +3,14 @@ export interface StatisticResource {
   total: number;
 }
 
+export interface ProductSalesStatistic {
+  productId: number;
+  productName: string;
+  productCode: string;
+  totalQuantitySold: number;
+  totalRevenue: number;
+}
+
 export interface StatisticResponse {
   totalCustomer: number;
   totalProduct: number;
@@ -17,4 +25,6 @@ export interface StatisticResponse {
   statisticReview: StatisticResource[];
   statisticWaybill: StatisticResource[];
   statisticRevenue: StatisticResource[];
+  topSellingProducts?: ProductSalesStatistic[];
+  slowSellingProducts?: ProductSalesStatistic[];
 }
