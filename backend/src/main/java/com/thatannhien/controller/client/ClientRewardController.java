@@ -19,7 +19,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+// TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+/*@RestController
 @RequestMapping("/client-api/rewards")
 @AllArgsConstructor
 @CrossOrigin(AppConstants.FRONTEND_HOST)
@@ -47,4 +48,4 @@ public class ClientRewardController {
         return ResponseEntity.status(HttpStatus.OK).body(clientWishResponse);
     }
 
-}
+}*/

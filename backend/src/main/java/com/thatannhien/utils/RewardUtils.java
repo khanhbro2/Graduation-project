@@ -1,6 +1,7 @@
 package com.thatannhien.utils;
 
-import com.thatannhien.entity.general.Notification;
+// TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+/*import com.thatannhien.entity.general.Notification;
 import com.thatannhien.entity.general.NotificationType;
 import com.thatannhien.entity.order.Order;
 import com.thatannhien.entity.review.Review;
@@ -17,9 +18,10 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.util.Optional;*/
 
-@Component
+// TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+/*@Component
 @AllArgsConstructor
 public class RewardUtils {
 
@@ -29,9 +31,10 @@ public class RewardUtils {
     private NotificationService notificationService;
     private NotificationMapper notificationMapper;
 
-    private static final ExpressionParser spelParser = new SpelExpressionParser();
+    private static final ExpressionParser spelParser = new SpelExpressionParser();*/
 
-    public void approveReviewHook(Review review) {
+    // TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+    /*public void approveReviewHook(Review review) {
         // Khi thay đổi trạng thái review từ (1) Chưa duyệt sang (2) Đã duyệt
         if (review.getStatus().equals(2)) {
             Optional<RewardStrategy> addReviewRewardStrategy = rewardStrategyRepository
@@ -70,9 +73,10 @@ public class RewardUtils {
                         notificationMapper.entityToResponse(notification));
             }
         }
-    }
+    }*/
 
-    public void successOrderHook(Order order) {
+    // TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+    /*public void successOrderHook(Order order) {
         // Nếu đơn hàng là "giao hàng thành công" và "đã thanh toán"
         if (order.getStatus().equals(4) && order.getPaymentStatus().equals(2)) {
             Optional<RewardStrategy> successOrderRewardStrategy = rewardStrategyRepository
@@ -112,5 +116,4 @@ public class RewardUtils {
             }
         }
     }
-
-}
+}*/

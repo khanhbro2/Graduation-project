@@ -82,8 +82,9 @@ import ClientPaymentSuccess from 'pages/client-payment-success';
 import ClientPaymentCancel from 'pages/client-payment-cancel';
 import AdminNotification from 'pages/admin-notification';
 import AdminAccount from 'pages/admin-account';
-import RewardManage from 'pages/reward-strategy';
-import ClientReward from 'pages/client-reward';
+// TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+// import RewardManage from 'pages/reward-strategy';
+// import ClientReward from 'pages/client-reward';
 import ClientSignup from 'pages/client-signup';
 import ClientForgotPassword, { ClientChangePassword } from 'pages/client-forgot-password';
 import ClientContact from 'pages/client-contact';
@@ -209,11 +210,12 @@ function App() {
                       </StompSessionProvider>
                     </ProtectedRoute>
                   )}/>
-                  <Route path="/user/reward" element={(
+                  {/* TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG */}
+                  {/* <Route path="/user/reward" element={(
                     <ProtectedRoute>
                       <ClientReward/>
                     </ProtectedRoute>
-                  )}/>
+                  )}/> */}
                   <Route path="/contact" element={<ClientContact/>}/>
                   <Route path="/lien-he" element={<ClientContact/>}/>
                 </Route>
@@ -388,8 +390,9 @@ function App() {
                   <Route path={ManagerPath.NOTIFICATION} element={<AdminNotification/>}/>
                   {/* ACCOUNT */}
                   <Route path={ManagerPath.ACCOUNT} element={<AdminAccount/>}/>
+                  {/* TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG */}
                   {/* REWARD */}
-                  <Route path={ManagerPath.REWARD_STRATEGY} element={<RewardManage/>}/>
+                  {/* <Route path={ManagerPath.REWARD_STRATEGY} element={<RewardManage/>}/> */}
                 </Route>
                 <Route path="/payment/success" element={<ClientPaymentSuccess/>}/>
                 <Route path="/payment/cancel" element={<ClientPaymentCancel/>}/>

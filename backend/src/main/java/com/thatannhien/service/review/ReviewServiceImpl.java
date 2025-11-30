@@ -10,7 +10,8 @@ import com.thatannhien.entity.review.Review;
 import com.thatannhien.exception.ResourceNotFoundException;
 import com.thatannhien.mapper.review.ReviewMapper;
 import com.thatannhien.repository.review.ReviewRepository;
-import com.thatannhien.utils.RewardUtils;
+// TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+// import com.thatannhien.utils.RewardUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     private ReviewRepository reviewRepository;
     private ReviewMapper reviewMapper;
-    private RewardUtils rewardUtils;
+    // TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+    // private RewardUtils rewardUtils;
 
     @Override
     public ListResponse<ReviewResponse> findAll(int page, int size, String sort, String filter, String search, boolean all) {
@@ -46,7 +48,8 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(reviewRepository::save)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceName.DOCKET, FieldName.ID, id));
 
-        rewardUtils.approveReviewHook(review);
+        // TODO: TẠM THỜI COMMENT - FLOW ĐIỂM THƯỞNG
+        // rewardUtils.approveReviewHook(review);
 
         return reviewMapper.entityToResponse(review);
     }
