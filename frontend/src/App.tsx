@@ -52,6 +52,7 @@ import CountManage, { CountCreate, CountUpdate } from 'pages/count';
 import ClientHome from 'pages/client-home';
 import ClientAllCategories from 'pages/client-all-categories';
 import ClientCategory from 'pages/client-category';
+import ClientPromotionProducts from 'pages/client-promotion-products';
 import ClientSearch from 'pages/client-search';
 import ClientSignin from 'pages/client-signin';
 import ClientUser from 'pages/client-user';
@@ -136,6 +137,7 @@ function App() {
                   <Route path="/*" element={<ClientError/>}/>
                   <Route path="/all-categories" element={<ClientAllCategories/>}/>
                   <Route path="/category/:slug" element={<ClientCategory/>}/>
+                  <Route path="/promotion-products" element={<ClientPromotionProducts/>}/>
                   <Route path="/search" element={<ClientSearch/>}/>
                   <Route path="/user" element={(
                     <ProtectedRoute>

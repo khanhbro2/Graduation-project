@@ -431,18 +431,14 @@ function ClientHeader() {
                   <Link to="/all-categories" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
                     SẢN PHẨM
                   </Link>
-                  <div className="w-px h-5 bg-white/30" />
+                  {/* <div className="w-px h-5 bg-white/30" />
                   <Link to="/" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
                     BÀI VIẾT
-                  </Link>
+                  </Link> */}
                   <div className="w-px h-5 bg-white/30" />
-                  {/* TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM */}
-                  {/* <button
-                    onClick={() => setOpenedNewsletterModal(true)}
-                    className="text-white no-underline text-sm tracking-wide uppercase transition-opacity hover:opacity-80 bg-transparent border-none cursor-pointer"
-                  >
-                    ĐĂNG KÝ NHẬN KM
-                  </button> */}
+                  <Link to="/promotion-products" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
+                    SẢN PHẨM KHUYẾN MẠI
+                  </Link>
                   <div className="w-px h-5 bg-white/30" />
                   <Link to="/contact" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
                     LIÊN HỆ
