@@ -3,7 +3,7 @@ import { Button, Divider, Grid, Group, NumberInput, Paper, Select, Stack, Tabs, 
 import { CreateUpdateTitle, DefaultPropertyPanel, EntityFinder } from 'components';
 import PromotionConfigs, { AddProductMode } from 'pages/promotion/PromotionConfigs';
 import usePromotionCreateViewModel from 'pages/promotion/PromotionCreate.vm';
-import { DateRangePicker } from '@mantine/dates';
+import { DatePicker } from '@mantine/dates';
 import DateUtils from 'utils/DateUtils';
 import { CategoryResponse } from 'models/Category';
 import CategoryConfigs from 'pages/category/CategoryConfigs';
@@ -124,19 +124,41 @@ function PromotionCreate() {
                     />
                   </Grid.Col>
                   <Grid.Col>
-                    <DateRangePicker
+                    <DatePicker
                       required
                       locale="vi"
                       inputFormat="DD/MM/YYYY"
                       labelFormat="MM/YYYY"
                       clearable={false}
                       minDate={DateUtils.today()}
-                      allowSingleDateInRange={false}
-                      label="Khoảng thời gian"
-                      placeholder="Chọn thời gian diễn ra khuyến mãi"
-                      value={form.values.range}
-                      onChange={value => form.setFieldValue('range', value)}
+                      label="Từ ngày"
+                      placeholder="Chọn hoặc nhập ngày bắt đầu (DD/MM/YYYY)"
+                      value={form.values.range[0]}
+                      onChange={value => {
+                        const newRange: [Date | null, Date | null] = [value, form.values.range[1]];
+                        form.setFieldValue('range', newRange);
+                      }}
                       error={form.errors['range.0']}
+                      allowFreeInput
+                    />
+                  </Grid.Col>
+                  <Grid.Col>
+                    <DatePicker
+                      required
+                      locale="vi"
+                      inputFormat="DD/MM/YYYY"
+                      labelFormat="MM/YYYY"
+                      clearable={false}
+                      minDate={form.values.range[0] || DateUtils.today()}
+                      label="Đến ngày"
+                      placeholder="Chọn hoặc nhập ngày kết thúc (DD/MM/YYYY)"
+                      value={form.values.range[1]}
+                      onChange={value => {
+                        const newRange: [Date | null, Date | null] = [form.values.range[0], value];
+                        form.setFieldValue('range', newRange);
+                      }}
+                      error={form.errors['range.1']}
+                      allowFreeInput
                     />
                   </Grid.Col>
                   <Grid.Col>
