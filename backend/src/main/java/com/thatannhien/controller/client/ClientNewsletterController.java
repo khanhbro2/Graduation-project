@@ -21,7 +21,8 @@ import javax.validation.Valid;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+/*@RestController
 @RequestMapping("/client-api/newsletter")
 @AllArgsConstructor
 @CrossOrigin(AppConstants.FRONTEND_HOST)
@@ -70,5 +71,5 @@ public class ClientNewsletterController {
                     .body(newsletterSubscriptionMapper.entityToResponse(entity));
         }
     }
-}
+}*/
 

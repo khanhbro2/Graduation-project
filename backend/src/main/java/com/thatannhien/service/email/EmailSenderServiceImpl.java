@@ -33,12 +33,13 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         sendEmail(toEmail, "[Thất An Nhiên]  Yêu cầu cấp lại mật khẩu", text);
     }
 
-    @Override
+    // TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+    /*@Override
     @Async
     public void sendNewsletterConfirmation(String toEmail, Map<String, Object> attributes) {
         String text = getEmailContent("newsletter-confirmation.ftlh", attributes);
         sendEmail(toEmail, "[Thất An Nhiên]  Đăng ký nhận tin thành công", text);
-    }
+    }*/
 
     private String getEmailContent(String template, Map<String, Object> model) {
         try {

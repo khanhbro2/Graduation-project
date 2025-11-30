@@ -19,9 +19,10 @@ import {
   Sun,
   User,
   UserCircle,
-  Mailbox,
-  At,
-  X
+  // TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+  // Mailbox,
+  // At,
+  // X
 } from 'tabler-icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import CategoryMenu from 'components/ClientHeader/CategoryMenu';
@@ -38,13 +39,16 @@ import {
 } from 'models/Notification';
 import MiscUtils from 'utils/MiscUtils';
 import useClientSiteStore from 'stores/use-client-site-store';
-import { ClientCartResponse, Empty, ClientNewsletterSubscriptionRequest } from 'types';
-import useSubscribeNewsletterApi from 'hooks/use-subscribe-newsletter-api';
+import { ClientCartResponse, Empty } from 'types';
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+// import { ClientNewsletterSubscriptionRequest } from 'types';
+// import useSubscribeNewsletterApi from 'hooks/use-subscribe-newsletter-api';
 
 function ClientHeader() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const [openedCategoryMenu, setOpenedCategoryMenu] = useState(false);
-  const [openedNewsletterModal, setOpenedNewsletterModal] = useState(false);
+  // TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+  // const [openedNewsletterModal, setOpenedNewsletterModal] = useState(false);
   const { ref: refHeaderStack, width: widthHeaderStack } = useElementSize();
   const { ref: refNavBar, width: widthNavBar } = useElementSize();
 
@@ -432,12 +436,13 @@ function ClientHeader() {
                     BÀI VIẾT
                   </Link>
                   <div className="w-px h-5 bg-white/30" />
-                  <button
+                  {/* TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM */}
+                  {/* <button
                     onClick={() => setOpenedNewsletterModal(true)}
                     className="text-white no-underline text-sm tracking-wide uppercase transition-opacity hover:opacity-80 bg-transparent border-none cursor-pointer"
                   >
                     ĐĂNG KÝ NHẬN KM
-                  </button>
+                  </button> */}
                   <div className="w-px h-5 bg-white/30" />
                   <Link to="/contact" className="text-white no-underline font-semibold text-sm tracking-wide uppercase transition-opacity hover:opacity-80">
                     LIÊN HỆ
@@ -449,16 +454,18 @@ function ClientHeader() {
         </div>
       </div>
 
+      {/* TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM */}
       {/* Newsletter Subscription Modal */}
-      <NewsletterModal 
+      {/* <NewsletterModal 
         isOpen={openedNewsletterModal} 
         onClose={() => setOpenedNewsletterModal(false)} 
-      />
+      /> */}
     </header>
   );
 }
 
-function NewsletterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+/*function NewsletterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const subscribeNewsletterApi = useSubscribeNewsletterApi();
@@ -575,7 +582,7 @@ function NewsletterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
       </div>
     </HeadlessDialog>
   );
-}
+}*/
 
 function useNotificationEvents() {
   const { user } = useAuthStore();

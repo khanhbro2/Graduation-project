@@ -8,6 +8,7 @@ public interface EmailSenderService {
 
     void sendForgetPasswordToken(String toEmail, Map<String, Object> attributes);
 
-    void sendNewsletterConfirmation(String toEmail, Map<String, Object> attributes);
+    // TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+    // void sendNewsletterConfirmation(String toEmail, Map<String, Object> attributes);
 
 }

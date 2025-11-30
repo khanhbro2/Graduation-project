@@ -1,4 +1,5 @@
-import { useMutation } from 'react-query';
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+/*import { useMutation } from 'react-query';
 import { ClientNewsletterSubscriptionRequest, ClientNewsletterSubscriptionResponse } from 'types';
 import FetchUtils, { ErrorMessage } from 'utils/FetchUtils';
 import ResourceURL from 'constants/ResourceURL';
@@ -19,6 +20,16 @@ function useSubscribeNewsletterApi() {
       },
     }
   );
+}
+
+export default useSubscribeNewsletterApi;*/
+
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+function useSubscribeNewsletterApi() {
+  return {
+    mutate: () => {},
+    isLoading: false,
+  };
 }
 
 export default useSubscribeNewsletterApi;

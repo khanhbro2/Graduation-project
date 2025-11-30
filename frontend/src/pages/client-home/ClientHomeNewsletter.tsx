@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+/*import React, { useState } from 'react';
 import { At, Mailbox } from 'tabler-icons-react';
 import { ClientNewsletterSubscriptionRequest } from 'types';
 import useSubscribeNewsletterApi from 'hooks/use-subscribe-newsletter-api';
@@ -86,6 +87,11 @@ function ClientHomeNewsletter() {
       </div>
     </div>
   );
+}*/
+
+// TODO: TẠM THỜI COMMENT - ĐĂNG KÝ NHẬN KM
+function ClientHomeNewsletter() {
+  return null;
 }
 
 export default ClientHomeNewsletter;
