@@ -271,7 +271,9 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("Cannot create PayPal transaction request!" + e);
             }
         } else if (request.getPaymentMethodType() == PaymentMethodType.VNPAY) {
-            var url = vNpayService.getPayUrl(order.getCode(), order.getTotalPay().intValue());
+            // Convert BigDecimal to long (VNPay requires amount in VND, will be converted to cents)
+            long totalPayVND = order.getTotalPay().longValue();
+            var url = vNpayService.getPayUrl(order.getCode(), totalPayVND, null);
 
             if (StringUtils.isBlank(url)) {
                 throw new RuntimeException("Cannot create VNPay transaction request!");
