@@ -169,6 +169,14 @@ function ClientProductIntro({ product }: ClientProductIntroProps) {
                     </Link>
                   </div>
                 )}
+                {product.productGuarantee && (
+                  <div className="flex items-center gap-1 text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Bảo hành:</span>
+                    <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                      {product.productGuarantee.guaranteeName}
+                    </span>
+                  </div>
+                )}
                 <h1 className="text-2xl font-medium text-gray-900 dark:text-gray-100">
                   {product.productName}
                 </h1>

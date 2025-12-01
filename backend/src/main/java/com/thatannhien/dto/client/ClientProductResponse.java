@@ -32,12 +32,23 @@ public class ClientProductResponse {
     private List<ClientListedProductResponse> productRelatedProducts;
     @Nullable
     private ClientPromotionResponse productPromotion;
+    @Nullable
+    private ClientGuaranteeResponse productGuarantee;
 
     @Data
     @Accessors(chain = true)
     public static class ClientBrandResponse {
         private Long brandId;
         private String brandName;
+    }
+
+    @Data
+    @Accessors(chain = true)
+    public static class ClientGuaranteeResponse {
+        private Long guaranteeId;
+        private String guaranteeName;
+        @Nullable
+        private String guaranteeDescription;
     }
 
     @Data

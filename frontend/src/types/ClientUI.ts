@@ -74,6 +74,7 @@ export interface ClientProductResponse {
   productSlug: string;
   productShortDescription: string | null;
   productDescription: string | null;
+  productOrigin: string | null;
   productImages: ImageResponse[];
   productCategory: ClientCategoryResponse | null;
   productBrand: ClientProductResponse_ClientBrandResponse | null;
@@ -84,6 +85,7 @@ export interface ClientProductResponse {
   productCountReviews: number;
   productRelatedProducts: ClientListedProductResponse[];
   productPromotion: ClientPromotionResponse | null;
+  productGuarantee: ClientProductResponse_ClientGuaranteeResponse | null;
 }
 
 interface ClientProductResponse_ClientBrandResponse {
@@ -96,6 +98,12 @@ interface ClientProductResponse_ClientVariantResponse {
   variantPrice: number;
   variantProperties: CollectionWrapper<VariantPropertyItem> | null;
   variantInventory: number;
+}
+
+interface ClientProductResponse_ClientGuaranteeResponse {
+  guaranteeId: number;
+  guaranteeName: string;
+  guaranteeDescription: string | null;
 }
 
 // WISH
