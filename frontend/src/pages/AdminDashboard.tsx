@@ -28,6 +28,44 @@ const dateReducerForStatisticResources = (statisticResources: StatisticResource[
   total: statisticResource.total,
 }));
 
+// Group dữ liệu theo ngày và tổng hợp lại (tránh trùng lặp ngày)
+// Input: array of { date: string, total: number } (đã được format)
+const groupByDate = (data: Array<{ date: string, total: number }>): Array<{ date: string, total: number }> => {
+  const grouped = new Map<string, number>();
+  
+  data.forEach(item => {
+    const dateKey = item.date;
+    const currentTotal = grouped.get(dateKey) || 0;
+    grouped.set(dateKey, currentTotal + item.total);
+  });
+  
+  return Array.from(grouped.entries())
+    .map(([date, total]) => ({
+      date,
+      total,
+    }))
+    .sort((a, b) => {
+      // Sort theo ngày (format DD/MM/YY)
+      const [dayA, monthA, yearA] = a.date.split('/').map(Number);
+      const [dayB, monthB, yearB] = b.date.split('/').map(Number);
+      const dateA = new Date(2000 + yearA, monthA - 1, dayA);
+      const dateB = new Date(2000 + yearB, monthB - 1, dayB);
+      return dateA.getTime() - dateB.getTime();
+    });
+};
+
+// Filter dữ liệu chỉ lấy năm hiện tại
+const filterCurrentYear = (statisticResources: StatisticResource[]): StatisticResource[] => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const yearStart = new Date(currentYear, 0, 1); // 1/1 của năm hiện tại
+  
+  return statisticResources.filter(item => {
+    const itemDate = new Date(item.date);
+    return itemDate >= yearStart && itemDate <= now;
+  });
+};
+
 function AdminDashboard() {
   const theme = useMantineTheme();
 
@@ -117,17 +155,7 @@ function AdminDashboard() {
                 icon={Percentage}
               />
             </Grid.Col>
-            <Grid.Col span={3}>
-              <OverviewCard
-                title="Tổng số nhà cung cấp"
-                number={statistic.totalSupplier}
-                color="violet"
-                icon={BuildingWarehouse}
-              />
-            </Grid.Col>
-            <Grid.Col span={3}>
-              <OverviewCard title="Tổng số thương hiệu" number={statistic.totalBrand} color="indigo" icon={BrandApple}/>
-            </Grid.Col>
+
             <Grid.Col span={3}>
               <OverviewCard 
                 title="Tổng doanh thu" 
@@ -173,139 +201,103 @@ function AdminDashboard() {
       </Paper>
 
       <Grid>
-        <Grid.Col lg={6}>
-          <Stack>
-            <Paper shadow="xs" p="md">
-              <Stack>
-                <Group position="apart">
-                  <Text size="lg" weight={500} color="dimmed">Lượt đăng ký tài khoản</Text>
-                  <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
-                </Group>
+        {/* <Grid.Col lg={6}>
+          <Paper shadow="xs" p="md">
+            <Stack>
+              <Group position="apart">
+                <Text size="lg" weight={500} color="dimmed">Lượt đăng ký tài khoản</Text>
+                <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
+              </Group>
 
-                <LineChart
-                  width={650}
-                  height={275}
-                  data={dateReducerForStatisticResources(statistic.statisticRegistration)}
-                  margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
-                >
-                  <XAxis dataKey="date"/>
-                  <YAxis/>
-                  <Tooltip/>
-                  <Line
-                    name="Số lượt đăng ký"
-                    type="monotone"
-                    dataKey="total"
-                    stroke={theme.colors.blue[5]}
-                  />
-                </LineChart>
-              </Stack>
-            </Paper>
+              <LineChart
+                width={650}
+                height={275}
+                data={dateReducerForStatisticResources(filterCurrentYear(statistic.statisticRegistration))}
+                margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
+              >
+                <XAxis dataKey="date"/>
+                <YAxis 
+                  allowDecimals={false}
+                  tickFormatter={(value) => Math.round(value).toString()}
+                />
+                <Tooltip/>
+                <Line
+                  name="Số lượt đăng ký"
+                  type="monotone"
+                  dataKey="total"
+                  stroke={theme.colors.blue[5]}
+                />
+              </LineChart>
+            </Stack>
+          </Paper>
+        </Grid.Col> */}
+         <Grid.Col lg={6}>
+          <Paper shadow="xs" p="md">
+            <Stack>
+              <Group position="apart">
+                <Text size="lg" weight={500} color="dimmed">Doanh thu</Text>
+                <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
+              </Group>
 
-            <Paper shadow="xs" p="md">
-              <Stack>
-                <Group position="apart">
-                  <Text size="lg" weight={500} color="dimmed">Lượt đánh giá sản phẩm</Text>
-                  <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
-                </Group>
-
-                <LineChart
-                  width={650}
-                  height={275}
-                  data={dateReducerForStatisticResources(statistic.statisticReview)}
-                  margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
-                >
-                  <XAxis dataKey="date"/>
-                  <YAxis/>
-                  <Tooltip/>
-                  <Line
-                    name="Số lượt đánh giá"
-                    type="monotone"
-                    dataKey="total"
-                    stroke={theme.colors.yellow[7]}
-                  />
-                </LineChart>
-              </Stack>
-            </Paper>
-          </Stack>
+              <BarChart
+                width={650}
+                height={275}
+                data={dateReducerForStatisticResources(filterCurrentYear(statistic.statisticRevenue || []))}
+                margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
+              >
+                <XAxis dataKey="date"/>
+                <YAxis 
+                  tickFormatter={(value) => {
+                    if (value >= 1000000) {
+                      return `${(value / 1000000).toFixed(1)}M`;
+                    } else if (value >= 1000) {
+                      return `${(value / 1000).toFixed(0)}K`;
+                    }
+                    return value.toString();
+                  }}
+                />
+                <Tooltip formatter={(value: number) => `${MiscUtils.formatPrice(value)} VNĐ`}/>
+                <Bar
+                  name="Doanh thu"
+                  dataKey="total"
+                  fill={theme.colors.green[5]}
+                />
+              </BarChart>
+            </Stack>
+          </Paper>
         </Grid.Col>
-        <Grid.Col lg={6}>
-          <Stack>
-            <Paper shadow="xs" p="md">
-              <Stack>
-                <Group position="apart">
-                  <Text size="lg" weight={500} color="dimmed">Lượt đặt hàng</Text>
-                  <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
-                </Group>
+         <Grid.Col lg={6}>
+           <Paper shadow="xs" p="md">
+             <Stack>
+               <Group position="apart">
+                 <Text size="lg" weight={500} color="dimmed">Lượt đặt hàng</Text>
+                 <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
+               </Group>
 
-                <BarChart
-                  width={650}
-                  height={275}
-                  data={dateReducerForStatisticResources(statistic.statisticOrder)}
-                  margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
-                >
-                  <XAxis dataKey="date"/>
-                  <YAxis/>
-                  <Tooltip/>
-                  <Bar
-                    name="Số lượt đặt hàng"
-                    dataKey="total"
-                    fill={theme.colors.teal[5]}
-                  />
-                </BarChart>
-              </Stack>
-            </Paper>
-
-            <Paper shadow="xs" p="md">
-              <Stack>
-                <Group position="apart">
-                  <Text size="lg" weight={500} color="dimmed">Lượt tạo vận đơn</Text>
-                  <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
-                </Group>
-
-                <BarChart
-                  width={650}
-                  height={275}
-                  data={dateReducerForStatisticResources(statistic.statisticWaybill)}
-                  margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
-                >
-                  <XAxis dataKey="date"/>
-                  <YAxis/>
-                  <Tooltip/>
-                  <Bar
-                    name="Số lượt tạo vận đơn"
-                    dataKey="total"
-                    fill={theme.colors.grape[5]}
-                  />
-                </BarChart>
-              </Stack>
-            </Paper>
-
-            <Paper shadow="xs" p="md">
-              <Stack>
-                <Group position="apart">
-                  <Text size="lg" weight={500} color="dimmed">Doanh thu</Text>
-                  <Text size="sm" color="dimmed">7 ngày gần nhất</Text>
-                </Group>
-
-                <BarChart
-                  width={650}
-                  height={275}
-                  data={dateReducerForStatisticResources(statistic.statisticRevenue || [])}
-                  margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
-                >
-                  <XAxis dataKey="date"/>
-                  <YAxis/>
-                  <Tooltip formatter={(value: number) => `${MiscUtils.formatPrice(value)} VNĐ`}/>
-                  <Bar
-                    name="Doanh thu"
-                    dataKey="total"
-                    fill={theme.colors.green[5]}
-                  />
-                </BarChart>
-              </Stack>
-            </Paper>
-          </Stack>
-        </Grid.Col>
+               <LineChart
+                 width={650}
+                 height={275}
+                 data={groupByDate(dateReducerForStatisticResources(filterCurrentYear(statistic.statisticOrder)))}
+                 margin={{ top: 10, right: 5, bottom: 0, left: -10 }}
+               >
+                 <XAxis dataKey="date"/>
+                 <YAxis 
+                   allowDecimals={false}
+                   tickFormatter={(value) => Math.round(value).toString()}
+                 />
+                 <Tooltip/>
+                 <Line
+                   name="Số lượt đặt hàng"
+                   type="monotone"
+                   dataKey="total"
+                   stroke={theme.colors.teal[5]}
+                   strokeWidth={2}
+                   dot={{ r: 4 }}
+                 />
+               </LineChart>
+             </Stack>
+           </Paper>
+         </Grid.Col>
       </Grid>
 
       <Grid>
@@ -358,7 +350,7 @@ function AdminDashboard() {
               <Group position="apart">
                 <Group spacing="xs">
                   <TrendingDown size={20} color={theme.colors.red[6]} />
-                  <Text size="lg" weight={500} color="dimmed">Sản phẩm không bán được</Text>
+                  <Text size="lg" weight={500} color="dimmed">Sản phẩm bán chậm</Text>
                 </Group>
                 <Text size="sm" color="dimmed">30 ngày gần nhất</Text>
               </Group>
@@ -395,6 +387,7 @@ function AdminDashboard() {
           </Paper>
         </Grid.Col>
       </Grid>
+
     </Stack>
   );
 }
