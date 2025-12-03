@@ -35,10 +35,19 @@ import com.thatannhien.repository.promotion.PromotionRepository;
 import com.thatannhien.repository.waybill.WaybillLogRepository;
 import com.thatannhien.repository.waybill.WaybillRepository;
 import com.thatannhien.repository.inventory.DocketVariantRepository;
+import com.thatannhien.repository.inventory.DocketRepository;
+import com.thatannhien.repository.inventory.DocketReasonRepository;
+import com.thatannhien.repository.inventory.WarehouseRepository;
+import com.thatannhien.entity.inventory.Docket;
+import com.thatannhien.entity.inventory.DocketReason;
+import com.thatannhien.entity.inventory.DocketVariant;
+import com.thatannhien.entity.inventory.DocketVariantKey;
+import com.thatannhien.entity.inventory.Warehouse;
 import com.thatannhien.service.general.NotificationService;
 import com.thatannhien.utils.VNpayService;
 import com.thatannhien.utils.InventoryUtils;
 import com.thatannhien.entity.cart.CartVariant;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
@@ -72,6 +81,10 @@ public class OrderServiceImpl implements OrderService {
     private String ghnShopId;
     @Value("${app.shipping.ghnApiPath}")
     private String ghnApiPath;
+    @Value("${app.inventory.default-warehouse-id:1}")
+    private Long defaultWarehouseId;
+    @Value("${app.inventory.default-export-docket-reason-id:1}")
+    private Long defaultExportDocketReasonId;
 
     private final VNpayService vNpayService;
 
@@ -82,6 +95,9 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final PromotionRepository promotionRepository;
     private final DocketVariantRepository docketVariantRepository;
+    private final DocketRepository docketRepository;
+    private final WarehouseRepository warehouseRepository;
+    private final DocketReasonRepository docketReasonRepository;
 
     private final PayPalHttpClient payPalHttpClient;
     private final ClientOrderMapper clientOrderMapper;
@@ -101,6 +117,14 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() < 3) {
             order.setStatus(5); // Status 5 là trạng thái Hủy
             orderRepository.save(order);
+
+            // Xóa phiếu xuất kho để hoàn lại tồn kho
+            docketRepository.findByOrder_IdAndType(order.getId(), 2)
+                    .ifPresent(docket -> {
+                        // Xóa phiếu xuất kho (sẽ tự động xóa cả docket_variant do cascade)
+                        docketRepository.delete(docket);
+                        log.info("Deleted export docket {} for cancelled order {}", docket.getCode(), order.getCode());
+                    });
 
             Waybill waybill = waybillRepository.findByOrderId(order.getId()).orElse(null);
 
@@ -289,6 +313,9 @@ public class OrderServiceImpl implements OrderService {
         cart.setStatus(2); // Status 2: Vô hiệu lực
         cartRepository.save(cart);
 
+        // (5) Tạo phiếu xuất kho ngay khi đặt hàng (status = 1) để trừ tồn kho
+        createExportDocketForOrder(order);
+
         return response;
     }
 
@@ -362,6 +389,57 @@ public class OrderServiceImpl implements OrderService {
 
     private Double calculateDiscountedPrice(Double price, Integer discount) {
         return price * (100 - discount) / 100;
+    }
+
+    /**
+     * Tạo phiếu xuất kho (docket type = 2, status = 1) ngay khi đặt hàng để trừ tồn kho.
+     * Khi đơn hàng giao thành công, phiếu xuất sẽ được cập nhật lên status = 3.
+     */
+    private void createExportDocketForOrder(Order order) {
+        // Đơn hàng không có chi tiết thì bỏ qua
+        if (order.getOrderVariants() == null || order.getOrderVariants().isEmpty()) {
+            return;
+        }
+
+        // Nếu đã có docket xuất (type = 2) gắn với đơn này rồi thì không tạo lại (idempotent)
+        if (docketRepository.existsByOrder_IdAndType(order.getId(), 2)) {
+            return;
+        }
+
+        // Lấy kho và lý do xuất kho mặc định
+        Warehouse warehouse = warehouseRepository.findById(defaultWarehouseId)
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceName.WAREHOUSE, FieldName.ID, defaultWarehouseId));
+
+        DocketReason docketReason = docketReasonRepository.findById(defaultExportDocketReasonId)
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceName.DOCKET_REASON, FieldName.ID, defaultExportDocketReasonId));
+
+        // (1) Tạo phiếu xuất kho với status = 1 (Mới)
+        Docket docket = new Docket();
+        docket.setType(2); // 2 = Phiếu Xuất
+        docket.setCode("EXP-" + order.getCode()); // Code duy nhất dựa trên mã đơn hàng
+        docket.setReason(docketReason);
+        docket.setWarehouse(warehouse);
+        docket.setOrder(order);
+        docket.setStatus(1); // Status 1: Mới (sẽ được cập nhật lên 3 khi giao thành công)
+
+        Docket savedDocket = docketRepository.save(docket);
+
+        // (2) Tạo chi tiết phiếu xuất từ các order_variant
+        List<DocketVariant> docketVariants = new ArrayList<>();
+
+        for (OrderVariant orderVariant : order.getOrderVariants()) {
+            DocketVariantKey key = new DocketVariantKey(savedDocket.getId(), orderVariant.getVariant().getId());
+
+            DocketVariant docketVariant = new DocketVariant();
+            docketVariant.setDocketVariantKey(key);
+            docketVariant.setDocket(savedDocket);
+            docketVariant.setVariant(orderVariant.getVariant());
+            docketVariant.setQuantity(orderVariant.getQuantity());
+
+            docketVariants.add(docketVariant);
+        }
+
+        docketVariantRepository.saveAll(docketVariants);
     }
 
 }
