@@ -1,3 +1,5 @@
+// TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+/*
 import { z } from 'zod';
 import { Configs, EntityPropertySchema, EntityPropertyType, TitleLink } from 'types';
 import ResourceURL from 'constants/ResourceURL';
@@ -84,4 +86,9 @@ class OfficeConfigs extends Configs {
   });
 }
 
+export default OfficeConfigs;
+*/
+
+// Dummy export để tránh lỗi compile
+const OfficeConfigs = {} as any;
 export default OfficeConfigs;
