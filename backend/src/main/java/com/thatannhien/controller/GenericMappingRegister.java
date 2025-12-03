@@ -18,26 +18,27 @@ import com.thatannhien.dto.cashbook.PaymentMethodRequest;
 import com.thatannhien.dto.cashbook.PaymentMethodResponse;
 import com.thatannhien.dto.chat.RoomRequest;
 import com.thatannhien.dto.chat.RoomResponse;
-import com.thatannhien.dto.customer.CustomerGroupRequest;
-import com.thatannhien.dto.customer.CustomerGroupResponse;
-import com.thatannhien.dto.customer.CustomerRequest;
-import com.thatannhien.dto.customer.CustomerResourceRequest;
-import com.thatannhien.dto.customer.CustomerResourceResponse;
-import com.thatannhien.dto.customer.CustomerResponse;
-import com.thatannhien.dto.customer.CustomerStatusRequest;
-import com.thatannhien.dto.customer.CustomerStatusResponse;
-import com.thatannhien.dto.employee.DepartmentRequest;
-import com.thatannhien.dto.employee.DepartmentResponse;
-import com.thatannhien.dto.employee.EmployeeRequest;
-import com.thatannhien.dto.employee.EmployeeResponse;
-import com.thatannhien.dto.employee.JobLevelRequest;
-import com.thatannhien.dto.employee.JobLevelResponse;
-import com.thatannhien.dto.employee.JobTitleRequest;
-import com.thatannhien.dto.employee.JobTitleResponse;
-import com.thatannhien.dto.employee.JobTypeRequest;
-import com.thatannhien.dto.employee.JobTypeResponse;
-import com.thatannhien.dto.employee.OfficeRequest;
-import com.thatannhien.dto.employee.OfficeResponse;
+// TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+// import com.thatannhien.dto.customer.CustomerGroupRequest;
+// import com.thatannhien.dto.customer.CustomerGroupResponse;
+// import com.thatannhien.dto.customer.CustomerRequest;
+// import com.thatannhien.dto.customer.CustomerResourceRequest;
+// import com.thatannhien.dto.customer.CustomerResourceResponse;
+// import com.thatannhien.dto.customer.CustomerResponse;
+// import com.thatannhien.dto.customer.CustomerStatusRequest;
+// import com.thatannhien.dto.customer.CustomerStatusResponse;
+// import com.thatannhien.dto.employee.DepartmentRequest;
+// import com.thatannhien.dto.employee.DepartmentResponse;
+// import com.thatannhien.dto.employee.EmployeeRequest;
+// import com.thatannhien.dto.employee.EmployeeResponse;
+// import com.thatannhien.dto.employee.JobLevelRequest;
+// import com.thatannhien.dto.employee.JobLevelResponse;
+// import com.thatannhien.dto.employee.JobTitleRequest;
+// import com.thatannhien.dto.employee.JobTitleResponse;
+// import com.thatannhien.dto.employee.JobTypeRequest;
+// import com.thatannhien.dto.employee.JobTypeResponse;
+// import com.thatannhien.dto.employee.OfficeRequest;
+// import com.thatannhien.dto.employee.OfficeResponse;
 import com.thatannhien.dto.general.ImageRequest;
 import com.thatannhien.dto.general.ImageResponse;
 import com.thatannhien.dto.inventory.CountRequest;
@@ -101,16 +102,17 @@ import com.thatannhien.entity.authentication.Role;
 import com.thatannhien.entity.authentication.User;
 import com.thatannhien.entity.cashbook.PaymentMethod;
 import com.thatannhien.entity.chat.Room;
-import com.thatannhien.entity.customer.Customer;
-import com.thatannhien.entity.customer.CustomerGroup;
-import com.thatannhien.entity.customer.CustomerResource;
-import com.thatannhien.entity.customer.CustomerStatus;
-import com.thatannhien.entity.employee.Department;
-import com.thatannhien.entity.employee.Employee;
-import com.thatannhien.entity.employee.JobLevel;
-import com.thatannhien.entity.employee.JobTitle;
-import com.thatannhien.entity.employee.JobType;
-import com.thatannhien.entity.employee.Office;
+// TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+// import com.thatannhien.entity.customer.Customer;
+// import com.thatannhien.entity.customer.CustomerGroup;
+// import com.thatannhien.entity.customer.CustomerResource;
+// import com.thatannhien.entity.customer.CustomerStatus;
+// import com.thatannhien.entity.employee.Department;
+// import com.thatannhien.entity.employee.Employee;
+// import com.thatannhien.entity.employee.JobLevel;
+// import com.thatannhien.entity.employee.JobTitle;
+// import com.thatannhien.entity.employee.JobType;
+// import com.thatannhien.entity.employee.Office;
 import com.thatannhien.entity.general.Image;
 import com.thatannhien.entity.inventory.Count;
 import com.thatannhien.entity.inventory.Destination;
@@ -142,16 +144,17 @@ import com.thatannhien.mapper.authentication.RoleMapper;
 import com.thatannhien.mapper.authentication.UserMapper;
 import com.thatannhien.mapper.cashbook.PaymentMethodMapper;
 import com.thatannhien.mapper.chat.RoomMapper;
-import com.thatannhien.mapper.customer.CustomerGroupMapper;
-import com.thatannhien.mapper.customer.CustomerMapper;
-import com.thatannhien.mapper.customer.CustomerResourceMapper;
-import com.thatannhien.mapper.customer.CustomerStatusMapper;
-import com.thatannhien.mapper.employee.DepartmentMapper;
-import com.thatannhien.mapper.employee.EmployeeMapper;
-import com.thatannhien.mapper.employee.JobLevelMapper;
-import com.thatannhien.mapper.employee.JobTitleMapper;
-import com.thatannhien.mapper.employee.JobTypeMapper;
-import com.thatannhien.mapper.employee.OfficeMapper;
+// TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+// import com.thatannhien.mapper.customer.CustomerGroupMapper;
+// import com.thatannhien.mapper.customer.CustomerMapper;
+// import com.thatannhien.mapper.customer.CustomerResourceMapper;
+// import com.thatannhien.mapper.customer.CustomerStatusMapper;
+// import com.thatannhien.mapper.employee.DepartmentMapper;
+// import com.thatannhien.mapper.employee.EmployeeMapper;
+// import com.thatannhien.mapper.employee.JobLevelMapper;
+// import com.thatannhien.mapper.employee.JobTitleMapper;
+// import com.thatannhien.mapper.employee.JobTypeMapper;
+// import com.thatannhien.mapper.employee.OfficeMapper;
 import com.thatannhien.mapper.general.ImageMapper;
 import com.thatannhien.mapper.inventory.CountMapper;
 import com.thatannhien.mapper.inventory.DestinationMapper;
@@ -183,16 +186,17 @@ import com.thatannhien.repository.authentication.RoleRepository;
 import com.thatannhien.repository.authentication.UserRepository;
 import com.thatannhien.repository.cashbook.PaymentMethodRepository;
 import com.thatannhien.repository.chat.RoomRepository;
-import com.thatannhien.repository.customer.CustomerGroupRepository;
-import com.thatannhien.repository.customer.CustomerRepository;
-import com.thatannhien.repository.customer.CustomerResourceRepository;
-import com.thatannhien.repository.customer.CustomerStatusRepository;
-import com.thatannhien.repository.employee.DepartmentRepository;
-import com.thatannhien.repository.employee.EmployeeRepository;
-import com.thatannhien.repository.employee.JobLevelRepository;
-import com.thatannhien.repository.employee.JobTitleRepository;
-import com.thatannhien.repository.employee.JobTypeRepository;
-import com.thatannhien.repository.employee.OfficeRepository;
+// TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+// import com.thatannhien.repository.customer.CustomerGroupRepository;
+// import com.thatannhien.repository.customer.CustomerRepository;
+// import com.thatannhien.repository.customer.CustomerResourceRepository;
+// import com.thatannhien.repository.customer.CustomerStatusRepository;
+// import com.thatannhien.repository.employee.DepartmentRepository;
+// import com.thatannhien.repository.employee.EmployeeRepository;
+// import com.thatannhien.repository.employee.JobLevelRepository;
+// import com.thatannhien.repository.employee.JobTitleRepository;
+// import com.thatannhien.repository.employee.JobTypeRepository;
+// import com.thatannhien.repository.employee.OfficeRepository;
 import com.thatannhien.repository.general.ImageRepository;
 import com.thatannhien.repository.inventory.CountRepository;
 import com.thatannhien.repository.inventory.DestinationRepository;
@@ -251,16 +255,17 @@ public class GenericMappingRegister {
     private GenericController<AddressRequest, AddressResponse> addressController;
     private GenericController<UserRequest, UserResponse> userController;
     private GenericController<RoleRequest, RoleResponse> roleController;
-    private GenericController<OfficeRequest, OfficeResponse> officeController;
-    private GenericController<DepartmentRequest, DepartmentResponse> departmentController;
-    private GenericController<JobLevelRequest, JobLevelResponse> jobLevelController;
-    private GenericController<JobTypeRequest, JobTypeResponse> jobTypeController;
-    private GenericController<JobTitleRequest, JobTitleResponse> jobTitleController;
-    private GenericController<EmployeeRequest, EmployeeResponse> employeeController;
-    private GenericController<CustomerGroupRequest, CustomerGroupResponse> customerGroupController;
-    private GenericController<CustomerResourceRequest, CustomerResourceResponse> customerResourceController;
-    private GenericController<CustomerStatusRequest, CustomerStatusResponse> customerStatusController;
-    private GenericController<CustomerRequest, CustomerResponse> customerController;
+    // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+    // private GenericController<OfficeRequest, OfficeResponse> officeController;
+    // private GenericController<DepartmentRequest, DepartmentResponse> departmentController;
+    // private GenericController<JobLevelRequest, JobLevelResponse> jobLevelController;
+    // private GenericController<JobTypeRequest, JobTypeResponse> jobTypeController;
+    // private GenericController<JobTitleRequest, JobTitleResponse> jobTitleController;
+    // private GenericController<EmployeeRequest, EmployeeResponse> employeeController;
+    // private GenericController<CustomerGroupRequest, CustomerGroupResponse> customerGroupController;
+    // private GenericController<CustomerResourceRequest, CustomerResourceResponse> customerResourceController;
+    // private GenericController<CustomerStatusRequest, CustomerStatusResponse> customerStatusController;
+    // private GenericController<CustomerRequest, CustomerResponse> customerController;
     private GenericController<PropertyRequest, PropertyResponse> propertyController;
     private GenericController<CategoryRequest, CategoryResponse> categoryController;
     private GenericController<TagRequest, TagResponse> tagController;
@@ -298,16 +303,17 @@ public class GenericMappingRegister {
     private GenericService<Address, AddressRequest, AddressResponse> addressService;
     private GenericService<User, UserRequest, UserResponse> userService;
     private GenericService<Role, RoleRequest, RoleResponse> roleService;
-    private GenericService<Office, OfficeRequest, OfficeResponse> officeService;
-    private GenericService<Department, DepartmentRequest, DepartmentResponse> departmentService;
-    private GenericService<JobLevel, JobLevelRequest, JobLevelResponse> jobLevelService;
-    private GenericService<JobType, JobTypeRequest, JobTypeResponse> jobTypeService;
-    private GenericService<JobTitle, JobTitleRequest, JobTitleResponse> jobTitleService;
-    private GenericService<Employee, EmployeeRequest, EmployeeResponse> employeeService;
-    private GenericService<CustomerGroup, CustomerGroupRequest, CustomerGroupResponse> customerGroupService;
-    private GenericService<CustomerResource, CustomerResourceRequest, CustomerResourceResponse> customerResourceService;
-    private GenericService<CustomerStatus, CustomerStatusRequest, CustomerStatusResponse> customerStatusService;
-    private GenericService<Customer, CustomerRequest, CustomerResponse> customerService;
+    // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+    // private GenericService<Office, OfficeRequest, OfficeResponse> officeService;
+    // private GenericService<Department, DepartmentRequest, DepartmentResponse> departmentService;
+    // private GenericService<JobLevel, JobLevelRequest, JobLevelResponse> jobLevelService;
+    // private GenericService<JobType, JobTypeRequest, JobTypeResponse> jobTypeService;
+    // private GenericService<JobTitle, JobTitleRequest, JobTitleResponse> jobTitleService;
+    // private GenericService<Employee, EmployeeRequest, EmployeeResponse> employeeService;
+    // private GenericService<CustomerGroup, CustomerGroupRequest, CustomerGroupResponse> customerGroupService;
+    // private GenericService<CustomerResource, CustomerResourceRequest, CustomerResourceResponse> customerResourceService;
+    // private GenericService<CustomerStatus, CustomerStatusRequest, CustomerStatusResponse> customerStatusService;
+    // private GenericService<Customer, CustomerRequest, CustomerResponse> customerService;
     private GenericService<Property, PropertyRequest, PropertyResponse> propertyService;
     private GenericService<Category, CategoryRequest, CategoryResponse> categoryService;
     private GenericService<Tag, TagRequest, TagResponse> tagService;
@@ -375,75 +381,76 @@ public class GenericMappingRegister {
                 ResourceName.ROLE
         ), RoleRequest.class);
 
-        register("offices", officeController, officeService.init(
-                context.getBean(OfficeRepository.class),
-                context.getBean(OfficeMapper.class),
-                SearchFields.OFFICE,
-                ResourceName.OFFICE
-        ), OfficeRequest.class);
+        // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+        // register("offices", officeController, officeService.init(
+        //         context.getBean(OfficeRepository.class),
+        //         context.getBean(OfficeMapper.class),
+        //         SearchFields.OFFICE,
+        //         ResourceName.OFFICE
+        // ), OfficeRequest.class);
 
-        register("departments", departmentController, departmentService.init(
-                context.getBean(DepartmentRepository.class),
-                context.getBean(DepartmentMapper.class),
-                SearchFields.DEPARTMENT,
-                ResourceName.DEPARTMENT
-        ), DepartmentRequest.class);
+        // register("departments", departmentController, departmentService.init(
+        //         context.getBean(DepartmentRepository.class),
+        //         context.getBean(DepartmentMapper.class),
+        //         SearchFields.DEPARTMENT,
+        //         ResourceName.DEPARTMENT
+        // ), DepartmentRequest.class);
 
-        register("job-levels", jobLevelController, jobLevelService.init(
-                context.getBean(JobLevelRepository.class),
-                context.getBean(JobLevelMapper.class),
-                SearchFields.JOB_LEVEL,
-                ResourceName.JOB_LEVEL
-        ), JobLevelRequest.class);
+        // register("job-levels", jobLevelController, jobLevelService.init(
+        //         context.getBean(JobLevelRepository.class),
+        //         context.getBean(JobLevelMapper.class),
+        //         SearchFields.JOB_LEVEL,
+        //         ResourceName.JOB_LEVEL
+        // ), JobLevelRequest.class);
 
-        register("job-titles", jobTitleController, jobTitleService.init(
-                context.getBean(JobTitleRepository.class),
-                context.getBean(JobTitleMapper.class),
-                SearchFields.JOB_TITLE,
-                ResourceName.JOB_TITLE
-        ), JobTitleRequest.class);
+        // register("job-titles", jobTitleController, jobTitleService.init(
+        //         context.getBean(JobTitleRepository.class),
+        //         context.getBean(JobTitleMapper.class),
+        //         SearchFields.JOB_TITLE,
+        //         ResourceName.JOB_TITLE
+        // ), JobTitleRequest.class);
 
-        register("job-types", jobTypeController, jobTypeService.init(
-                context.getBean(JobTypeRepository.class),
-                context.getBean(JobTypeMapper.class),
-                SearchFields.JOB_TYPE,
-                ResourceName.JOB_TYPE
-        ), JobTypeRequest.class);
+        // register("job-types", jobTypeController, jobTypeService.init(
+        //         context.getBean(JobTypeRepository.class),
+        //         context.getBean(JobTypeMapper.class),
+        //         SearchFields.JOB_TYPE,
+        //         ResourceName.JOB_TYPE
+        // ), JobTypeRequest.class);
 
-        register("employees", employeeController, employeeService.init(
-                context.getBean(EmployeeRepository.class),
-                context.getBean(EmployeeMapper.class),
-                SearchFields.EMPLOYEE,
-                ResourceName.EMPLOYEE
-        ), EmployeeRequest.class);
+        // register("employees", employeeController, employeeService.init(
+        //         context.getBean(EmployeeRepository.class),
+        //         context.getBean(EmployeeMapper.class),
+        //         SearchFields.EMPLOYEE,
+        //         ResourceName.EMPLOYEE
+        // ), EmployeeRequest.class);
 
-        register("customer-groups", customerGroupController, customerGroupService.init(
-                context.getBean(CustomerGroupRepository.class),
-                context.getBean(CustomerGroupMapper.class),
-                SearchFields.CUSTOMER_GROUP,
-                ResourceName.CUSTOMER_GROUP
-        ), CustomerGroupRequest.class);
+        // register("customer-groups", customerGroupController, customerGroupService.init(
+        //         context.getBean(CustomerGroupRepository.class),
+        //         context.getBean(CustomerGroupMapper.class),
+        //         SearchFields.CUSTOMER_GROUP,
+        //         ResourceName.CUSTOMER_GROUP
+        // ), CustomerGroupRequest.class);
 
-        register("customer-resources", customerResourceController, customerResourceService.init(
-                context.getBean(CustomerResourceRepository.class),
-                context.getBean(CustomerResourceMapper.class),
-                SearchFields.CUSTOMER_RESOURCE,
-                ResourceName.CUSTOMER_RESOURCE
-        ), CustomerResourceRequest.class);
+        // register("customer-resources", customerResourceController, customerResourceService.init(
+        //         context.getBean(CustomerResourceRepository.class),
+        //         context.getBean(CustomerResourceMapper.class),
+        //         SearchFields.CUSTOMER_RESOURCE,
+        //         ResourceName.CUSTOMER_RESOURCE
+        // ), CustomerResourceRequest.class);
 
-        register("customer-status", customerStatusController, customerStatusService.init(
-                context.getBean(CustomerStatusRepository.class),
-                context.getBean(CustomerStatusMapper.class),
-                SearchFields.CUSTOMER_STATUS,
-                ResourceName.CUSTOMER_STATUS
-        ), CustomerStatusRequest.class);
+        // register("customer-status", customerStatusController, customerStatusService.init(
+        //         context.getBean(CustomerStatusRepository.class),
+        //         context.getBean(CustomerStatusMapper.class),
+        //         SearchFields.CUSTOMER_STATUS,
+        //         ResourceName.CUSTOMER_STATUS
+        // ), CustomerStatusRequest.class);
 
-        register("customers", customerController, customerService.init(
-                context.getBean(CustomerRepository.class),
-                context.getBean(CustomerMapper.class),
-                SearchFields.CUSTOMER,
-                ResourceName.CUSTOMER
-        ), CustomerRequest.class);
+        // register("customers", customerController, customerService.init(
+        //         context.getBean(CustomerRepository.class),
+        //         context.getBean(CustomerMapper.class),
+        //         SearchFields.CUSTOMER,
+        //         ResourceName.CUSTOMER
+        // ), CustomerRequest.class);
 
         register("properties", propertyController, propertyService.init(
                 context.getBean(PropertyRepository.class),

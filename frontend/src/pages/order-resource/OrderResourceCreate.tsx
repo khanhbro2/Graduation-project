@@ -47,7 +47,8 @@ function OrderResourceCreate() {
                   placeholder="Chọn màu"
                 />
               </Grid.Col>
-              <Grid.Col xs={6}>
+              {/* TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE) */}
+              {/* <Grid.Col xs={6}>
                 <Select
                   label={OrderResourceConfigs.properties.customerResourceId.label}
                   placeholder="--"
@@ -55,7 +56,7 @@ function OrderResourceCreate() {
                   data={customerResourceSelectList}
                   {...form.getInputProps('customerResourceId')}
                 />
-              </Grid.Col>
+              </Grid.Col> */}
               <Grid.Col xs={6}>
                 <Select
                   required

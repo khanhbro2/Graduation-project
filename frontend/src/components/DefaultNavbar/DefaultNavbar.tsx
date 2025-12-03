@@ -69,12 +69,13 @@ const navbarLinks: NavbarLink[] = [
     ],
     disableForEmployee: true,
   },
-  {
-    link: '/admin/employee',
-    label: 'Nhân viên',
-    icon: Building,
-    disableForEmployee: true,
-  },
+  // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+  // {
+  //   link: '/admin/employee',
+  //   label: 'Nhân viên',
+  //   icon: Building,
+  //   disableForEmployee: true,
+  // },
   //   childLinks: [
   //     {
   //       link: '/admin/employee/office',
@@ -99,11 +100,11 @@ const navbarLinks: NavbarLink[] = [
   //   ],
   //   disableForEmployee: true,
   // },
-  {
-    link: '/admin/customer',
-    label: 'Khách hàng',
-    icon: Users,
-  },
+  // {
+  //   link: '/admin/customer',
+  //   label: 'Khách hàng',
+  //   icon: Users,
+  // },
   //   childLinks: [
   //     {
   //       link: '/admin/customer/group',
@@ -175,34 +176,35 @@ const navbarLinks: NavbarLink[] = [
     label: 'Tồn kho',
     icon: BuildingWarehouse,
     childLinks: [
-      {
-        link: '/admin/inventory/warehouse',
-        label: 'Nhà kho',
-      },
+      // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG KHO (CHỈ GIỮ TỒN KHO VÀ PHIẾU NHẬP XUẤT KHO)
+      // {
+      //   link: '/admin/inventory/warehouse',
+      //   label: 'Nhà kho',
+      // },
       // {
       //   link: '/admin/inventory/purchase-order',
       //   label: 'Đơn mua hàng',
       // },
-      {
-        link: '/admin/inventory/destination',
-        label: 'Điểm nhập hàng',
-      },
+      // {
+      //   link: '/admin/inventory/destination',
+      //   label: 'Điểm nhập hàng',
+      // },
       {
         link: '/admin/inventory/docket',
         label: 'Phiếu nhập xuất kho',
       },
-      {
-        link: '/admin/inventory/docket-reason',
-        label: 'Lý do phiếu NXK',
-      },
-      {
-        link: '/admin/inventory/count',
-        label: 'Phiếu kiểm kho',
-      },
-      {
-        link: '/admin/inventory/transfer',
-        label: 'Phiếu chuyển kho',
-      },
+      // {
+      //   link: '/admin/inventory/docket-reason',
+      //   label: 'Lý do phiếu NXK',
+      // },
+      // {
+      //   link: '/admin/inventory/count',
+      //   label: 'Phiếu kiểm kho',
+      // },
+      // {
+      //   link: '/admin/inventory/transfer',
+      //   label: 'Phiếu chuyển kho',
+      // },
     ],
     disableForEmployee: true,
   },
@@ -233,18 +235,18 @@ const navbarLinks: NavbarLink[] = [
     icon: Message,
     childLinks: [],
   },
-  {
-    link: '/admin/reward-strategy',
-    label: 'Điểm thưởng',
-    icon: Award,
-    childLinks: [],
-    disableForEmployee: true,
-  },
-  {
-    link: '/admin/payment-method',
-    label: 'Hình thức thanh toán',
-    icon: CurrencyDollar,
-  },
+  // {
+  //   link: '/admin/reward-strategy',
+  //   label: 'Điểm thưởng',
+  //   icon: Award,
+  //   childLinks: [],
+  //   disableForEmployee: true,
+  // },
+  // {
+  //   link: '/admin/payment-method',
+  //   label: 'Hình thức thanh toán',
+  //   icon: CurrencyDollar,
+  // },
   {
     link: '/admin/promotion',
     label: 'Khuyến mãi',

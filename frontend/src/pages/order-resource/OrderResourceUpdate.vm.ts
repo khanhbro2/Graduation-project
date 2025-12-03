@@ -7,8 +7,9 @@ import useGetByIdApi from 'hooks/use-get-by-id-api';
 import MiscUtils from 'utils/MiscUtils';
 import { SelectOption } from 'types';
 import useGetAllApi from 'hooks/use-get-all-api';
-import { CustomerResourceResponse } from 'models/CustomerResource';
-import CustomerResourceConfigs from 'pages/customer-resource/CustomerResourceConfigs';
+// TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+// import { CustomerResourceResponse } from 'models/CustomerResource';
+// import CustomerResourceConfigs from 'pages/customer-resource/CustomerResourceConfigs';
 
 function useOrderResourceUpdateViewModel(id: number) {
   const form = useForm({
@@ -18,7 +19,8 @@ function useOrderResourceUpdateViewModel(id: number) {
 
   const [orderResource, setOrderResource] = useState<OrderResourceResponse>();
   const [prevFormValues, setPrevFormValues] = useState<typeof form.values>();
-  const [customerResourceSelectList, setCustomerResourceSelectList] = useState<SelectOption[]>([]);
+  // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+  // const [customerResourceSelectList, setCustomerResourceSelectList] = useState<SelectOption[]>([]);
 
   const updateApi = useUpdateApi<OrderResourceRequest, OrderResourceResponse>(OrderResourceConfigs.resourceUrl, OrderResourceConfigs.resourceKey, id);
   useGetByIdApi<OrderResourceResponse>(OrderResourceConfigs.resourceUrl, OrderResourceConfigs.resourceKey, id,
@@ -28,23 +30,23 @@ function useOrderResourceUpdateViewModel(id: number) {
         code: orderResourceResponse.code,
         name: orderResourceResponse.name,
         color: orderResourceResponse.color,
-        customerResourceId: orderResourceResponse.customerResource ? String(orderResourceResponse.customerResource.id) : null,
+        customerResourceId: null, // TODO: TẠM THỜI SET NULL - ĐƠN GIẢN HÓA HỆ THỐNG
         status: String(orderResourceResponse.status),
       };
       form.setValues(formValues);
       setPrevFormValues(formValues);
     }
   );
-  useGetAllApi<CustomerResourceResponse>(CustomerResourceConfigs.resourceUrl, CustomerResourceConfigs.resourceKey,
-    { all: 1 },
-    (customerResourceListResponse) => {
-      const selectList: SelectOption[] = customerResourceListResponse.content.map((item) => ({
-        value: String(item.id),
-        label: item.name,
-      }));
-      setCustomerResourceSelectList(selectList);
-    }
-  );
+  // useGetAllApi<CustomerResourceResponse>(CustomerResourceConfigs.resourceUrl, CustomerResourceConfigs.resourceKey,
+  //   { all: 1 },
+  //   (customerResourceListResponse) => {
+  //     const selectList: SelectOption[] = customerResourceListResponse.content.map((item) => ({
+  //       value: String(item.id),
+  //       label: item.name,
+  //     }));
+  //     setCustomerResourceSelectList(selectList);
+  //   }
+  // );
 
   const handleFormSubmit = form.onSubmit((formValues) => {
     setPrevFormValues(formValues);
@@ -75,7 +77,9 @@ function useOrderResourceUpdateViewModel(id: number) {
     orderResource,
     form,
     handleFormSubmit,
-    customerResourceSelectList,
+    // TODO: TẠM THỜI COMMENT - ĐƠN GIẢN HÓA HỆ THỐNG (XÓA CUSTOMER VÀ EMPLOYEE)
+    // customerResourceSelectList,
+    customerResourceSelectList: [] as SelectOption[],
     statusSelectList,
   };
 }
