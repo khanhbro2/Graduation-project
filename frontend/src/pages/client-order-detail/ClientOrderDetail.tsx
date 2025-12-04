@@ -449,10 +449,9 @@ function OrderItemTableRow({ orderItem, canReview }: { orderItem: ClientOrderVar
                 mt={5}
                 sx={{ width: 'fit-content' }}
                 onClick={handleOpenReviewModalButton}
-                disabled={orderItem.orderItemVariant.variantProduct.productIsReviewed}
-                title={orderItem.orderItemVariant.variantProduct.productIsReviewed ? 'Sản phẩm đã được bạn đánh giá' : ''}
+                title={orderItem.orderItemVariant.variantProduct.productIsReviewed ? 'Cập nhật đánh giá của bạn' : 'Đánh giá sản phẩm'}
               >
-                Đánh giá
+                {orderItem.orderItemVariant.variantProduct.productIsReviewed ? 'Cập nhật đánh giá' : 'Đánh giá'}
               </Button>
             )}
           </Stack>

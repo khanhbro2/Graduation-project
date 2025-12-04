@@ -79,12 +79,21 @@ public abstract class ClientOrderMapper {
     @AfterMapping
     public ClientOrderDetailResponse entityToDetailResponseCallback(@MappingTarget ClientOrderDetailResponse clientOrderDetailResponse) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        
+        // Kiểm tra authentication và username trước khi sử dụng
+        if (authentication != null && authentication.getName() != null && !authentication.getName().equals("anonymousUser")) {
+            String username = authentication.getName();
 
-        for (var clientOrderVariantResponse : clientOrderDetailResponse.getOrderItems()) {
-            var productId = clientOrderVariantResponse.getOrderItemVariant().getVariantProduct().getProductId();
-            var productIsReviewed = reviewRepository.existsByProductIdAndUsername(productId, username);
-            clientOrderVariantResponse.getOrderItemVariant().getVariantProduct().setProductIsReviewed(productIsReviewed);
+            for (var clientOrderVariantResponse : clientOrderDetailResponse.getOrderItems()) {
+                var productId = clientOrderVariantResponse.getOrderItemVariant().getVariantProduct().getProductId();
+                var productIsReviewed = reviewRepository.existsByProductIdAndUsername(productId, username);
+                clientOrderVariantResponse.getOrderItemVariant().getVariantProduct().setProductIsReviewed(productIsReviewed);
+            }
+        } else {
+            // Nếu không có authentication, set tất cả productIsReviewed = false
+            for (var clientOrderVariantResponse : clientOrderDetailResponse.getOrderItems()) {
+                clientOrderVariantResponse.getOrderItemVariant().getVariantProduct().setProductIsReviewed(false);
+            }
         }
 
         return clientOrderDetailResponse;

@@ -69,7 +69,19 @@ public class ClientReviewController {
 
     @PostMapping
     public ResponseEntity<ClientReviewResponse> createReview(@RequestBody ClientReviewRequest request) {
-        Review entity = reviewRepository.save(clientReviewMapper.requestToEntity(request));
+        // Kiểm tra xem đã có review cho sản phẩm này chưa
+        // Nếu có thì update, không thì tạo mới
+        Review entity = reviewRepository.findByProductIdAndUserId(request.getProductId(), request.getUserId())
+                .map(existingReview -> {
+                    // Update review cũ
+                    clientReviewMapper.partialUpdate(existingReview, request);
+                    return reviewRepository.save(existingReview);
+                })
+                .orElseGet(() -> {
+                    // Tạo review mới
+                    return reviewRepository.save(clientReviewMapper.requestToEntity(request));
+                });
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(clientReviewMapper.entityToResponse(entity));
     }
 
